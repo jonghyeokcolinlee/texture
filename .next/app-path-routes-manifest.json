@@ -1,0 +1,12 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/page": "/",
+  "/steel/1/page": "/steel/1",
+  "/steel/2/page": "/steel/2",
+  "/steel/page": "/steel",
+  "/water/1/page": "/water/1",
+  "/water/2/page": "/water/2",
+  "/water/3/page": "/water/3",
+  "/water/page": "/water"
+}

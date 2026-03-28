@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/water/layout,_N_T_/water/page,_N_T_/water"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/water/__PAGE__",
+    "/water",
+    "/_index",
+    "/_head"
+  ]
+}
