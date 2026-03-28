@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+body {
+    background-color: white;
+    color: black;
+    caret-color: black;
+    margin: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+::selection {
+    background-color: black;
+    color: white;
+}
+
+::-moz-selection {
+    background-color: black;
+    color: white;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

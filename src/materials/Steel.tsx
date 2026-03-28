@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -28,64 +29,81 @@ float noise (in vec2 st) {
     vec2 i = floor(st);
     vec2 f = fract(st);
 
-    // Four corners in 2D of a tile
     float a = random(i);
     float b = random(i + vec2(1.0, 0.0));
     float c = random(i + vec2(0.0, 1.0));
     float d = random(i + vec2(1.0, 1.0));
 
-    // Smooth Interpolation
     vec2 u = f*f*(3.0-2.0*f);
+    return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
 
-    return mix(a, b, u.x) +
-            (c - a)* u.y * (1.0 - u.x) +
-            (d - b) * u.x * u.y;
+// FBM for wavy bands
+float fbm(vec2 x) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2 shift = vec2(100.0);
+    for (int i = 0; i < 4; ++i) {
+        v += a * noise(x);
+        x = x * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
 }
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    
-    // Light position mapped from mouse (-1 to 1)
-    vec3 lightDir = normalize(vec3(u_mouse.x * -2.0, u_mouse.y * -2.0, 1.0));
+    // We adjust mouse range for more subtle tilt
+    vec3 lightDir = normalize(vec3(u_mouse.x * -1.5, u_mouse.y * -1.5, 1.5));
 
-    // Brushed texture generation
-    // Anisotropic stretch: scale x heavily, y less
-    vec2 grainUv = vUv * vec2(1.0, 300.0);
-    float grain = random(grainUv);
-    grain = (grain - 0.5) * 2.0; // -1 to 1
+    // 1. Wavy macro vertical bands
+    // Multiply X more than Y to stretch horizontally, meaning bands are vertical
+    float band = fbm(vUv * vec2(12.0, 0.5)); 
+    band = smoothstep(0.2, 0.8, band); // Increase contrast
 
-    // A bit of lower freq noise for variations
-    float variation = noise(vUv * vec2(10.0, 1000.0));
-    
-    // Tangent for anisotropic highlights (vertical brushing = horizontal tangent)
-    // We'll set brushing horizontal: u is stretched on y so grain runs horizontally.
-    vec3 T = normalize(vec3(1.0, grain * 0.05, 0.0)); 
-    
-    vec3 N = vec3(0.0, 0.0, 1.0);
-    vec3 V = vec3(0.0, 0.0, 1.0); // Looking straight at it
+    // 2. Fine vertical scratches (high frequency on X, low on Y)
+    float scratch = random(vUv * vec2(600.0, 1.0));
+    float scratch2 = noise(vUv * vec2(200.0, 2.0));
+
+    // Combine for texture variation
+    float textureVariancy = band * 0.7 + scratch * 0.15 + scratch2 * 0.15;
+
+    // True normal perturbation based on the wavy bands
+    // Taking the derivative of the band roughly for normal map
+    float bandDx = fbm((vUv + vec2(0.01, 0.0)) * vec2(12.0, 0.5)) - band;
+    vec3 N = normalize(vec3(-bandDx * 15.0, 0.0, 1.0)); 
+
+    // View direction
+    vec3 V = vec3(0.0, 0.0, 1.0); 
+
+    // Anisotropic Tangent (Vertical grain)
+    vec3 TBase = vec3(0.0, 1.0, 0.0);
+    // Perturb tangent slightly with scratches for realism
+    vec3 T = normalize(TBase + vec3(0.0, 0.0, (scratch - 0.5) * 0.2));
+
     vec3 H = normalize(lightDir + V);
 
-    // Ward anisotropic specular approx
+    // Kajiya-Kay Anisotropic Reflection
     float dotTH = dot(T, H);
     float sinTH = sqrt(max(0.0, 1.0 - dotTH * dotTH));
-    float spec = pow(sinTH, 80.0); // shiny
     
-    // Isotropic diffuse approx
+    // Two specular lobes for brushed metal (one broad, one sharp)
+    float specBroad = pow(sinTH, 20.0);
+    float specSharp = pow(sinTH, 100.0);
+
+    // Diffuse component
     float diff = max(dot(N, lightDir), 0.0);
 
-    // Steel base color
-    vec3 baseColor = vec3(0.12, 0.13, 0.15); // darker metal
+    // Base color from dark grey to lighter grey
+    vec3 colorDark = vec3(0.18, 0.19, 0.20);
+    vec3 colorLight = vec3(0.55, 0.57, 0.60);
+    vec3 baseColor = mix(colorDark, colorLight, textureVariancy);
+
+    // Apply lighting
+    vec3 color = baseColor * (diff * 0.5 + 0.3); // Diffuse + Ambient
     
-    vec3 color = baseColor + (diff * 0.15) * (0.8 + variation * 0.2);
-    
-    // Add specular highlight
-    color += vec3(0.6, 0.6, 0.6) * spec;
-    
-    // Subtly mix in the grain into diffuse
-    color *= 1.0 + grain * 0.08;
-    
-    // Ambient light
-    color += vec3(0.05);
+    // Add Specular reflections
+    color += vec3(0.8, 0.85, 0.9) * specBroad * 0.4;
+    color += vec3(1.0, 1.0, 1.0) * specSharp * 0.7;
 
     gl_FragColor = vec4(color, 1.0);
 }

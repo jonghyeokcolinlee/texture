@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
@@ -22,43 +23,77 @@ uniform int u_rippleCount;
 
 varying vec2 vUv;
 
+// 2D Random
+float random (in vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+}
+
+// 2D Noise based on random
+float noise (in vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    vec2 u = f*f*(3.0-2.0*f);
+    return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+// FBM for rough base water
+float fbm(vec2 x) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2 shift = vec2(100.0);
+    for (int i = 0; i < 4; ++i) {
+        v += a * noise(x);
+        x = x * 2.0 + shift;
+        a *= 0.5;
+    }
+    return v;
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     
-    // Water base color
-    vec3 baseColor = vec3(0.02, 0.05, 0.08); // dark water
+    // Base rough texture shifting slowly
+    vec2 p = vUv * 15.0;
+    float timeSlow = u_time * 0.2;
+    float baseBump = fbm(p + timeSlow);
     
-    float height = 0.0;
-    vec2 normalOffset = vec2(0.0);
+    vec2 eps = vec2(0.02, 0.0);
+    float dX = fbm(p + eps.xy + timeSlow) - baseBump;
+    float dY = fbm(p + eps.yx + timeSlow) - baseBump;
+    
+    vec2 normalOffset = vec2(dX, dY) * 2.5; // Strength of bumpy surface
 
+    // Add ripples
     for(int i = 0; i < 20; i++) {
         if(i >= u_rippleCount) break;
         
         vec4 r = u_ripples[i];
         float age = u_time - r.z;
-        if(age > 0.0 && age < 4.0) { // live for 4 seconds
+        if(age > 0.0 && age < 4.0) {
             vec2 d = uv - r.xy;
-            // Adjust for aspect ratio
             d.x *= u_resolution.x / u_resolution.y;
-            
             float dist = length(d);
             
-            // Wave parameters
-            float speed = 0.5;
-            float freq = 40.0;
-            float decay = 1.5;
+            float speed = 0.35; // Slower, more natural spreading
+            float freq = 20.0; // Lower frequency = wider, more organic ripples (fewer sharp rings)
+            float decay = 1.0; 
             float wavePhase = (dist - age * speed) * freq;
             
-            // Only calc wave if it's within the expanding radius
             if (dist < age * speed) {
-                float wave = sin(wavePhase);
-                float envelope = exp(-age * decay) * r.w; // w is intensity
+                // Smoothly fade out the leading edge so it doesn't look like a hard cut
+                float edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);
+                // Also fade out the center to form an expanding ring 
+                float centerFade = smoothstep(0.0, 0.15, dist);
+                
+                float envelope = exp(-age * decay) * r.w * edgeFade * centerFade;
                 float derivative = cos(wavePhase) * freq;
                 
-                height += wave * envelope * 0.02;
-                
-                // normal adjustment for reflection (approx)
-                float dInfluence = derivative * envelope * 0.05;
+                // Increased base influence because freq is lower 
+                float dInfluence = derivative * envelope * 0.12;
                 if (dist > 0.001) {
                     normalOffset += (d / dist) * dInfluence;
                 }
@@ -68,17 +103,26 @@ void main() {
     
     // Normal lighting calculation
     vec3 N = normalize(vec3(-normalOffset.x, -normalOffset.y, 1.0));
-    vec3 L = normalize(vec3(0.5, 0.5, 1.0)); // subtle static light for reflection
+    
+    // Light from top corner to create the stark reflection gradient
+    vec3 L = normalize(vec3(0.6, 0.8, 1.0)); 
     vec3 V = vec3(0.0, 0.0, 1.0);
     vec3 H = normalize(L + V);
     
-    float spec = pow(max(dot(N, H), 0.0), 50.0);
+    // Water base color: Lighter black (dark greyish tone)
+    vec3 baseColor = vec3(0.12, 0.13, 0.14); 
+    vec3 color = baseColor;
     
-    vec3 color = baseColor + vec3(0.1, 0.15, 0.2) * spec * 0.5;
+    // Specular reflection
+    float dotNH = max(dot(N, H), 0.0);
+    float spec = pow(dotNH, 15.0); // Broad specular base
     
-    // Sky reflection approx (very dark)
-    float refl = max(dot(N, V), 0.0);
-    color += vec3(0.05, 0.08, 0.1) * (1.0 - refl);
+    // Intense thresholding to create jagged stark white patches like ref image
+    float glint = smoothstep(0.55, 0.65, spec); 
+    
+    // Combine base, soft glow around glints, and white glints
+    color += vec3(0.15, 0.16, 0.18) * spec * 0.5; // brighter halo
+    color += vec3(1.0, 1.0, 1.0) * glint; // pure electric white shapes
 
     gl_FragColor = vec4(color, 1.0);
 }
