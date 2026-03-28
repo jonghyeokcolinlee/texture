@@ -1,13 +1,26 @@
 @import "tailwindcss";
 
+html,
 body {
     background-color: white;
     color: black;
-    caret-color: black;
     margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
     overscroll-behavior: none;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Fullscreen Canvas Container */
+.canvas-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
 }
 
 ::selection {
