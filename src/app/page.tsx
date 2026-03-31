@@ -5,11 +5,12 @@ import Link from "next/link";
 type HoverData = {
     active: boolean;
     text: string;
+    prompt?: string;
 };
 
 export default function Home() {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-    const [hoverData, setHoverData] = useState<HoverData>({ active: false, text: "" });
+    const [hoverData, setHoverData] = useState<HoverData>({ active: false, text: "", prompt: "" });
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -26,12 +27,32 @@ export default function Home() {
                 {
                     id: "Metal v1",
                     url: "/steel/1",
-                    script: "float grain = random(vUv * vec2(1.0, 300.0));\nvec3 T = normalize(vec3(1.0, grain * 0.05, 0.0));\n// Implementation of simple high-frequency grain and single specular lobe.",
+                    prompt: "마우스 움직임에 반응하는 메탈 재질을 만들어줘.",
+                    script: "float grain = random(vUv * vec2(1.0, 300.0));\nvec3 T = normalize(vec3(1.0, grain * 0.05, 0.0));",
                 },
                 {
                     id: "Metal v2",
+                    url: "/steel/2",
+                    prompt: "조금 더 무겁고 파도 같은 브러시 결이 있는 스틸이 필요해.",
+                    script: "float band = fbm(vUv * vec2(12.0, 0.5));\nfloat textureVariancy = band * 0.7 + scratch * 0.15;",
+                },
+                {
+                    id: "Metal v3",
+                    url: "/steel/3",
+                    prompt: "금속 표면이 곡면 컵처럼 화면을 꽉 채우게 하고, 카메라 웹캠이 반사되도록 해봐.",
+                    script: "vec2 videoUv = R.xy * 0.45 + 0.5;\nfloat cylZ = sqrt(max(1.0 - cylX * cylX, 0.0));",
+                },
+                {
+                    id: "Metal v4",
+                    url: "/steel/4",
+                    prompt: "수평으로 줄눈이 강하게 들어가 있는 스테인리스 스틸로 바꿔줘. 주변 환경이 무채색, 하얗게 타오르는 대비로 강렬하게 비춰지도록.",
+                    script: "float luminance = dot(envColor, vec3(0.299, 0.587, 0.114));\nenvColor = vec3(luminance); // Grayscale conversion",
+                },
+                {
+                    id: "Metal v5",
                     url: "/steel",
-                    script: "float band = fbm(vUv * vec2(12.0, 0.5));\nfloat textureVariancy = band * 0.7 + scratch * 0.15;\n// Introduced vertical low-frequency waves (FBM) and dual specular lobes for a wavy, high-contrast brushed look.",
+                    prompt: "너무 카메라 피드가 빛 부분만 살지 않고, 둥근 실린더 컵 전체에 비친듯한 풀 왜곡 렌더링 방식이 빛과 함께 표시되게금 해줘.",
+                    script: "vec3 R = reflect(-V, N);\nvideoUv.x = 1.0 - videoUv.x; // Cylindrical Distortion across entire face",
                 },
             ],
         },
@@ -41,17 +62,20 @@ export default function Home() {
                 {
                     id: "Water v1",
                     url: "/water/1",
-                    script: "float wave = sin(wavePhase);\nfloat envelope = exp(-age * decay) * intensity;\n// Basic damped concentric sine wave displacing flat normals.",
+                    prompt: "마우스 클릭으로 물결이 퍼지는 효과를 만들어줘.",
+                    script: "float wave = sin(wavePhase);\nfloat envelope = exp(-age * decay) * intensity;",
                 },
                 {
                     id: "Water v2",
                     url: "/water/2",
-                    script: "vec2 normalOffset = vec2(dX, dY) * 2.5;\nfloat glint = smoothstep(0.55, 0.65, spec);\n// FBM bumpy surface mapped with a harsh thresholding for electric white glints matching stark lighting.",
+                    prompt: "대비가 훨씬 세고 빛이 강렬하게 반사되는 거칠고 날카로운 파장으로 변경해.",
+                    script: "vec2 normalOffset = vec2(dX, dY) * 2.5;\nfloat glint = smoothstep(0.55, 0.65, spec);",
                 },
                 {
                     id: "Water v3",
                     url: "/water",
-                    script: "float freq = 20.0;\nfloat edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);\n// Lowered frequency for organic spread, integrated subtle center and edge fade to remove jagged rings.",
+                    prompt: "물결 파장 주파수를 조절하고 외곽을 부드럽게 감쇠시켜줘.",
+                    script: "float freq = 20.0;\nfloat edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);",
                 },
             ],
         },
@@ -74,8 +98,8 @@ export default function Home() {
                                             key={ver.id}
                                             href={ver.url}
                                             className="opacity-20 hover:opacity-100 transition-opacity duration-300 block w-fit"
-                                            onMouseEnter={() => setHoverData({ active: true, text: ver.script })}
-                                            onMouseLeave={() => setHoverData({ active: false, text: "" })}
+                                            onMouseEnter={() => setHoverData({ active: true, text: ver.script, prompt: ver.prompt })}
+                                            onMouseLeave={() => setHoverData({ active: false, text: "", prompt: "" })}
                                         >
                                             {ver.id}
                                         </Link>
@@ -90,13 +114,18 @@ export default function Home() {
 
             {hoverData.active && (
                 <div
-                    className="pointer-events-none fixed z-50 bg-black text-white p-4 max-w-[300px] text-[12px] lg:text-[14px] leading-relaxed whitespace-pre-wrap rounded-sm shadow-xl"
+                    className="pointer-events-none fixed z-50 bg-black text-white p-4 max-w-[300px] text-[12px] lg:text-[14px] leading-relaxed rounded-sm shadow-xl"
                     style={{
                         left: mousePos.x + 20,
                         top: mousePos.y + 20,
                     }}
                 >
-                    <div className="font-mono opacity-80">{hoverData.text}</div>
+                    {hoverData.prompt && (
+                        <div className="mb-3 font-serif italic text-white/90 border-b border-white/20 pb-2 leading-[1.4]">
+                            "{hoverData.prompt}"
+                        </div>
+                    )}
+                    <div className="font-mono opacity-80 whitespace-pre-wrap">{hoverData.text}</div>
                 </div>
             )}
         </main>
