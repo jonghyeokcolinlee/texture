@@ -68,7 +68,7 @@ void main() {
         
         vec4 r = u_ripples[i];
         float age = u_time - r.z;
-        if(age > 0.0 && age < 4.0) {
+        if(age > 0.0 && age < 5.0) { // Extended bounds to accommodate fadeout
             vec2 vel = u_rippleVels[i];
             vec2 currentCenter = r.xy + vel * age; 
             vec2 d = uv - currentCenter;
@@ -92,7 +92,10 @@ void main() {
                 float edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);
                 float centerFade = smoothstep(0.0, mix(0.15, 0.05, isMoving), dist);
                 
-                float envelope = exp(-age * decay) * r.w * edgeFade * centerFade;
+                // timeFade cleanly attenuates the wave before age cutoff unconditionally
+                float timeFade = smoothstep(5.0, 3.5, age);
+                
+                float envelope = exp(-age * decay) * r.w * edgeFade * centerFade * timeFade;
                 float derivative = cos(wavePhase) * freq;
                 
                 float dInfluence = derivative * envelope * mix(0.12, 0.05, isMoving);
@@ -108,14 +111,14 @@ void main() {
     vec3 V = vec3(0.0, 0.0, 1.0);
     vec3 H = normalize(L + V);
     
-    vec3 baseColor = vec3(0.12, 0.13, 0.14); 
+    vec3 baseColor = vec3(0.01, 0.01, 0.012); // Almost pitch black background
     vec3 color = baseColor;
     
     float dotNH = max(dot(N, H), 0.0);
     float spec = pow(dotNH, 15.0); 
     float glint = smoothstep(0.55, 0.65, spec); 
     
-    color += vec3(0.15, 0.16, 0.18) * spec * 0.5; 
+    color += vec3(0.2, 0.22, 0.25) * spec * 0.5; // Slightly enhanced spectral reflection against black
     color += vec3(1.0, 1.0, 1.0) * glint; 
 
     gl_FragColor = vec4(color, 1.0);
@@ -138,12 +141,6 @@ const WaterPlane = () => {
     const [ripples, setRipples] = useState<Ripple[]>([]);
     const nextId = useRef(0);
     const lastClickTimeRef = useRef(0);
-    
-    // Mediapipe references
-    const videoElementRef = useRef<HTMLVideoElement | null>(null);
-    const handLandmarkerRef = useRef<any>(null);
-    const lastHandPosRef = useRef<{ x: number, y: number, z: number } | null>(null);
-
     const uniforms = useMemo(
         () => ({
             u_resolution: { value: new THREE.Vector2(size.width * window.devicePixelRatio, size.height * window.devicePixelRatio) },
@@ -155,60 +152,13 @@ const WaterPlane = () => {
         [size]
     );
 
-    useEffect(() => {
-        let isActive = true;
-        
-        const initMediapipe = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                if (!isActive) {
-                    stream.getTracks().forEach(t => t.stop());
-                    return;
-                }
-                const video = document.createElement("video");
-                video.srcObject = stream;
-                video.playsInline = true;
-                video.muted = true;
-                await video.play();
-                videoElementRef.current = video;
-
-                const { FilesetResolver, HandLandmarker } = await import("@mediapipe/tasks-vision");
-                const vision = await FilesetResolver.forVisionTasks(
-                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-                );
-                
-                handLandmarkerRef.current = await HandLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-                        delegate: "GPU"
-                    },
-                    runningMode: "VIDEO",
-                    numHands: 1
-                });
-            } catch (err) {
-                console.log("Hand tracking init skipped or failed (camera permissions):", err);
-            }
-        };
-        initMediapipe();
-
-        return () => {
-            isActive = false;
-            if (videoElementRef.current && videoElementRef.current.srcObject) {
-                (videoElementRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
-            }
-            if (handLandmarkerRef.current) {
-                handLandmarkerRef.current.close();
-            }
-        };
-    }, []);
-
     useFrame((state) => {
         if (materialRef.current) {
             const currentTime = state.clock.elapsedTime;
             materialRef.current.uniforms.u_time.value = currentTime;
 
             // Update ripples uniform
-            const activeRipples = ripples.filter(r => currentTime - r.startTime < 4.0);
+            const activeRipples = ripples.filter(r => currentTime - r.startTime < 5.0);
             if (activeRipples.length !== ripples.length) {
                 setRipples(activeRipples);
             }
@@ -227,65 +177,8 @@ const WaterPlane = () => {
                     materialRef.current.uniforms.u_rippleVels.value[i].set(0, 0);
                 }
             }
-
-            // Detect Flick/Shake
-            if (videoElementRef.current && handLandmarkerRef.current && videoElementRef.current.readyState >= 2) {
-                const results = handLandmarkerRef.current.detectForVideo(videoElementRef.current, performance.now());
-                if (results.landmarks && results.landmarks.length > 0) {
-                    const hand = results.landmarks[0];
-                    const wrist = hand[0]; // Landmark 0 is the wrist
-                    
-                    if (lastHandPosRef.current) {
-                        const dx = wrist.x - lastHandPosRef.current.x;
-                        const dy = wrist.y - lastHandPosRef.current.y;
-                        const dz = wrist.z - lastHandPosRef.current.z;
-                        
-                        // Velocity magnitude
-                        const speed = Math.sqrt(dx*dx + dy*dy + dz*dz);
-                        
-                        // If hand moves super fast between frames (>0.08 normalized units)
-                        if (speed > 0.08) {
-                            spawnFlickWater(1.0 - wrist.x, wrist.y, dx, dy);
-                        }
-                    }
-                    lastHandPosRef.current = { x: wrist.x, y: wrist.y, z: wrist.z };
-                } else {
-                    lastHandPosRef.current = null; // reset if lost
-                }
-            }
         }
     });
-
-    const spawnFlickWater = (uvX: number, uvY: number, dx: number, dy: number) => {
-        const now = performance.now();
-        // Debounce heavily to prevent 60fps spawning cascades
-        if (now - lastClickTimeRef.current < 150) return; 
-        lastClickTimeRef.current = now;
-        
-        setRipples(prev => {
-            const numDrops = 4 + Math.floor(Math.random() * 4); // 4-7 drops
-            const newRips = [];
-            for (let i=0; i<numDrops; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const spread = Math.random() * 0.3; // Splash outward velocity
-                
-                // Add hand momentum + random directional scatter
-                const vx = -dx * 1.5 + Math.cos(angle) * spread; // Invert dx because camera X is usually flipped
-                const vy = dy * 1.5 + Math.sin(angle) * spread;
-
-                newRips.push({
-                    id: nextId.current++,
-                    x: uvX + (Math.random() - 0.5) * 0.1, // tiny offset so they don't exactly overlap
-                    y: uvY + (Math.random() - 0.5) * 0.1,
-                    vx,
-                    vy,
-                    startTime: materialRef.current?.uniforms.u_time.value || 0,
-                    intensity: 0.5 + Math.random() * 0.5 
-                });
-            }
-            return [...prev, ...newRips].slice(-20);
-        });
-    };
 
     const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation();

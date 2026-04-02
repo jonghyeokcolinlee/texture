@@ -82,15 +82,9 @@ export default function Home() {
                 },
                 {
                     id: "v4",
-                    url: "/water/4",
-                    prompt: "\"모바일 환경에서 너무 크게 보이는 문제를 수정하고 터는 행동을 인지하면 웅덩이 방울이 튀기게.\"\n\n단말기 aspect ratio 좌표 보정 및 mediapipe task-vision 핸드 트래킹을 통한 flicks(가속도) 파워 분석 모멘텀 변수 적용.",
-                    script: "float mobileScale = max(1.0, u_resolution.y / u_resolution.x);\nconst speed = Math.sqrt(dx*dx + dy*dy + dz*dz);",
-                },
-                {
-                    id: "v5",
                     url: "/water",
-                    prompt: "\"손 터는 위치에 따라 튀기는 위치가 정확히 매핑되고, 화면 중앙에 스포트라이트를 추가해서 가장자리로 비네트(vignetting)되게.\"\n\nmediapipe 좌표계의 uv 역산 매핑 처리 및 빛 감쇠(attenuation) 방사형(radial) 마스크를 적용.",
-                    script: "float spotlightMask = smoothstep(0.8, 0.1, distToLight);\ncolor += vec3(0.2, 0.22, 0.25) * maskedSpec * 0.8;",
+                    prompt: "\"모바일 환경에서 너무 크게 보이는 문제를 해결하고, 파동의 끝이 어색하지 않게 잔잔하게 사라지게끔 수정.\"\n\n단말기 aspect ratio 좌표 보정 및 smoothstep을 활용한 파동 소멸 구간(timeFade) 페이드아웃 적용.",
+                    script: "float mobileScale = max(1.0, u_resolution.y / u_resolution.x);\nfloat timeFade = smoothstep(5.0, 3.5, age);",
                 },
             ],
         },
