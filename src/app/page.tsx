@@ -76,9 +76,21 @@ export default function Home() {
                 },
                 {
                     id: "v3",
-                    url: "/water",
+                    url: "/water/3",
                     prompt: "\"링이 튀는 외곽 형태를 없애고 주파수를 낮춰서 유기적으로 확산되도록.\"\n\n거리-시간 기반 감쇠 함수 적용 및 저주파수 노이즈 블렌딩 추가.",
                     script: "float freq = 20.0;\nfloat edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);",
+                },
+                {
+                    id: "v4",
+                    url: "/water/4",
+                    prompt: "\"모바일 환경에서 너무 크게 보이는 문제를 수정하고 터는 행동을 인지하면 웅덩이 방울이 튀기게.\"\n\n단말기 aspect ratio 좌표 보정 및 mediapipe task-vision 핸드 트래킹을 통한 flicks(가속도) 파워 분석 모멘텀 변수 적용.",
+                    script: "float mobileScale = max(1.0, u_resolution.y / u_resolution.x);\nconst speed = Math.sqrt(dx*dx + dy*dy + dz*dz);",
+                },
+                {
+                    id: "v5",
+                    url: "/water",
+                    prompt: "\"손 터는 위치에 따라 튀기는 위치가 정확히 매핑되고, 화면 중앙에 스포트라이트를 추가해서 가장자리로 비네트(vignetting)되게.\"\n\nmediapipe 좌표계의 uv 역산 매핑 처리 및 빛 감쇠(attenuation) 방사형(radial) 마스크를 적용.",
+                    script: "float spotlightMask = smoothstep(0.8, 0.1, distToLight);\ncolor += vec3(0.2, 0.22, 0.25) * maskedSpec * 0.8;",
                 },
             ],
         },
