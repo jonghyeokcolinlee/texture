@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
 import { useExport } from '../hooks/useExport';
 
@@ -109,7 +110,7 @@ void main() {
 }
 `;
 
-const SteelPlane = () => {
+const SteelPlane = ({ isPlaying }: { isPlaying: boolean }) => {
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const { size, viewport } = useThree();
     const [gyro, setGyro] = useState({ x: 0, y: 0 });
@@ -156,7 +157,16 @@ const SteelPlane = () => {
         [size]
     );
 
-    useFrame((state) => {
+    
+    const isPlayingRef = useRef(true);
+    useEffect(() => {
+        const handleSetPlay = (e: any) => { isPlayingRef.current = e.detail; };
+        window.addEventListener('set-play', handleSetPlay);
+        return () => window.removeEventListener('set-play', handleSetPlay);
+    }, []);
+  
+    const accumulatedTimeRef = useRef(0);
+    useFrame((state, delta) => {
         if (materialRef.current) {
             if (gyro.x !== 0 || gyro.y !== 0) {
                 // Gyro dominates if active
@@ -184,7 +194,8 @@ const SteelPlane = () => {
 
 const SteelMaterial: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    useExport(canvasRef, 'brushed-steel.png');
+    const triggerExport = useExport(canvasRef, 'brushed-steel.png') as () => void;
+    const [isPlaying, setIsPlaying] = useState(true);
 
     return (
         <div className="canvas-container">
@@ -193,8 +204,13 @@ const SteelMaterial: React.FC = () => {
                 gl={{ preserveDrawingBuffer: true, antialias: false }}
                 camera={{ position: [0, 0, 1] }}
             >
-                <SteelPlane />
+                <SteelPlane isPlaying={isPlaying} />
             </Canvas>
+            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => {
+        const next = !isPlaying;
+        setIsPlaying(next);
+        window.dispatchEvent(new CustomEvent('set-play', { detail: next }));
+  }} onExport={triggerExport} />
         </div>
     );
 };

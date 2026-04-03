@@ -1,6 +1,7 @@
 "use client";
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useEffect,  useRef, useMemo, useState  } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { InteractionUI } from '../components/InteractionUI';
 import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useExport } from '../hooks/useExport';
@@ -136,7 +137,7 @@ type Ripple = {
     intensity: number;
 };
 
-const WaterPlane = () => {
+const WaterPlane = ({ isPlaying }: { isPlaying: boolean }) => {
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const { size, viewport } = useThree();
     const [ripples, setRipples] = useState<Ripple[]>([]);
@@ -153,11 +154,21 @@ const WaterPlane = () => {
         [size]
     );
 
-    useFrame((state) => {
+    
+    const isPlayingRef = useRef(true);
+    useEffect(() => {
+        const handleSetPlay = (e: any) => { isPlayingRef.current = e.detail; };
+        window.addEventListener('set-play', handleSetPlay);
+        return () => window.removeEventListener('set-play', handleSetPlay);
+    }, []);
+  
+    const accumulatedTimeRef = useRef(0);
+    useFrame((state, delta) => {
         if (materialRef.current) {
             materialRef.current.uniforms.u_time.value = state.clock.elapsedTime;
 
-            const currentTime = state.clock.elapsedTime;
+            if (isPlayingRef.current) { accumulatedTimeRef.current += delta; }
+            const currentTime = accumulatedTimeRef.current;
             // Filter out old ripples
             const activeRipples = ripples.filter(r => currentTime - r.startTime < 4.0);
             if (activeRipples.length !== ripples.length) {
@@ -180,6 +191,7 @@ const WaterPlane = () => {
     });
 
     const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+        if (!isPlayingRef.current) return;
         e.stopPropagation();
         const currentTime = performance.now();
         const dt = currentTime - lastClickTimeRef.current;
@@ -226,7 +238,8 @@ const WaterPlane = () => {
 
 const WaterMaterial: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    useExport(canvasRef, 'water-ripple.png');
+    const triggerExport = useExport(canvasRef, 'water-ripple.png') as () => void;
+    const [isPlaying, setIsPlaying] = useState(true);
 
     return (
         <div className="canvas-container">
@@ -235,8 +248,13 @@ const WaterMaterial: React.FC = () => {
                 gl={{ preserveDrawingBuffer: true, antialias: false }}
                 camera={{ position: [0, 0, 1] }}
             >
-                <WaterPlane />
+                <WaterPlane isPlaying={isPlaying} />
             </Canvas>
+            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => {
+        const next = !isPlaying;
+        setIsPlaying(next);
+        window.dispatchEvent(new CustomEvent('set-play', { detail: next }));
+  }} onExport={triggerExport} />
         </div>
     );
 };
