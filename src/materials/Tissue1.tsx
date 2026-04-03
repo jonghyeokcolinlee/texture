@@ -9,6 +9,7 @@ const vertexShader = `
 uniform float u_time;
 varying vec2 vUv;
 varying vec3 vViewPosition;
+varying float vDisplacement;
 
 // 3D Simplex Noise
 vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -62,6 +63,20 @@ float snoise(vec3 v) {
   return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
 }
 
+// Sharp noise for crumpled folds
+float sharpNoise(vec3 p) {
+  return 1.0 - abs(snoise(p));
+}
+
+float crumpledNoise(vec3 p) {
+  float n = 0.0;
+  n += sharpNoise(p * 1.5) * 0.5;
+  n += sharpNoise(p * 3.0) * 0.25;
+  n += sharpNoise(p * 6.0) * 0.125;
+  n += sharpNoise(p * 12.0) * 0.0625;
+  return n;
+}
+
 void main() {
   vUv = uv;
   
@@ -69,11 +84,12 @@ void main() {
   float distToCenter = distance(uv, vec2(0.5));
   float edgeMask = smoothstep(0.5, 0.2, distToCenter);
   
-  // Add noise displacements
-  float noiseVal = snoise(vec3(position.x * 3.0, position.y * 3.0, u_time * 0.2)) * 0.15;
-  noiseVal += snoise(vec3(position.x * 6.0, position.y * 6.0, u_time * 0.4)) * 0.05;
+  // Combine sharp crinkles with large wobbly displacement
+  float n1 = crumpledNoise(vec3(position.x * 2.0, position.y * 2.0, u_time * 0.05)) * 0.1;
+  float n2 = snoise(vec3(position.x * 3.0, position.y * 3.0, u_time * 0.1)) * 0.15;
   
-  vec3 newPosition = position + normal * (noiseVal * edgeMask);
+  vDisplacement = (n1 + n2) * edgeMask;
+  vec3 newPosition = position + normal * vDisplacement;
   
   vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.0);
   vViewPosition = -mvPosition.xyz;
@@ -85,24 +101,44 @@ const fragmentShader = `
 uniform vec3 u_lightDirection;
 varying vec2 vUv;
 varying vec3 vViewPosition;
+varying float vDisplacement;
+
+float random(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main() {
-  // Use derivatives to calculate real normal from displaced position
+  // Use derivatives to calculate real normal from displaced position (crisp facets)
   vec3 fdx = dFdx(vViewPosition);
   vec3 fdy = dFdy(vViewPosition);
   vec3 faceNormal = normalize(cross(fdx, fdy));
   
-  // Subtle paper grain noise
-  float noise = fract(sin(dot(vUv, vec2(12.9898,78.233))) * 43758.5453);
-  vec3 color = vec3(0.96, 0.95, 0.94) - (noise * 0.03); // off-white paper
+  // High-frequency paper grain texture
+  float grain1 = random(vUv * 150.0);
+  float grain2 = random(vUv * 300.0);
+  float grain = mix(grain1, grain2, 0.5);
+  
+  // Perturb the normal slightly using grain to give a rough feel
+  vec3 bumpedNormal = normalize(faceNormal + vec3(grain * 0.12 - 0.06));
   
   vec3 L = normalize(u_lightDirection);
-  float diff = max(dot(faceNormal, L), 0.0);
   
-  // Wrap lighting & ambient light approximation
-  diff = diff * 0.7 + 0.3;
+  // Calculate lighting with higher contrast
+  float diff = max(dot(bumpedNormal, L), 0.0);
   
-  vec3 finalColor = color * diff;
+  // Fake ambient occlusion based on depth of folds
+  float ao = smoothstep(-0.05, 0.2, vDisplacement);
+  
+  // Wrap lighting for softer shadows but preserve contrast
+  float wrapDiff = diff * 0.7 + 0.3;
+  wrapDiff *= (ao * 0.6 + 0.4);
+  
+  vec3 baseColor = vec3(0.98, 0.98, 0.98); // pure white paper
+  vec3 finalColor = baseColor * wrapDiff;
+  
+  // Slight darkening from micro-texture
+  finalColor *= (1.0 - grain * 0.04);
+  
   gl_FragColor = vec4(finalColor, 1.0);
 }
 `;
@@ -114,8 +150,8 @@ const TissuePlane = () => {
     const uniforms = useMemo(
         () => ({
             u_time: { value: 0 },
-            // Light coming from top-right
-            u_lightDirection: { value: new THREE.Vector3(1.0, 1.0, 1.0) } 
+            // Light coming from top-left to cast sharp shadows rightwards
+            u_lightDirection: { value: new THREE.Vector3(-1.0, 1.0, 1.0) } 
         }),
         []
     );
@@ -128,7 +164,7 @@ const TissuePlane = () => {
 
     return (
         <mesh>
-            <planeGeometry args={[Math.min(viewport.width, viewport.height) * 0.6, Math.min(viewport.width, viewport.height) * 0.6, 200, 200]} />
+            <planeGeometry args={[Math.min(viewport.width, viewport.height) * 0.6, Math.min(viewport.width, viewport.height) * 0.6, 250, 250]} />
             <shaderMaterial
                 ref={materialRef}
                 vertexShader={vertexShader}
@@ -145,7 +181,7 @@ const Tissue1: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'crumpled-tissue-v1.png') as () => void;
 
     return (
-        <div className="canvas-container bg-[#f0f0f0]">
+        <div className="canvas-container bg-white">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
