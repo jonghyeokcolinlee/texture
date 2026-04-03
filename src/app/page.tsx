@@ -136,6 +136,12 @@ export default function Home() {
                     prompt: "\"천정에서 액체와 같은 끈적한게 떨어지는 듯한 gooey effect 구현해줘. 마우스와도 인터랙션하게.\"\n\n2D 부호화 거리장(SDF, Signed Distance Field) 기반의 메타볼(Metaball) 렌더링 방식을 사용하여 끈적한 유체 역학을 모사. 스무스 미니엄(smin) 함수로 물방울과 천장, 그리고 마우스가 지나간 궤적 간의 점성을 계산하고 광택(Specular)과 프레넬(Fresnel) 반사를 추가해 사실적인 입체감을 부여.",
                     script: "float d = smin(dCeiling, dDrop, 0.15);\nvec3 n = normalize(vec3(dFdx(d), dFdy(d), 0.008));",
                 },
+                {
+                    id: "v2",
+                    url: "/gooey/2",
+                    prompt: "\"gooey effect는 모두 검정으로 나오게끔, 그리고 입자를 더 작게하고 떨어지는 빈도를 더 많이, 더끈적이게.\"\n\n조명과 굴절을 제거해 완벽하게 새카만 2D 실루엣(Silhouette)으로 스타일을 변경. 입자(Drops) 갯수와 낙하 속도를 대폭 높이고 smin 파라미터의 보간 거리(k=0.25)를 늘려 서로가 늘어나며 달라붙는 점성(Viscosity)을 극대화.",
+                    script: "d = smin(d, dDrop, 0.25);\n// pure mask mix for bold black silhouette",
+                },
             ],
         },
     ];
