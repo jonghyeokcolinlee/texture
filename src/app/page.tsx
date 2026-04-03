@@ -21,7 +21,7 @@ const renderMixedText = (text: string) => {
 
 export default function Home() {
     const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true });
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true, "05 rgb drops": true });
 
     const materials = [
         {
@@ -113,6 +113,17 @@ export default function Home() {
                     url: "/glass/1",
                     prompt: "\"거울을 깨는듯한 인터랙션. 카메라로 환경이 비치고, 주먹으로 치는듯한 인터랙션이 감지되면 조금씩 금이 가는 그래픽을 구현해줘.\"\n\n웹캠 비디오 텍스처를 배경으로 활용하고, 마우스 클릭 지점을 중심으로 시간에 따라 전파되는 보로노이 필드(Voronoi field)를 계산하여 파편화된 UV 왜곡과 균열선(crack line)을 생성.",
                     script: "vec2 uvOffset = (cellOffset - 0.5) * 0.08 * maxShatter;\ncrackLine = smoothstep(0.03, 0.0, border_dist);",
+                },
+            ],
+        },
+        {
+            title: "05 rgb drops",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/rgb/1",
+                    prompt: "\"흰색 화면에 물을 흩뿌렸을때 물방울이 돋보기 역할을 해서 RGB 색상이 확대되어 보이는 효과를 마우스 드래그로 구현해줘.\"\n\n임시 캔버스(Canvas API)를 활용하여 마우스 궤적에 따라 물방울(반경과 그라데이션)을 텍스처로 그리고, 단편 쉐이더(Fragment Shader)에서 이 높이 맵(Height map)의 편미분을 통해 물방울의 노멀과 피사계 심도를 계산하여 하단에 깔린 LCD 서브픽셀 패턴(RGB Strip)을 굴절 및 확대(Magnification)시킴.",
+                    script: "vec2 distortedUv = uv - offset;\nvec3 lcdColor = getLCDColor(distortedUv);",
                 },
             ],
         },
