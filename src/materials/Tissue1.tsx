@@ -82,7 +82,6 @@ void main() {
 `;
 
 const fragmentShader = `
-#extension GL_OES_standard_derivatives : enable
 uniform vec3 u_lightDirection;
 varying vec2 vUv;
 varying vec3 vViewPosition;
