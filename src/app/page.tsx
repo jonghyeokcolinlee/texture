@@ -21,7 +21,7 @@ const renderMixedText = (text: string) => {
 
 export default function Home() {
     const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true });
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true });
 
     const materials = [
         {
@@ -85,6 +85,17 @@ export default function Home() {
                     url: "/water",
                     prompt: "\"모바일 환경에서 너무 크게 보이는 문제를 해결하고, 파동의 끝이 어색하지 않게 잔잔하게 사라지게끔 수정.\"\n\n단말기 aspect ratio 좌표 보정 및 smoothstep을 활용한 파동 소멸 구간(timeFade) 페이드아웃 적용.",
                     script: "float mobileScale = max(1.0, u_resolution.y / u_resolution.x);\nfloat timeFade = smoothstep(5.0, 3.5, age);",
+                },
+            ],
+        },
+        {
+            title: "03 crumpled tissue",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/tissue/1",
+                    prompt: "\"구겨진 휴지가 천천히 펴지는 기본 형태를 쉐이더로 구현해줘.\"\n\n정점 쉐이더(vertex shader)에서 3D Simplex 노이즈를 활용하여 평면 메쉬(plane mesh)에 불규칙적인 굴곡과 주름을 형성하고, 단편 쉐이더(fragment shader)에서 외적(cross product)을 이용해 표면 노멀을 재계산하여 질감을 표현.",
+                    script: "float noiseVal = snoise(vec3(pos.x, pos.y, u_time)) * 0.15;\nvec3 newPosition = position + normal * noiseVal;",
                 },
             ],
         },
