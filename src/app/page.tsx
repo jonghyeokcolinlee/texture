@@ -21,7 +21,7 @@ const renderMixedText = (text: string) => {
 
 export default function Home() {
     const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true, "05 rgb drops": true });
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true, "05 rgb drops": true, "06 gooey dripping": true });
 
     const materials = [
         {
@@ -124,6 +124,17 @@ export default function Home() {
                     url: "/rgb/1",
                     prompt: "\"흰색 화면에 물을 흩뿌렸을때 물방울이 돋보기 역할을 해서 RGB 색상이 확대되어 보이는 효과를 마우스 드래그로 구현해줘.\"\n\n임시 캔버스(Canvas API)를 활용하여 마우스 궤적에 따라 물방울(반경과 그라데이션)을 텍스처로 그리고, 단편 쉐이더(Fragment Shader)에서 이 높이 맵(Height map)의 편미분을 통해 물방울의 노멀과 피사계 심도를 계산하여 하단에 깔린 LCD 서브픽셀 패턴(RGB Strip)을 굴절 및 확대(Magnification)시킴.",
                     script: "vec2 distortedUv = uv - offset;\nvec3 lcdColor = getLCDColor(distortedUv);",
+                },
+            ],
+        },
+        {
+            title: "06 gooey dripping",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/gooey/1",
+                    prompt: "\"천정에서 액체와 같은 끈적한게 떨어지는 듯한 gooey effect 구현해줘. 마우스와도 인터랙션하게.\"\n\n2D 부호화 거리장(SDF, Signed Distance Field) 기반의 메타볼(Metaball) 렌더링 방식을 사용하여 끈적한 유체 역학을 모사. 스무스 미니엄(smin) 함수로 물방울과 천장, 그리고 마우스가 지나간 궤적 간의 점성을 계산하고 광택(Specular)과 프레넬(Fresnel) 반사를 추가해 사실적인 입체감을 부여.",
+                    script: "float d = smin(dCeiling, dDrop, 0.15);\nvec3 n = normalize(vec3(dFdx(d), dFdy(d), 0.008));",
                 },
             ],
         },
