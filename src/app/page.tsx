@@ -97,6 +97,12 @@ export default function Home() {
                     prompt: "\"구겨진 휴지가 천천히 펴지는 기본 형태를 쉐이더로 구현해줘.\"\n\n정점 쉐이더(vertex shader)에서 3D Simplex 노이즈를 활용하여 평면 메쉬(plane mesh)에 불규칙적인 굴곡과 주름을 형성하고, 단편 쉐이더(fragment shader)에서 외적(cross product)을 이용해 표면 노멀을 재계산하여 질감을 표현.",
                     script: "float noiseVal = snoise(vec3(pos.x, pos.y, u_time)) * 0.15;\nvec3 newPosition = position + normal * noiseVal;",
                 },
+                {
+                    id: "v2",
+                    url: "/tissue/2",
+                    prompt: "\"근데 휴지 너무 돌같아 v2버전으로, 종이가 구겨진듯한 모습 다시 표현해줘.\"\n\n종이 특유의 날카롭고 직선적인 주름을 재현하기 위해 삼각파(triangular wave)를 기반으로 한 프랙탈 브라운 운동(FBM) 노이즈를 적용하여, 면과 면이 만나는 엣지를 입체적으로 각지게 구현.",
+                    script: "vec2 tri(vec2 x) { return abs(fract(x) - 0.5); }\n// FBM with rotated triangular waves",
+                },
             ],
         },
         {
