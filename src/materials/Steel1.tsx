@@ -86,6 +86,8 @@ void main() {
 `;
 
 const SteelPlane = ({ isPlaying }: { isPlaying: boolean }) => {
+    const isPlayingRef = useRef(isPlaying);
+    isPlayingRef.current = isPlaying;
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const { size, viewport } = useThree();
     const [gyro, setGyro] = useState({ x: 0, y: 0 });
@@ -123,15 +125,11 @@ const SteelPlane = ({ isPlaying }: { isPlaying: boolean }) => {
     );
 
     
-    const isPlayingRef = useRef(true);
-    useEffect(() => {
-        const handleSetPlay = (e: any) => { isPlayingRef.current = e.detail; };
-        window.addEventListener('set-play', handleSetPlay);
-        return () => window.removeEventListener('set-play', handleSetPlay);
-    }, []);
+    
   
-    const accumulatedTimeRef = useRef(0);
+    
     useFrame((state, delta) => {
+        if (!isPlayingRef.current) return;
         if (materialRef.current) {
             if (gyro.x !== 0 || gyro.y !== 0) {
                 materialRef.current.uniforms.u_mouse.value.lerp(new THREE.Vector2(gyro.x, gyro.y), 0.1);
@@ -168,11 +166,7 @@ const Steel1: React.FC = () => {
             >
                 <SteelPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => {
-        const next = !isPlaying;
-        setIsPlaying(next);
-        window.dispatchEvent(new CustomEvent('set-play', { detail: next }));
-  }} onExport={triggerExport} />
+            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} onExport={triggerExport} />
         </div>
     );
 };

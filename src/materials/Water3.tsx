@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect,  useRef, useMemo, useState  } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import type { ThreeEvent } from '@react-three/fiber';
@@ -138,13 +138,23 @@ type Ripple = {
 };
 
 const WaterPlane = ({ isPlaying }: { isPlaying: boolean }) => {
+    const isPlayingRef = useRef(isPlaying);
+    isPlayingRef.current = isPlaying;
+    const accumulatedTimeRef = useRef(0);
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const { size, viewport } = useThree();
     const [ripples, setRipples] = useState<Ripple[]>([]);
     const nextId = useRef(0);
     const lastClickTimeRef = useRef(0);
 
-    const uniforms = useMemo(
+    
+    // Update resolution on window resize / size change
+    useEffect(() => {
+        if (materialRef.current) {
+            materialRef.current.uniforms.u_resolution.value.set(size.width * window.devicePixelRatio, size.height * window.devicePixelRatio);
+        }
+    }, [size]);
+const uniforms = useMemo(
         () => ({
             u_resolution: { value: new THREE.Vector2(size.width * window.devicePixelRatio, size.height * window.devicePixelRatio) },
             u_time: { value: 0 },
@@ -155,17 +165,13 @@ const WaterPlane = ({ isPlaying }: { isPlaying: boolean }) => {
     );
 
     
-    const isPlayingRef = useRef(true);
-    useEffect(() => {
-        const handleSetPlay = (e: any) => { isPlayingRef.current = e.detail; };
-        window.addEventListener('set-play', handleSetPlay);
-        return () => window.removeEventListener('set-play', handleSetPlay);
-    }, []);
+    
   
-    const accumulatedTimeRef = useRef(0);
+    
     useFrame((state, delta) => {
+        if (!isPlayingRef.current) return;
         if (materialRef.current) {
-            materialRef.current.uniforms.u_time.value = state.clock.elapsedTime;
+            materialRef.current.uniforms.u_time.value = accumulatedTimeRef.current;
 
             if (isPlayingRef.current) { accumulatedTimeRef.current += delta; }
             const currentTime = accumulatedTimeRef.current;
@@ -250,11 +256,7 @@ const WaterMaterial: React.FC = () => {
             >
                 <WaterPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => {
-        const next = !isPlaying;
-        setIsPlaying(next);
-        window.dispatchEvent(new CustomEvent('set-play', { detail: next }));
-  }} onExport={triggerExport} />
+            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} onExport={triggerExport} />
         </div>
     );
 };
