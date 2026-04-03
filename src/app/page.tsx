@@ -21,7 +21,7 @@ const renderMixedText = (text: string) => {
 
 export default function Home() {
     const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true });
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true });
 
     const materials = [
         {
@@ -96,6 +96,17 @@ export default function Home() {
                     url: "/tissue/1",
                     prompt: "\"구겨진 휴지가 천천히 펴지는 기본 형태를 쉐이더로 구현해줘.\"\n\n정점 쉐이더(vertex shader)에서 3D Simplex 노이즈를 활용하여 평면 메쉬(plane mesh)에 불규칙적인 굴곡과 주름을 형성하고, 단편 쉐이더(fragment shader)에서 외적(cross product)을 이용해 표면 노멀을 재계산하여 질감을 표현.",
                     script: "float noiseVal = snoise(vec3(pos.x, pos.y, u_time)) * 0.15;\nvec3 newPosition = position + normal * noiseVal;",
+                },
+            ],
+        },
+        {
+            title: "04 shattered glass",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/glass/1",
+                    prompt: "\"거울을 깨는듯한 인터랙션. 카메라로 환경이 비치고, 주먹으로 치는듯한 인터랙션이 감지되면 조금씩 금이 가는 그래픽을 구현해줘.\"\n\n웹캠 비디오 텍스처를 배경으로 활용하고, 마우스 클릭 지점을 중심으로 시간에 따라 전파되는 보로노이 필드(Voronoi field)를 계산하여 파편화된 UV 왜곡과 균열선(crack line)을 생성.",
+                    script: "vec2 uvOffset = (cellOffset - 0.5) * 0.08 * maxShatter;\ncrackLine = smoothstep(0.03, 0.0, border_dist);",
                 },
             ],
         },
