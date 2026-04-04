@@ -21,7 +21,7 @@ const renderMixedText = (text: string) => {
 
 export default function Home() {
     const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true, "05 rgb drops": true, "06 gooey dripping": true });
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true, "05 rgb drops": true, "06 gooey dripping": true, "07 frosted glass": true });
 
     const materials = [
         {
@@ -125,6 +125,12 @@ export default function Home() {
                     prompt: "\"흰색 화면에 물을 흩뿌렸을때 물방울이 돋보기 역할을 해서 RGB 색상이 확대되어 보이는 효과를 마우스 드래그로 구현해줘.\"\n\n임시 캔버스(Canvas API)를 활용하여 마우스 궤적에 따라 물방울(반경과 그라데이션)을 텍스처로 그리고, 단편 쉐이더(Fragment Shader)에서 이 높이 맵(Height map)의 편미분을 통해 물방울의 노멀과 피사계 심도를 계산하여 하단에 깔린 LCD 서브픽셀 패턴(RGB Strip)을 굴절 및 확대(Magnification)시킴.",
                     script: "vec2 distortedUv = uv - offset;\nvec3 lcdColor = getLCDColor(distortedUv);",
                 },
+                {
+                    id: "v2",
+                    url: "/rgb/2",
+                    prompt: "\"rgb drops는 모래같아, 그래서 투명한 물방울이 화면에 맺힌듯한 인터랙션으로 바꿔줘.\"\n\n캔버스 텍스처에서 발생하던 노이즈(모래알 현상)를 없애기 위해 수학적으로 완벽한 형태의 3D 반구(Hemisphere) 방정식을 사용해 표면 장력을 모사하고 투명하고 매끄러운 굴절을 구현. RGB 서브픽셀 또한 Sine 파형으로 대체해 안티에일리어싱(Anti-aliasing) 처리 완료.",
+                    script: "float dropH = sqrt(radius * radius - dist * dist);\nnormalOffset += diff / max(dropH, 0.001);",
+                },
             ],
         },
         {
@@ -141,6 +147,17 @@ export default function Home() {
                     url: "/gooey/2",
                     prompt: "\"gooey effect는 모두 검정으로 나오게끔, 그리고 입자를 더 작게하고 떨어지는 빈도를 더 많이, 더끈적이게.\"\n\n조명과 굴절을 제거해 완벽하게 새카만 2D 실루엣(Silhouette)으로 스타일을 변경. 입자(Drops) 갯수와 낙하 속도를 대폭 높이고 smin 파라미터의 보간 거리(k=0.25)를 늘려 서로가 늘어나며 달라붙는 점성(Viscosity)을 극대화.",
                     script: "d = smin(d, dDrop, 0.25);\n// pure mask mix for bold black silhouette",
+                },
+            ],
+        },
+        {
+            title: "07 frosted glass",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/frost/1",
+                    prompt: "\"frosted glass해서, 거울에 성에가 낀거, 그리고 마우스커서로 그걸 걷을 수 있게 하는거 구현해줘.\"\n\n웹캠 피드(Webcam Feed) 위에 하얗게 얼어붙은 성에(Frost) 레이어를 덮고 9-tap 노이즈 블러(Noise Blur)로 시야를 흐림. 사용자가 드래그한 궤적에 따라 임시 캔버스에 지워진 영역이 기록되며, 이 가장자리의 편미분(Derivative)을 계산해 물기가 맺힌 듯한 물방울 굴절(Refraction)과 스펙큘러 엣지(Specular Edge)를 구현. 지워진 성에는 시간이 지남에 따라 천천히 다시 복원(Healing).",
+                    script: "float blurScale = (0.015 + 0.005 * microFrost) * frostOpacity;\ncol = mix(col, smoothstep(0.0, 0.9, col), frostOpacity * 0.5);",
                 },
             ],
         },
