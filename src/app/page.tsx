@@ -231,6 +231,12 @@ export default function Home() {
                     prompt: "\"frosted glass해서, 거울에 성에가 낀거, 그리고 마우스커서로 그걸 걷을 수 있게 하는거 구현해줘.\"\n\n웹캠 피드(Webcam Feed) 위에 하얗게 얼어붙은 성에(Frost) 레이어를 덮고 9-tap 노이즈 블러(Noise Blur)로 시야를 흐림. 사용자가 드래그한 궤적에 따라 임시 캔버스에 지워진 영역이 기록되며, 이 가장자리의 편미분(Derivative)을 계산해 물기가 맺힌 듯한 물방울 굴절(Refraction)과 스펙큘러 엣지(Specular Edge)를 구현. 지워진 성에는 시간이 지남에 따라 천천히 다시 복원(Healing).",
                     script: "float blurScale = (0.015 + 0.005 * microFrost) * frostOpacity;\ncol = mix(col, smoothstep(0.0, 0.9, col), frostOpacity * 0.5);",
                 },
+                {
+                    id: "v2",
+                    url: "/frost/2",
+                    prompt: "\"현재 버전에서 카메라를 통해 사용자의 검지 손가락을 인식해서 직관적으로 성에를 닦을 수 있도록 해줘. 그리고 시간이 지나면 다시 성에가 끼는 복원 효과도 제대로 동작하게 해줘.\"\n\nGoogle MediaPipe의 HandLandmarker AI 모델을 씬(Scene)에 결합하여 카메라 피드 내 손가락 랜드마크(Index Finger)를 실시간으로 추적. 거울 모드에 맞게 좌표를 반전(Mirroring)하여 실제 손가락을 움직이면 성에가 물리적으로 닦이는 직관적 AR 인터랙션을 구현. 또한 닦인 캔버스 픽셀을 미세한 투명도로 매 프레임 재색칠하여, 물기가 마르며 다시 성에가 천천히 끼어드는 Time-based Healing 효과를 견고하게 유지.",
+                    script: "const wipePos = new THREE.Vector2(1.0 - indexFinger.x, indexFinger.y);\napplyWipe(wipePos, 1.5);",
+                },
             ],
         },
         {
