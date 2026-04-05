@@ -155,6 +155,12 @@ export default function Home() {
                     prompt: "\"물방울이 자기 혼자 너무 움직인다. 그리고 물방울이 커질때 가장자리만 커져야하는데 가운데 RGB 표현이 너무 심하게 드러나.\"\n\n물방울이 끓잡듯이 스스로 움직이던 애니메이션(u_time)을 제거하고 고정된 비정형 형태(Static Noise)로 안정화. 큰 물웅덩이의 중앙(가장 깊고 평평한 곳)을 높이값(height > 0.8)으로 감지하여 강제로 RGB 굴절을 없앰으로써, 큰 웅덩이는 가운데가 깨끗하고 가장자리만 무지개빛이 맺히도록 구조를 개선.",
                     script: "float rgbMaxH = smoothstep(0.9, 0.75, h);\nfloat rgbVisibility = rgbMaxH * rgbMinSlope * rgbIrregularity;",
                 },
+                {
+                    id: "v7",
+                    url: "/rgb/7",
+                    prompt: "\"물이 커서 따라서 페인트처럼 칠해지는게 아니라, 한번 클릭하면 여러 방울이 튀겨지는 것처럼 하고 싶어.\"\n\n드래그 시 펜처럼 물이 칠해지던 인터랙션(PointerMove)을 폐기. 대신 한 번 클릭(PointerDown)할 때마다 클릭한 지점을 중심으로 거대한 중심 물방울과 사방으로 튀어오르는 수십 개의 작은 물방울 스플래터(Splatter)들이 방사형으로 동시에 튀겨지도록 로직 전면 개편.",
+                    script: "const angle = Math.random() * Math.PI * 2;\nconst distance = Math.pow(Math.random(), 2.0) * 180.0;",
+                },
             ],
         },
         {
