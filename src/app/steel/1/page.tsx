@@ -1,3 +1,3 @@
 "use client";
-import Steel1 from "@/materials/Steel1";
-export default function Page() { return <Steel1 />; }
+import Steel4 from "@/materials/Steel4";
+export default function Page() { return <Steel4 />; }
