@@ -203,6 +203,12 @@ export default function Home() {
                     prompt: "\"조금 시간을 더 지연시켜주고, 사라지는것도 더 자연스럽게 사라지게끔.\"\n\n물방울이 온전한 형태를 유지하는 대기 시간(Delay)을 1.5초에서 **2.5초**로 넉넉하게 늘려주어 감상할 시간을 확보. 또한 증발 애니메이션에 딱딱한 거듭제곱 감쇠 대신 **부드러운 곡선(Ease-Out 곡선)**을 추가 도입하여, 서서히 쪼그라들며 투명해지는 형태 왜곡이 훨씬 자연스럽게(Natural fade) 이루어지도록 튜닝.",
                     script: "if (age > 2.5) currentR = d.r * (1.0 - Math.pow(decayRatio, 2.0));",
                 },
+                {
+                    id: "v16",
+                    url: "/rgb/16",
+                    prompt: "\"rgb interaction 이렇게 크게 보이게 수정 못해? 이렇게까지 크게는 아니여도, 이런 느낌으로 가장자리에 rgb 조금씩 보이게해서 (레퍼런스 이미지 제공).\"\n\n제공된 이미지를 철저히 분석하여 색수차와 빛의 굴절 매커니즘을 새롭게 짰습니다. 캔버스에 닿는 물방울의 수직 단면을 완벽한 평면 고원(Plateau)으로 깎아내 중앙부에는 전혀 왜곡 없이 투명한 순백색 코어가 유지되도록 하고, 가장자리(Edge)의 급격한 경사에만 방사형 빛 연산을 구해서 좌상단 가장자리에만 강렬한 스텝의 RGB 서브픽셀 굴절이 맺히도록 구조를 완전히 분리(Isolate)했습니다.",
+                    script: "float edgeIntensity = smoothstep(0.01, 0.20, slope);\nfloat rgbSide = smoothstep(0.0, 0.6, max(dot(N, L_rgb), 0.0));",
+                },
             ],
         },
         {
