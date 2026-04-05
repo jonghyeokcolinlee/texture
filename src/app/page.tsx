@@ -161,6 +161,18 @@ export default function Home() {
                     prompt: "\"물이 커서 따라서 페인트처럼 칠해지는게 아니라, 한번 클릭하면 여러 방울이 튀겨지는 것처럼 하고 싶어.\"\n\n드래그 시 펜처럼 물이 칠해지던 인터랙션(PointerMove)을 폐기. 대신 한 번 클릭(PointerDown)할 때마다 클릭한 지점을 중심으로 거대한 중심 물방울과 사방으로 튀어오르는 수십 개의 작은 물방울 스플래터(Splatter)들이 방사형으로 동시에 튀겨지도록 로직 전면 개편.",
                     script: "const angle = Math.random() * Math.PI * 2;\nconst distance = Math.pow(Math.random(), 2.0) * 180.0;",
                 },
+                {
+                    id: "v8",
+                    url: "/rgb/8",
+                    prompt: "\"물방울이 너무 크게 퍼지고, rgb가 되게 작게 보여. rgb가 크게 확대되어 보이고, 물을 뿌릴때도 심하게 퍼지지 않았으면 좋겠어.\"\n\n스플래터(튀기는 물방울)들의 산포 반경(Scatter radius)을 대폭 줄여 깔끔하게 밀집된 웅덩이를 형성. 현실적 재현보다는 인터랙션의 시각적 명확성을 높이기 위해, RGB 서브픽셀의 시각적 크기를 두 배 이상 확대하고 굴절 강도(Refraction Offset) 또한 공격적으로 높여 매우 도드라지고 강렬한 색수차 렌즈 효과를 연출.",
+                    script: "vec2 distR = p - normalOffset * 0.25;\nvec2 p = uv * u_resolution.xy * 0.035;",
+                },
+                {
+                    id: "v9",
+                    url: "/rgb/9",
+                    prompt: "\"rgb가 조금식만 더 크게 보이고, 알록달록하게 보일 수 있도록 수정해서 새로 만들어줘.\"\n\nRGB 픽셀 스케일 배수를 줄여(`0.020`) 입자를 이전보다 더 큼지막하게 확대하고, 색수차 굴절값을 극한으로 밀어붙여(`distR = 0.4`, `distB = 0.1`) 가장자리에 강렬한 빨/초/파 무지개 띠가 생성되도록 조정. 또한 그림자/명암 대비를 낮추고 색상 채도(Saturation)를 대폭 끌어올려 전체적으로 물방울 안이 무지개빛으로 꽉 찬 알록달록한 커스텀 렌즈 이펙트 구현.",
+                    script: "vec2 p = uv * u_resolution.xy * 0.020;\nlcdColor = pow(lcdColor, vec3(0.45)) * 1.9;",
+                },
             ],
         },
         {
