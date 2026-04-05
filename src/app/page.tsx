@@ -131,6 +131,12 @@ export default function Home() {
                     prompt: "\"rgb drops는 모래같아, 그래서 투명한 물방울이 화면에 맺힌듯한 인터랙션으로 바꿔줘.\"\n\n캔버스 텍스처에서 발생하던 노이즈(모래알 현상)를 없애기 위해 수학적으로 완벽한 형태의 3D 반구(Hemisphere) 방정식을 사용해 표면 장력을 모사하고 투명하고 매끄러운 굴절을 구현. RGB 서브픽셀 또한 Sine 파형으로 대체해 안티에일리어싱(Anti-aliasing) 처리 완료.",
                     script: "float dropH = sqrt(radius * radius - dist * dist);\nnormalOffset += diff / max(dropH, 0.001);",
                 },
+                {
+                    id: "v3",
+                    url: "/rgb/3",
+                    prompt: "\"물끼리 붙는듯한 gooey한 effect넣어주고, 물방울의 개수에 제한 없도록 해줘. 증발하는 효과 유지.\"\n\n임시 캔버스(FBO)를 다시 도입하여 무제한 갯수의 물방울 생성을 지원하고, 캔버스의 Additive Blending(lighter)과 쉐이더의 smoothstep을 결합해 가까이 있는 물방울끼리 스르륵 합쳐지는 메타볼(Gooey) 표면 장력 효과를 구현.",
+                    script: "ctx.globalCompositeOperation = 'lighter';\nfloat h = smoothstep(0.05, 0.2, rawH) * rawH;",
+                },
             ],
         },
         {
