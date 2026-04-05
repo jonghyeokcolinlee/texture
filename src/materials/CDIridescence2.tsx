@@ -13,19 +13,19 @@ varying vec3 vTangent;
 
 void main() {
     vLocalPos = position;
-    // Calculate accurate world normal
+    // Real world normal
     vNormal = normalize(normalMatrix * normal);
     
-    // Local circle tangent (CD Grooves are concentric circles on the XY plane)
-    vec3 localT = vec3(-position.y, position.x, 0.0);
+    // For CylinderGeometry oriented along Y-axis, local tangent forms circles on XZ plane.
+    vec3 localT = vec3(-position.z, 0.0, position.x);
     float tLen = length(localT);
-    if(tLen < 0.0001) {
+    if (tLen < 0.001) {
         localT = vec3(1.0, 0.0, 0.0);
     } else {
         localT /= tLen;
     }
     
-    // Transform tangent to world space
+    // Safe transform to world space
     vTangent = normalize(mat3(modelMatrix) * localT);
     
     vec4 worldPosition = modelMatrix * vec4(position, 1.0);
@@ -43,7 +43,6 @@ varying vec3 vWorldPos;
 varying vec3 vNormal;
 varying vec3 vTangent;
 
-// Spectral function: maps wavelength scalar to specific RGB rainbow value smoothly
 vec3 spectralColor(float w) {
     float r = 0.5 + 0.5 * cos(6.28318 * (w - 0.00));
     float g = 0.5 + 0.5 * cos(6.28318 * (w - 0.33));
@@ -52,97 +51,64 @@ vec3 spectralColor(float w) {
 }
 
 void main() {
-    // Safety normalizations to prevent shader warnings/NaNs
+    // 1. Geometry Hole (Discard center to make it look like a CD)
+    float radius = length(vLocalPos.xz);
+    if (radius < 0.15) {
+        discard;
+    }
+
+    // 2. Safely capture normalized vectors
     vec3 N = normalize(vNormal);
     vec3 V = normalize(cameraPosition - vWorldPos);
     vec3 L = normalize(u_lightDir);
     vec3 T = normalize(vTangent); 
-    
-    // We extruded the geometry with a depth of 0.04 and centered it.
-    // So local Z bounds are approximately -0.02 to +0.02.
-    // The user requested: "The iridescence effect is applied ONLY to the back surface"
-    // Back face is at z = -0.02. We use smoothstep to select it softly avoiding aliasing.
-    float isBackFace = smoothstep(-0.015, -0.019, vLocalPos.z);
-    
-    // --- 1. Base Material (Neutral Silver Metallic for Front & Thickness Edges) ---
+
+    // 3. Cylinder thickness logic. Depth is Y (-0.01 to 0.01)
+    // ONLY the back surface gets iridescence!
+    bool isBackFace = vLocalPos.y < -0.005;
+
+    // 4. Base Silver Metallic (Edges & Front)
     float dotLN = clamp(dot(N, L), 0.0, 1.0);
     vec3 H = normalize(L + V);
     float dotNH = clamp(dot(N, H), 0.0, 1.0);
     
-    vec3 silverBase = vec3(0.4, 0.42, 0.45);
-    vec3 silverSpecular = vec3(1.0) * pow(dotNH, 50.0) * 0.7;
-    vec3 silverMaterial = silverBase * dotLN + silverSpecular + vec3(0.08, 0.08, 0.1);
+    vec3 silverBase = vec3(0.5, 0.52, 0.55);
+    vec3 silverSpec = vec3(1.0) * pow(dotNH, 50.0) * 0.8;
+    vec3 silverMaterial = silverBase * dotLN + silverSpec + vec3(0.1, 0.12, 0.15);
 
-    // --- 2. Back Face Material (Continuous Diffraction Iridescence) ---
+    // 5. Iridescence (Back Face Only)
+    // Continuous wide spreading rainbow based on tangents
     float dotLT = clamp(dot(L, T), -1.0, 1.0);
     float dotVT = clamp(dot(V, T), -1.0, 1.0);
     
-    // Optical Diffraction Interference Formula
     float u = dotLT - dotVT; 
-    
-    // Adjust multiplier to spread the rainbow across the ENTIRE surface.
     float w = abs(u) * 1.5; 
     
     vec3 spectral = spectralColor(w);
-    // Over-saturate gently for premium aesthetic
-    spectral = smoothstep(0.1, 0.95, spectral);
+    spectral = clamp(smoothstep(0.1, 0.95, spectral), 0.0, 1.0);
     
-    // Anisotropic Specular Highlight (The sharp white light streak cutting through the rainbow)
+    // Specular Streak cutting through the rainbow
     float HdotT = clamp(dot(H, T), -1.0, 1.0);
     float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 30.0);
     
     vec3 iridescenceMaterial = spectral * (0.6 + 0.4 * dotLN) + vec3(1.0) * specStreak * 0.8;
 
-    // --- Final Blend ---
-    vec3 finalColor = mix(silverMaterial, iridescenceMaterial, isBackFace);
+    // 6. Output Safe Blend
+    vec3 finalColor = isBackFace ? iridescenceMaterial : silverMaterial;
     
-    // Add micro-noise
-    float noise = fract(sin(dot(vLocalPos.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.02;
+    // Add micro physical noise to break flatness
+    float noise = fract(sin(dot(vLocalPos.xz, vec2(12.9898, 78.233))) * 43758.5453) * 0.015;
     finalColor -= noise;
-    
-    // Final hard-clamp to guarantee no blank screen from over-exposure or negatives
-    finalColor = clamp(finalColor, 0.0, 1.0);
 
-    gl_FragColor = vec4(finalColor, 1.0);
+    gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }
 `;
 
 const DiscMesh = () => {
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const meshRef = useRef<THREE.Mesh>(null);
-    const geomRef = useRef<THREE.ExtrudeGeometry>(null);
     const { viewport } = useThree();
     
-    // Build actual physical CD Geometry with a hole using ExtrudeGeometry
-    const cdGeometryDef = useMemo(() => {
-        const shape = new THREE.Shape();
-        shape.absarc(0, 0, 1.0, 0, Math.PI * 2, false);
-        
-        const holePath = new THREE.Path();
-        holePath.absarc(0, 0, 0.15, 0, Math.PI * 2, true);
-        shape.holes.push(holePath);
-        
-        return {
-            shape,
-            options: {
-                depth: 0.04,
-                curveSegments: 128, 
-                bevelEnabled: true,
-                bevelSegments: 3,
-                steps: 1,
-                bevelSize: 0.005,
-                bevelThickness: 0.005
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        // Center the geometry so rotation pivots exactly around the middle and Z spans [-0.02, 0.02]
-        if (geomRef.current) {
-            geomRef.current.center();
-        }
-    }, [cdGeometryDef]);
-
     const targetInput = useRef({ x: 0, y: 0 });
     const currentInput = useRef({ x: 0, y: 0 });
     const [gyroGranted, setGyroGranted] = useState(false);
@@ -192,76 +158,40 @@ const DiscMesh = () => {
     useFrame(() => {
         if (!meshRef.current || !materialRef.current) return;
         
-        // Easing interpolation
-        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.08;
-        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.08;
+        // Easing interpolation for smooth physical feel
+        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.1;
+        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.1;
         
-        const maxTilt = 0.5; // rad
+        // Tilt the CD slightly
+        const maxTilt = 0.45; // Subtle tilting limit
         
-        // By default, rotate the CD 180 degrees (Math.PI) so the BACK face (-Z) is visible to the camera!
-        // This is crucial because iridescence is only applied to the back face.
-        meshRef.current.rotation.y = Math.PI + (currentInput.current.x * maxTilt);
-        meshRef.current.rotation.x = currentInput.current.y * maxTilt * -1;
+        // By default, rotate the Cylinder -90 degrees on X to point the Y-axis backwards.
+        // This ensures the camera is directly viewing the "-Y" back surface where the iridescence is!
+        meshRef.current.rotation.x = -Math.PI / 2 + currentInput.current.y * maxTilt;
+        meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
-        const lx = currentInput.current.x * 2.0; 
-        const ly = currentInput.current.y * 2.0; 
-        const lz = 1.0; 
-        // Light direction transforms slightly
+        // Dynamic Virtual Light
+        const lx = currentInput.current.x * 2.5; 
+        const ly = currentInput.current.y * 2.5; 
+        const lz = 1.5; 
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    // Uniform scaling based on viewport size ensuring NO aspect ratio distortion
-    const cdScale = Math.min(viewport.width, viewport.height) * 0.38;
+    // Scale ensuring perfect visibility and proportions on all screens natively!
+    // Using min makes sure it behaves strictly like 'object-fit: contain'
+    const cdScale = Math.min(viewport.width, viewport.height) * 0.42;
 
     return (
         <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
-            <extrudeGeometry 
-                ref={geomRef} 
-                args={[cdGeometryDef.shape, cdGeometryDef.options]} 
-            />
+            {/* Extremely safe built-in geometry! */}
+            <cylinderGeometry args={[1.0, 1.0, 0.02, 64]} />
             <shaderMaterial
                 ref={materialRef}
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-                side={THREE.FrontSide}
             />
         </mesh>
-    );
-};
-
-const RequestGyroBanner = () => {
-    const [granted, setGranted] = useState(false);
-    const [needsUI, setNeedsUI] = useState(false);
-
-    useEffect(() => {
-        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-            setNeedsUI(true);
-        } else {
-            setGranted(true);
-        }
-    }, []);
-
-    const requestActivation = () => {
-        (DeviceOrientationEvent as any).requestPermission()
-            .then((response: string) => {
-                if (response === 'granted') setGranted(true);
-            })
-            .catch(console.error);
-    };
-
-    if (granted || !needsUI) return null;
-
-    return (
-        <div className="absolute top-4 inset-x-0 flex justify-center pointer-events-auto z-50">
-            <button 
-                onClick={requestActivation}
-                className="px-6 py-2 bg-black text-white rounded-full text-xs font-bold tracking-widest shadow-xl active:bg-neutral-800 transition-colors"
-                style={{ backdropFilter: "blur(10px)" }}
-            >
-                Tap to enable Gyroscope for Mobile AR
-            </button>
-        </div>
     );
 };
 
@@ -270,15 +200,14 @@ const CDIridescence2: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'cd-iridescence-v2.png') as () => void;
 
     return (
-        <div className="canvas-container bg-[#fcfcfc] cursor-grab active:cursor-grabbing relative overflow-hidden">
-            <RequestGyroBanner />
+        <div className="canvas-container bg-[#f7f7f7] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
-                // Perspective camera is used so 3D thickness is easily visible
                 camera={{ position: [0, 0, 5], fov: 35 }} 
+                className="w-full h-full"
             >
-                <ambientLight intensity={0.5} />
+                <ambientLight intensity={1.0} /> // Debug fallback ambient
                 <DiscMesh />
             </Canvas>
             <InteractionUI onExport={triggerExport} />
