@@ -271,6 +271,12 @@ export default function Home() {
                     prompt: "\"전체 화면이 하얗게 나오는 버그 수정 (웹캠 로드 및 Fallback 지원). 카메라 텍스처를 화면 비율에 맞춰 강제로 늘리지 말고 Object-fit: contain 처럼 비율을 유지하게끔 해줘.\"\n\n웹캠 로딩 안정성을 개선하고, 카메라 권한 거부 시 예비 추상 캔버스(Fallback Gradient)를 로드하여 빈 화면 현상을 완벽 차단. 텍스처 원본 종횡비(Aspect ratio)에 맞춰 3D 평면 메쉬 크기를 스스로 재계산하는 Object-fit Contain 로직을 브라우저 리사이징 시에도 실시간으로 대응하도록 구축.",
                     script: "planeW = viewport.width; planeH = planeW / texAspect;\ncolor = pow(color, vec3(0.9));",
                 },
+                {
+                    id: "v3",
+                    url: "/glassgrid/3",
+                    prompt: "\"Glass Block은 이런 interaction을 말한거야 (실제 유리 벽돌 텍스처 레퍼런스 이미지 제공).\"\n\n프랙탈 브라운 운동(FBM) 노이즈를 각 타일별로 독립 계산하여, 실제 주조된 유리 벽돌 내부에 생기는 물결처럼 구불구불한 굴절(Wavy Internal Normal)을 정밀하게 모사. 또한 벽돌 사이사이를 채우는 짙고 두꺼운 시멘트 줄눈(Mortar)과, 유리 모서리에 빛이 맺히는 강력한 스펙큘러 하이라이트(Glint)를 더해 실사에 가까운 질감을 구현.",
+                    script: "vec2 internalNormal = vec2(hx - h, hy - h) * 2.0;\ncolor = mix(color, mortarColor, isMortar);",
+                },
             ],
         },
     ];
