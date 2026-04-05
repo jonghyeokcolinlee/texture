@@ -21,7 +21,14 @@ const renderMixedText = (text: string) => {
 
 export default function Home() {
     const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({ "01 brushed steel": true, "02 scattered puddle": true, "03 crumpled tissue": true, "04 shattered glass": true, "05 rgb drops": true, "06 gooey dripping": true, "07 frosted glass": true, "08 curved metal reflection": true });
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({ 
+        "01 brushed steel": true, 
+        "02 scattered puddle": true, 
+        "03 rgb drops": true, 
+        "04 frosted glass": true, 
+        "05 curved metal reflection": true,
+        "06 cd iridescence": true
+    });
 
     const materials = [
         {
@@ -83,35 +90,7 @@ export default function Home() {
             ],
         },
         {
-            title: "03 crumpled tissue",
-            versions: [
-                {
-                    id: "v1",
-                    url: "/tissue/1",
-                    prompt: "\"구겨진 휴지가 천천히 펴지는 기본 형태를 쉐이더로 구현해줘.\"\n\n정점 쉐이더(vertex shader)에서 3D Simplex 노이즈를 활용하여 평면 메쉬(plane mesh)에 불규칙적인 굴곡과 주름을 형성하고, 단편 쉐이더(fragment shader)에서 외적(cross product)을 이용해 표면 노멀을 재계산하여 질감을 표현.",
-                    script: "float noiseVal = snoise(vec3(pos.x, pos.y, u_time)) * 0.15;\nvec3 newPosition = position + normal * noiseVal;",
-                },
-                {
-                    id: "v2",
-                    url: "/tissue/2",
-                    prompt: "\"근데 휴지 너무 돌같아 v2버전으로, 종이가 구겨진듯한 모습 다시 표현해줘.\"\n\n종이 특유의 날카롭고 직선적인 주름을 재현하기 위해 삼각파(triangular wave)를 기반으로 한 프랙탈 브라운 운동(FBM) 노이즈를 적용하여, 면과 면이 만나는 엣지를 입체적으로 각지게 구현.",
-                    script: "vec2 tri(vec2 x) { return abs(fract(x) - 0.5); }\n// FBM with rotated triangular waves",
-                },
-            ],
-        },
-        {
-            title: "04 shattered glass",
-            versions: [
-                {
-                    id: "v1",
-                    url: "/glass/1",
-                    prompt: "\"거울을 깨는듯한 인터랙션. 카메라로 환경이 비치고, 주먹으로 치는듯한 인터랙션이 감지되면 조금씩 금이 가는 그래픽을 구현해줘.\"\n\n웹캠 비디오 텍스처를 배경으로 활용하고, 마우스 클릭 지점을 중심으로 시간에 따라 전파되는 보로노이 필드(Voronoi field)를 계산하여 파편화된 UV 왜곡과 균열선(crack line)을 생성.",
-                    script: "vec2 uvOffset = (cellOffset - 0.5) * 0.08 * maxShatter;\ncrackLine = smoothstep(0.03, 0.0, border_dist);",
-                },
-            ],
-        },
-        {
-            title: "05 rgb drops",
+            title: "03 rgb drops",
             versions: [
                 {
                     id: "v1",
@@ -194,7 +173,7 @@ export default function Home() {
                 {
                     id: "v14",
                     url: "/rgb/14",
-                    prompt: "\"아니 v13을 아예 v9버전의 스타일과 코드로 똑같이 rollback해주고, 거기에 이제 물방울이 생성된 이후, 일정 시간이 지나면 증발하는 효과를 줘.\"\n\nv9의 스타일뿐만 아니라 코드를 100% 동일하게 복원한 후, 캔버스 그리기 로직을 완전히 재설계. 물방울 객체의 생성 시간(birth)을 추적하여 **일정 시간(1.5초) 동안은 온전한 크기를 유지하고, 그 이후에만 크기가 물리적으로 쪼그라들면서(shrink) 증발하는 타이머 기반 애니메이션**을 구현.",
+                    prompt: "\"아니 v13을 아예 v9버전의 스타일과 코드로 똑같이 rollback해주고, 거기에 이제 물방울이 생성된 이후, 일정 시간이 지나면 증발하는 효과를 줘.\"\n\nv9의 스타일뿐만 아니라 코드를 100% 동일하게 복원한 후, 캔버스 그리기 로직을 완전히 재설계. 물방울 객체의 생성 시간(birth)을 추적하여 **일정 시간(1.5초) 동안은 온전한 전성기를 유지하고, 그 이후에만 크기가 물리적으로 쪼그라들면서(shrink) 증발하는 타이머 애니메이션**을 구현.",
                     script: "if (age > 1.5) currentR = d.r * Math.pow(1.0 - decayRatio, 1.5);",
                 },
                 {
@@ -230,24 +209,7 @@ export default function Home() {
             ],
         },
         {
-            title: "06 gooey dripping",
-            versions: [
-                {
-                    id: "v1",
-                    url: "/gooey/1",
-                    prompt: "\"천정에서 액체와 같은 끈적한게 떨어지는 듯한 gooey effect 구현해줘. 마우스와도 인터랙션하게.\"\n\n2D 부호화 거리장(SDF, Signed Distance Field) 기반의 메타볼(Metaball) 렌더링 방식을 사용하여 끈적한 유체 역학을 모사. 스무스 미니엄(smin) 함수로 물방울과 천장, 그리고 마우스가 지나간 궤적 간의 점성을 계산하고 광택(Specular)과 프레넬(Fresnel) 반사를 추가해 사실적인 입체감을 부여.",
-                    script: "float d = smin(dCeiling, dDrop, 0.15);\nvec3 n = normalize(vec3(dFdx(d), dFdy(d), 0.008));",
-                },
-                {
-                    id: "v2",
-                    url: "/gooey/2",
-                    prompt: "\"gooey effect는 모두 검정으로 나오게끔, 그리고 입자를 더 작게하고 떨어지는 빈도를 더 많이, 더끈적이게.\"\n\n조명과 굴절을 제거해 완벽하게 새카만 2D 실루엣(Silhouette)으로 스타일을 변경. 입자(Drops) 갯수와 낙하 속도를 대폭 높이고 smin 파라미터의 보간 거리(k=0.25)를 늘려 서로가 늘어나며 달라붙는 점성(Viscosity)을 극대화.",
-                    script: "d = smin(d, dDrop, 0.25);\n// pure mask mix for bold black silhouette",
-                },
-            ],
-        },
-        {
-            title: "07 frosted glass",
+            title: "04 frosted glass",
             versions: [
                 {
                     id: "v1",
@@ -264,7 +226,7 @@ export default function Home() {
             ],
         },
         {
-            title: "08 curved metal reflection",
+            title: "05 curved metal reflection",
             versions: [
                 {
                     id: "v1",
@@ -287,30 +249,7 @@ export default function Home() {
             ],
         },
         {
-            title: "09 glass brick wall",
-            versions: [
-                {
-                    id: "v1",
-                    url: "/glassgrid/1",
-                    prompt: "\"웹캠 화면 위에 투명한 사각 유리 블록들이 쌓여있는 효과. 마우스를 올리면 블록이 볼록렌즈처럼 왜곡되고, 꾹 누르면 오목하게 눌리는 느낌을 줘.\"\n\n웹캠 스트림 비디오 텍스처를 15겹의 모자이크 타일로 분할(Segmentation)한 뒤, 타일별로 무작위 오프셋(Refraction), 색수차(CA), 다중 탭 방식의 흐림 효과(Blur)를 주어 유리 블록을 모사한 쉐이더. 호버/클릭 시 물리적으로 타일이 확대(Zoom)/축소되며 빛의 굴절이 즉각적으로 변하는 상호작용 구현.",
-                    script: "vec2 tileCenterAspect = (gridId + 0.5) / tiles;\nvec2 sampleUv = tileCenter + (vUv - tileCenter) * zoom;",
-                },
-                {
-                    id: "v2",
-                    url: "/glassgrid/2",
-                    prompt: "\"전체 화면이 하얗게 나오는 버그 수정 (웹캠 로드 및 Fallback 지원). 카메라 텍스처를 화면 비율에 맞춰 강제로 늘리지 말고 Object-fit: contain 처럼 비율을 유지하게끔 해줘.\"\n\n웹캠 로딩 안정성을 개선하고, 카메라 권한 거부 시 예비 추상 캔버스(Fallback Gradient)를 로드하여 빈 화면 현상을 완벽 차단. 텍스처 원본 종횡비(Aspect ratio)에 맞춰 3D 평면 메쉬 크기를 스스로 재계산하는 Object-fit Contain 로직을 브라우저 리사이징 시에도 실시간으로 대응하도록 구축.",
-                    script: "planeW = viewport.width; planeH = planeW / texAspect;\ncolor = pow(color, vec3(0.9));",
-                },
-                {
-                    id: "v3",
-                    url: "/glassgrid/3",
-                    prompt: "\"Glass Block은 이런 interaction을 말한거야 (실제 유리 벽돌 텍스처 레퍼런스 이미지 제공).\"\n\n프랙탈 브라운 운동(FBM) 노이즈를 각 타일별로 독립 계산하여, 실제 주조된 유리 벽돌 내부에 생기는 물결처럼 구불구불한 굴절(Wavy Internal Normal)을 정밀하게 모사. 또한 벽돌 사이사이를 채우는 짙고 두꺼운 시멘트 줄눈(Mortar)과, 유리 모서리에 빛이 맺히는 강력한 스펙큘러 하이라이트(Glint)를 더해 실사에 가까운 질감을 구현.",
-                    script: "vec2 internalNormal = vec2(hx - h, hy - h) * 2.0;\ncolor = mix(color, mortarColor, isMortar);",
-                },
-            ],
-        },
-        {
-            title: "10 cd iridescence",
+            title: "06 cd iridescence",
             versions: [
                 {
                     id: "v1",
@@ -321,8 +260,8 @@ export default function Home() {
                 {
                     id: "v2",
                     url: "/cd/2",
-                    prompt: "\"The CD must have visible thickness (not a flat plane). Model it as a thin cylinder (disc with depth). Maintain correct aspect ratio regardless of screen size. The ENTIRE back surface should display iridescent colors continuously.\"\n\nThree.js의 `ExtrudeGeometry`를 활용해 실제 CD와 동일하게 구멍이 뚫린 입체 원판(Solid Disc)을 물리적으로 압출(Extrusion)하여 모델링했습니다. 원근감(Perspective)을 가진 카메라에서 3D 오브젝트를 기울일 때 입체적인 두께감(Thickness)과 베벨 엣지가 노출됩니다. 쉐이더에서 표면 깊이(Local Z)를 계산해 측면과 후면에는 메탈 질감을 부여하고, 빛을 받는 거대한 앞면(Front Face) 전 영역에 넓고 부드러운 회절 무지갯빛이 끊기지 않고 꽉 차게 번지도록(Continuous Full Surface Iridescence) 설계했습니다. 종횡비 왜곡(Aspect Distortion)을 차단하고자 메쉬 스케일을 화면 길이에 맞게 반응형으로 제한했습니다.",
-                    script: "float isFrontFace = smoothstep(0.015, 0.018, vLocalPos.z);\nvec3 finalColor = mix(edgeMaterial, iridescenceMaterial, isFrontFace);",
+                    prompt: "\"The CD must have visible thickness (not a flat plane). Model it as a thin cylinder (disc with depth). Maintain correct aspect ratio regardless of screen size. The ENTIRE back surface should display iridescent colors continuously.\"\n\nThree.js의 `ExtrudeGeometry`를 활용해 실제 CD와 동일하게 구멍이 뚫린 입체 원판(Solid Disc)을 물리적으로 압출(Extrusion)하여 모델링했습니다. 카메라와 거리를 둔 원근(Perspective) 모델의 Z축을 역으로 뒤집어 유저가 항상 CD의 광원이 반사되는 뒷면(-Z)을 바라볼 수 있도록 기본 셋업을 강제했습니다. 표면의 z값을 감별해 측면의 링 형태에는 메탈 질감을 부여하고 뒷면에만 연속적인 회절 프리즘(Continuous Diffraction) 무지갯빛이 끊임없이 쪼개어지며 발광하도록 수식을 안전하게 클램핑(Clamp)하여 오류를 완벽히 해결했습니다.",
+                    script: "float isBackFace = smoothstep(-0.015, -0.019, vLocalPos.z);\nvec3 finalColor = mix(silverMaterial, iridescenceMaterial, isBackFace);",
                 },
             ],
         },
@@ -347,21 +286,21 @@ export default function Home() {
                                 >
                                     <p className="mb-0">{mat.title}</p>
                                     <svg 
-                                        className={`w-[0.55em] h-[0.55em] mt-[0.1em] opacity-30 group-hover:opacity-100 transition-transform duration-300 ${expanded[mat.title] ? "" : "-rotate-90"}`}
+                                        className={\`w-[0.55em] h-[0.55em] mt-[0.1em] opacity-30 group-hover:opacity-100 transition-transform duration-300 \${expanded[mat.title] ? "" : "-rotate-90"}\`}
                                         fill="currentColor" viewBox="0 0 10 10"
                                     >
                                         <path d="M0 2L10 2L5 8Z" />
                                     </svg>
                                 </div>
-                                <div className={`flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${expanded[mat.title] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
+                                <div className={\`flex flex-col overflow-hidden transition-all duration-300 ease-in-out \${expanded[mat.title] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}\`}>
                                     {mat.versions.map((ver) => (
                                         <Link
                                             key={ver.id}
                                             href={ver.url}
                                             onMouseEnter={() => setActiveInfo(ver)}
-                                            className={`text-left opacity-30 hover:opacity-100 transition-opacity duration-300 block w-fit font-medium ${
+                                            className={\`text-left opacity-30 hover:opacity-100 transition-opacity duration-300 block w-fit font-medium \${
                                                 activeInfo?.url === ver.url ? "opacity-100" : ""
-                                            }`}
+                                            }\`}
                                         >
                                             {ver.id}
                                         </Link>
