@@ -215,6 +215,12 @@ export default function Home() {
                     prompt: "\"아니 내가 보내준 사진과 유사하게, 그림자는 적게, rgb 픽셀 덩어리는 조금씩 크게, 물방울은 완전 #fff말고 흰색과 구분되는 조금 옅은 회색으로\"\n\n레퍼런스 이미지의 미묘한 톤 앤 매너(Tone & Manner)를 완벽하게 모사하기 위해 다음과 같이 튜닝했습니다: 1. `getLCDColor`의 배율 스케일을 줄여 픽셀 덩어리를 물리적으로 두 배 이상 키웠습니다. 2. 검회색이던 강한 그림자를 아주 옅은 쿨그레이(Light Grey) 톤으로 밝히고 혼합 수치(Blend ratio)를 크게 낮춰 그림자의 대비를 없앴습니다. 3. 순백(Pure White)이던 물방울 코어의 베이스 컬러를 미세하게 옅은 회색(0.94)으로 낮춰서, 순백색의 뒷배경과 투명하게 구별되는 얕은 물의 체적(Volume)을 구현했습니다.",
                     script: "vec2 p = uv * u_resolution.xy * 0.008;\nvec3 dropInsideColor = vec3(0.94); edgeColor = mix(edgeColor, vec3(0.85), shadowSide * 0.6);",
                 },
+                {
+                    id: "v18",
+                    url: "/rgb/18",
+                    prompt: "\"근데 지금 rgb부분이 내가 보내준 사진처럼 더 뭉쳐서 두껍게 있어야돼. 물방울이 커진만큼 표현자체가.\"\n\n경사면(Slope)의 너비와 캔버스의 Gradient 알파값을 넓게 분산시켜서 **RGB 블록이 올라탈 수 있는 모서리(Edge)의 두께감 자체를 2배 이상 두껍게 확장**했습니다. 경사가 두꺼워진 만큼 서로 다른 색상 패널이 크게 분리될 수 있도록 Red/Green/Blue 색수차 채널의 오프셋 거리(offset gap)도 2배로 넓히고 증폭시켜서, 레퍼런스 사진처럼 굵고 강렬한 RGB 픽셀 띠가 모서리를 둥글게 감싸며 뭉치도록 표현력을 극대화했습니다.",
+                    script: "float edgeIntensity = smoothstep(0.005, 0.40, slope);\nvec2 distR = p - normalOffset * 0.80;",
+                },
             ],
         },
         {
