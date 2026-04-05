@@ -74,6 +74,12 @@ export default function Home() {
                     prompt: "\"scattered puddle은 평소에 배경이 하얀색이다가, 물결 치는 부분이 조금 회색으로 바뀌는 걸로 수정되어야할 것 같아.\"\n\n완전한 형태의 화이트 캔버스(White Backgrond) 베이스로 쉐이더를 다시 짜고, 빛의 반사각(Normals)이 크게 틀어지는 파동(Wave) 부분에 한해 은은한 회색 그림자(Gray Shadow)와 흰색 스펙큘러로 깔끔하게 떨어지는 미니멀한 반사 효과를 부여.",
                     script: "float shadow = smoothstep(1.0, 0.5, ndotl);\nvec3 waveColor = mix(vec3(1.0), vec3(0.7, 0.7, 0.73), shadow);",
                 },
+                {
+                    id: "v6",
+                    url: "/water/6",
+                    prompt: "\"scattered puddle 퍼져나갈 때 파동의 색감이 조금 더 옅었으면 좋겠고, 그리고 무채색으로 해서 채도를 0으로.\"\n\n파동이 일 때 생기는 빛 반사 그림자의 강도(Intensity)와 대비(Contrast)를 대폭 줄이고, 블루/그레이 톤이 섞여 있던 기존 음영에서 채도를 완벽하게 0으로 제거하여 매우 옅고 깨끗한 퓨어 모노톤 아키텍처(Pure Achromatic) 음영으로 다듬음.",
+                    script: "vec3 waveColor = mix(vec3(1.0), vec3(0.88, 0.88, 0.88), shadow);",
+                },
             ],
         },
         {
@@ -190,6 +196,12 @@ export default function Home() {
                     url: "/rgb/14",
                     prompt: "\"아니 v13을 아예 v9버전의 스타일과 코드로 똑같이 rollback해주고, 거기에 이제 물방울이 생성된 이후, 일정 시간이 지나면 증발하는 효과를 줘.\"\n\nv9의 스타일뿐만 아니라 코드를 100% 동일하게 복원한 후, 캔버스 그리기 로직을 완전히 재설계. 물방울 객체의 생성 시간(birth)을 추적하여 **일정 시간(1.5초) 동안은 온전한 크기를 유지하고, 그 이후에만 크기가 물리적으로 쪼그라들면서(shrink) 증발하는 타이머 기반 애니메이션**을 구현.",
                     script: "if (age > 1.5) currentR = d.r * Math.pow(1.0 - decayRatio, 1.5);",
+                },
+                {
+                    id: "v15",
+                    url: "/rgb/15",
+                    prompt: "\"조금 시간을 더 지연시켜주고, 사라지는것도 더 자연스럽게 사라지게끔.\"\n\n물방울이 온전한 형태를 유지하는 대기 시간(Delay)을 1.5초에서 **2.5초**로 넉넉하게 늘려주어 감상할 시간을 확보. 또한 증발 애니메이션에 딱딱한 거듭제곱 감쇠 대신 **부드러운 곡선(Ease-Out 곡선)**을 추가 도입하여, 서서히 쪼그라들며 투명해지는 형태 왜곡이 훨씬 자연스럽게(Natural fade) 이루어지도록 튜닝.",
+                    script: "if (age > 2.5) currentR = d.r * (1.0 - Math.pow(decayRatio, 2.0));",
                 },
             ],
         },
