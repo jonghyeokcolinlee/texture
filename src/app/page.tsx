@@ -309,6 +309,17 @@ export default function Home() {
                 },
             ],
         },
+        {
+            title: "10 cd iridescence",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/cd/1",
+                    prompt: "\"Create an interactive web-based visual that simulates CD-like iridescence using light diffraction and interference. Use surface normal + view/light direction to compute angle and map to wavelength RGB.\"\n\n광학적 회절 간섭(Diffraction Interference) 이론 기반의 이방성 쉐이더(Anisotropic Shader)로 CD 뒷면의 무지갯빛 반사광을 시뮬레이션. 빛의 벡터(Light Dir), 카메라의 벡터(View), 그리고 마이크로 그루브의 둥근 접선(Radius Tangent) 방향 간의 내적(Dot product)을 통해 위상 차이를 계산하고, 이를 `cos()` 파동 함수로 맵핑하여 강렬한 스펙트럼 밴드를 절삭. 모바일(DeviceOrientation 자이로스코프)과 데스크탑(Mouse) 입력을 하나로 통합해 기기를 기울이거나 커서를 움직이면 물리적인 표면의 기울기와 조명 방향이 동시에 연동되는 리얼타임 AR 렌더링 구현.",
+                    script: "vec3 localT = vec3(-localP.y, localP.x, 0.0) / dist;\nfloat u = dotLT - dotVT; ... spectralColor(w);",
+                },
+            ],
+        },
     ];
 
     const toggleExpanded = (title: string) => {
