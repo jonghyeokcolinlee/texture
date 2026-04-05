@@ -143,6 +143,12 @@ export default function Home() {
                     prompt: "\"전체에 rgb가 다 보이는게 아니고, 물방울 테두리변두리에 보이게, 작다면 전체가 rgb로 보이게끔. 누르는 압력에 따라 크기도 조절해줘.\"\n\n물방울의 곡률(Slope, 편미분 벡터의 길이)을 계산하여 곡률이 가파른 가장자리나 작은 물방울에서만 RGB가 굴절되게 보이도록 visibility를 조절. 사용자가 마우스를 누르고 있는 시간(Pressure / Hold Time)을 추적해 `requestAnimationFrame` 내에서 브러시 크기를 키워 거대한 물방울 웅덩이가 만들어지도록 인터랙션 고도화.",
                     script: "float slope = length(normalOffset);\nfloat rgbVisibility = smoothstep(0.02, 0.3, slope);",
                 },
+                {
+                    id: "v5",
+                    url: "/rgb/5",
+                    prompt: "\"물방울이 비정형적으로 퍼졌으면 좋겠고, 고른 RGB 패턴(모래) 대신 레퍼런스 이미지처럼 불규칙적이고 큰 RGB 덩어리가 있었으면 좋겠음.\"\n\n정원형 물방울 텍스처를 읽어올 때 2D Simplex 노이즈로 UV를 뒤틀어(Warping) 매우 불규칙적인 비정형 물방울 형태 생성. 렌즈 굴절 시 RGB 채널별로 오프셋을 다르게 주는 색수차(Chromatic Aberration)와 패치 노이즈(Patch Noise) 마스킹을 결합해 일정하지 않고 덩어리진 픽셀 무지개 반사가 나타나도록 고도화.",
+                    script: "vec2 distR = p - normalOffset * 0.10;\nvec2 distB = p - normalOffset * 0.06;",
+                },
             ],
         },
         {
