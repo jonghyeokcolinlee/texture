@@ -318,6 +318,12 @@ export default function Home() {
                     prompt: "\"Create an interactive web-based visual that simulates CD-like iridescence using light diffraction and interference. Use surface normal + view/light direction to compute angle and map to wavelength RGB.\"\n\n광학적 회절 간섭(Diffraction Interference) 이론 기반의 이방성 쉐이더(Anisotropic Shader)로 CD 뒷면의 무지갯빛 반사광을 시뮬레이션. 빛의 벡터(Light Dir), 카메라의 벡터(View), 그리고 마이크로 그루브의 둥근 접선(Radius Tangent) 방향 간의 내적(Dot product)을 통해 위상 차이를 계산하고, 이를 `cos()` 파동 함수로 맵핑하여 강렬한 스펙트럼 밴드를 절삭. 모바일(DeviceOrientation 자이로스코프)과 데스크탑(Mouse) 입력을 하나로 통합해 기기를 기울이거나 커서를 움직이면 물리적인 표면의 기울기와 조명 방향이 동시에 연동되는 리얼타임 AR 렌더링 구현.",
                     script: "vec3 localT = vec3(-localP.y, localP.x, 0.0) / dist;\nfloat u = dotLT - dotVT; ... spectralColor(w);",
                 },
+                {
+                    id: "v2",
+                    url: "/cd/2",
+                    prompt: "\"The CD must have visible thickness (not a flat plane). Model it as a thin cylinder (disc with depth). Maintain correct aspect ratio regardless of screen size. The ENTIRE back surface should display iridescent colors continuously.\"\n\nThree.js의 `ExtrudeGeometry`를 활용해 실제 CD와 동일하게 구멍이 뚫린 입체 원판(Solid Disc)을 물리적으로 압출(Extrusion)하여 모델링했습니다. 원근감(Perspective)을 가진 카메라에서 3D 오브젝트를 기울일 때 입체적인 두께감(Thickness)과 베벨 엣지가 노출됩니다. 쉐이더에서 표면 깊이(Local Z)를 계산해 측면과 후면에는 메탈 질감을 부여하고, 빛을 받는 거대한 앞면(Front Face) 전 영역에 넓고 부드러운 회절 무지갯빛이 끊기지 않고 꽉 차게 번지도록(Continuous Full Surface Iridescence) 설계했습니다. 종횡비 왜곡(Aspect Distortion)을 차단하고자 메쉬 스케일을 화면 길이에 맞게 반응형으로 제한했습니다.",
+                    script: "float isFrontFace = smoothstep(0.015, 0.018, vLocalPos.z);\nvec3 finalColor = mix(edgeMaterial, iridescenceMaterial, isFrontFace);",
+                },
             ],
         },
     ];
