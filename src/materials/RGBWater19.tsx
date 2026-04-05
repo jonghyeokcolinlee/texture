@@ -165,6 +165,14 @@ const RGBWaterPlane = () => {
         }
     }, [size]);
 
+    // Seed splash on mount so it's not just a blank white screen
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            splashWater(new THREE.Vector2(0.5, 0.5));
+        }, 500);
+        return () => clearTimeout(timeout);
+    }, []);
+
     useFrame(() => {
         const ctx = canvas2D.getContext('2d');
         if (!ctx || !texRef.current) return;
@@ -293,7 +301,7 @@ const RGBWater19: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'rgb-water-drops-v19.png') as () => void;
 
     return (
-        <div className="canvas-container bg-white cursor-crosshair">
+        <div className="canvas-container bg-white w-full h-full cursor-crosshair">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: false }}

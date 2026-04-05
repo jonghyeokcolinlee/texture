@@ -165,26 +165,25 @@ const DiscMesh = () => {
         // Tilt the CD slightly
         const maxTilt = 0.45; // Subtle tilting limit
         
-        // By default, rotate the Cylinder -90 degrees on X to point the Y-axis backwards.
-        // This ensures the camera is directly viewing the "-Y" back surface where the iridescence is!
-        meshRef.current.rotation.x = -Math.PI / 2 + currentInput.current.y * maxTilt;
+        // By default, rotate the Cylinder 90 degrees on X.
+        // This ensures the camera is directly viewing the iridescent surface.
+        meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
         meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
         // Dynamic Virtual Light
         const lx = currentInput.current.x * 2.5; 
         const ly = currentInput.current.y * 2.5; 
-        const lz = 1.5; 
+        const lz = 2.0; // Pushed slightly closer for stronger interference
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    // Scale ensuring perfect visibility and proportions on all screens natively!
-    // Using min makes sure it behaves strictly like 'object-fit: contain'
-    const cdScale = Math.min(viewport.width, viewport.height) * 0.42;
+    // Safe scaled visibility
+    const cdScale = Math.min(viewport.width, viewport.height) * 0.35;
 
     return (
         <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
-            {/* Extremely safe built-in geometry! */}
-            <cylinderGeometry args={[1.0, 1.0, 0.02, 64]} />
+            {/* Radius 1, height 0.02 */}
+            <cylinderGeometry args={[1, 1, 0.02, 64]} />
             <shaderMaterial
                 ref={materialRef}
                 vertexShader={vertexShader}
@@ -200,14 +199,15 @@ const CDIridescence2: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'cd-iridescence-v2.png') as () => void;
 
     return (
-        <div className="canvas-container bg-[#f7f7f7] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className="canvas-container bg-[#f0f0f0] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
-                camera={{ position: [0, 0, 5], fov: 35 }} 
+                // Perspective with slightly closer camera
+                camera={{ position: [0, 0, 4.5], fov: 35 }} 
                 className="w-full h-full"
             >
-                <ambientLight intensity={1.0} /> // Debug fallback ambient
+                <ambientLight intensity={0.5} />
                 <DiscMesh />
             </Canvas>
             <InteractionUI onExport={triggerExport} />

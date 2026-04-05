@@ -292,7 +292,7 @@ export default function Home() {
                                         <path d="M0 2L10 2L5 8Z" />
                                     </svg>
                                 </div>
-                                <div className={`flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${expanded[mat.title] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
+                                <div className={`flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${expanded[mat.title] ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}>
                                     {mat.versions.map((ver) => (
                                         <Link
                                             key={ver.id}

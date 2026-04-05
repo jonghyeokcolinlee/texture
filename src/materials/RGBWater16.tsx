@@ -304,7 +304,7 @@ const RGBWater16: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'rgb-water-block-edges.png') as () => void;
 
     return (
-        <div className="canvas-container bg-white cursor-crosshair">
+        <div className="canvas-container bg-white w-full h-full cursor-crosshair">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: false }}
