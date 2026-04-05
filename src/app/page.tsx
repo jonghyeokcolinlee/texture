@@ -286,21 +286,21 @@ export default function Home() {
                                 >
                                     <p className="mb-0">{mat.title}</p>
                                     <svg 
-                                        className={\`w-[0.55em] h-[0.55em] mt-[0.1em] opacity-30 group-hover:opacity-100 transition-transform duration-300 \${expanded[mat.title] ? "" : "-rotate-90"}\`}
+                                        className={`w-[0.55em] h-[0.55em] mt-[0.1em] opacity-30 group-hover:opacity-100 transition-transform duration-300 ${expanded[mat.title] ? "" : "-rotate-90"}`}
                                         fill="currentColor" viewBox="0 0 10 10"
                                     >
                                         <path d="M0 2L10 2L5 8Z" />
                                     </svg>
                                 </div>
-                                <div className={\`flex flex-col overflow-hidden transition-all duration-300 ease-in-out \${expanded[mat.title] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}\`}>
+                                <div className={`flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${expanded[mat.title] ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
                                     {mat.versions.map((ver) => (
                                         <Link
                                             key={ver.id}
                                             href={ver.url}
                                             onMouseEnter={() => setActiveInfo(ver)}
-                                            className={\`text-left opacity-30 hover:opacity-100 transition-opacity duration-300 block w-fit font-medium \${
+                                            className={`text-left opacity-30 hover:opacity-100 transition-opacity duration-300 block w-fit font-medium ${
                                                 activeInfo?.url === ver.url ? "opacity-100" : ""
-                                            }\`}
+                                            }`}
                                         >
                                             {ver.id}
                                         </Link>
