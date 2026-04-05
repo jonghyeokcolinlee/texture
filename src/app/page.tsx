@@ -149,6 +149,12 @@ export default function Home() {
                     prompt: "\"물방울이 비정형적으로 퍼졌으면 좋겠고, 고른 RGB 패턴(모래) 대신 레퍼런스 이미지처럼 불규칙적이고 큰 RGB 덩어리가 있었으면 좋겠음.\"\n\n정원형 물방울 텍스처를 읽어올 때 2D Simplex 노이즈로 UV를 뒤틀어(Warping) 매우 불규칙적인 비정형 물방울 형태 생성. 렌즈 굴절 시 RGB 채널별로 오프셋을 다르게 주는 색수차(Chromatic Aberration)와 패치 노이즈(Patch Noise) 마스킹을 결합해 일정하지 않고 덩어리진 픽셀 무지개 반사가 나타나도록 고도화.",
                     script: "vec2 distR = p - normalOffset * 0.10;\nvec2 distB = p - normalOffset * 0.06;",
                 },
+                {
+                    id: "v6",
+                    url: "/rgb/6",
+                    prompt: "\"물방울이 자기 혼자 너무 움직인다. 그리고 물방울이 커질때 가장자리만 커져야하는데 가운데 RGB 표현이 너무 심하게 드러나.\"\n\n물방울이 끓잡듯이 스스로 움직이던 애니메이션(u_time)을 제거하고 고정된 비정형 형태(Static Noise)로 안정화. 큰 물웅덩이의 중앙(가장 깊고 평평한 곳)을 높이값(height > 0.8)으로 감지하여 강제로 RGB 굴절을 없앰으로써, 큰 웅덩이는 가운데가 깨끗하고 가장자리만 무지개빛이 맺히도록 구조를 개선.",
+                    script: "float rgbMaxH = smoothstep(0.9, 0.75, h);\nfloat rgbVisibility = rgbMaxH * rgbMinSlope * rgbIrregularity;",
+                },
             ],
         },
         {
