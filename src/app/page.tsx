@@ -221,6 +221,12 @@ export default function Home() {
                     prompt: "\"근데 지금 rgb부분이 내가 보내준 사진처럼 더 뭉쳐서 두껍게 있어야돼. 물방울이 커진만큼 표현자체가.\"\n\n경사면(Slope)의 너비와 캔버스의 Gradient 알파값을 넓게 분산시켜서 **RGB 블록이 올라탈 수 있는 모서리(Edge)의 두께감 자체를 2배 이상 두껍게 확장**했습니다. 경사가 두꺼워진 만큼 서로 다른 색상 패널이 크게 분리될 수 있도록 Red/Green/Blue 색수차 채널의 오프셋 거리(offset gap)도 2배로 넓히고 증폭시켜서, 레퍼런스 사진처럼 굵고 강렬한 RGB 픽셀 띠가 모서리를 둥글게 감싸며 뭉치도록 표현력을 극대화했습니다.",
                     script: "float edgeIntensity = smoothstep(0.005, 0.40, slope);\nvec2 distR = p - normalOffset * 0.80;",
                 },
+                {
+                    id: "v19",
+                    url: "/rgb/19",
+                    prompt: "\"아니 근데 rgb자체가 입자가 커져야되고, 한쪽에만 뭉쳐있는게 아니라, 보낸 사진처럼 random한 가장자리에 위치하게끔!\"\n\nRGB 픽셀 연산 스케일을 한 번 더 극한으로 줄여서(`0.008 -> 0.0035`), 마치 브릭 장난감처럼 **물리적인 픽셀 입자 크기를 거대하게 키웠습니다**. 또한 항상 특정 방향(Top-Left)에만 RGB가 맺히던 고정 로직을 폐기하고, 낮은 주파수의 3D 노이즈(snoise)를 화면 공간 전체에 매핑하는 방식으로 변경했습니다. 이를 통해 **조명 방향에 관계없이 윤곽선을 따라 예측 불가능한 랜덤한 위치에 RGB 블록들이 무작위로 맺히거나 사라지는(Random Edge CA Placement) 형태**를 완벽하게 구현했습니다.",
+                    script: "vec2 p = uv * u_resolution.xy * 0.0035;\nfloat edgeNoise = snoise(vUv * 15.0); float rgbSide = smoothstep(-0.1, 0.5, edgeNoise);",
+                },
             ],
         },
         {
