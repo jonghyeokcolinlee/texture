@@ -256,6 +256,17 @@ export default function Home() {
                 },
             ],
         },
+        {
+            title: "09 glass brick wall",
+            versions: [
+                {
+                    id: "v1",
+                    url: "/glassgrid/1",
+                    prompt: "\"웹캠 화면 위에 투명한 사각 유리 블록들이 쌓여있는 효과. 마우스를 올리면 블록이 볼록렌즈처럼 왜곡되고, 꾹 누르면 오목하게 눌리는 느낌을 줘.\"\n\n웹캠 스트림 비디오 텍스처를 15겹의 모자이크 타일로 분할(Segmentation)한 뒤, 타일별로 무작위 오프셋(Refraction), 색수차(CA), 다중 탭 방식의 흐림 효과(Blur)를 주어 유리 블록을 모사한 쉐이더. 호버/클릭 시 물리적으로 타일이 확대(Zoom)/축소되며 빛의 굴절이 즉각적으로 변하는 상호작용 구현.",
+                    script: "vec2 tileCenterAspect = (gridId + 0.5) / tiles;\nvec2 sampleUv = tileCenter + (vUv - tileCenter) * zoom;",
+                },
+            ],
+        },
     ];
 
     const toggleExpanded = (title: string) => {
