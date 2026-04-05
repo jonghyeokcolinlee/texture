@@ -209,6 +209,12 @@ export default function Home() {
                     prompt: "\"rgb interaction 이렇게 크게 보이게 수정 못해? 이렇게까지 크게는 아니여도, 이런 느낌으로 가장자리에 rgb 조금씩 보이게해서 (레퍼런스 이미지 제공).\"\n\n제공된 이미지를 철저히 분석하여 색수차와 빛의 굴절 매커니즘을 새롭게 짰습니다. 캔버스에 닿는 물방울의 수직 단면을 완벽한 평면 고원(Plateau)으로 깎아내 중앙부에는 전혀 왜곡 없이 투명한 순백색 코어가 유지되도록 하고, 가장자리(Edge)의 급격한 경사에만 방사형 빛 연산을 구해서 좌상단 가장자리에만 강렬한 스텝의 RGB 서브픽셀 굴절이 맺히도록 구조를 완전히 분리(Isolate)했습니다.",
                     script: "float edgeIntensity = smoothstep(0.01, 0.20, slope);\nfloat rgbSide = smoothstep(0.0, 0.6, max(dot(N, L_rgb), 0.0));",
                 },
+                {
+                    id: "v17",
+                    url: "/rgb/17",
+                    prompt: "\"아니 내가 보내준 사진과 유사하게, 그림자는 적게, rgb 픽셀 덩어리는 조금씩 크게, 물방울은 완전 #fff말고 흰색과 구분되는 조금 옅은 회색으로\"\n\n레퍼런스 이미지의 미묘한 톤 앤 매너(Tone & Manner)를 완벽하게 모사하기 위해 다음과 같이 튜닝했습니다: 1. `getLCDColor`의 배율 스케일을 줄여 픽셀 덩어리를 물리적으로 두 배 이상 키웠습니다. 2. 검회색이던 강한 그림자를 아주 옅은 쿨그레이(Light Grey) 톤으로 밝히고 혼합 수치(Blend ratio)를 크게 낮춰 그림자의 대비를 없앴습니다. 3. 순백(Pure White)이던 물방울 코어의 베이스 컬러를 미세하게 옅은 회색(0.94)으로 낮춰서, 순백색의 뒷배경과 투명하게 구별되는 얕은 물의 체적(Volume)을 구현했습니다.",
+                    script: "vec2 p = uv * u_resolution.xy * 0.008;\nvec3 dropInsideColor = vec3(0.94); edgeColor = mix(edgeColor, vec3(0.85), shadowSide * 0.6);",
+                },
             ],
         },
         {
