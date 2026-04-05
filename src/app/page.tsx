@@ -179,6 +179,12 @@ export default function Home() {
                     prompt: "\"물에 조금씩 반사광이 있어서 더 물처럼 보이게, 그리고 물방울들은 시간이 지나면 증발해서 줄어드는 효과를 줘.\"\n\n환경광을 모사하는 보조 **스팟라이트와 프레넬 반사광(Fresnel Glint)**을 추가하여 표면의 매끄러운 찰랑거림을 극대화. 캔버스의 증발 로직과 그라데이션 알파 값을 조절하여(Opacity fade), 웅덩이 가장자리가 빠르게 마르며 **점점 안쪽으로 쪼그라드는 물리적인 증발 효과(Shrinking)**를 완벽하게 모사.",
                     script: "float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0) * 0.4;\n// gradient fade -> shape shrink",
                 },
+                {
+                    id: "v13",
+                    url: "/rgb/13",
+                    prompt: "\"아니다 v9로 rollback하고, 거기에 시간이 지나면 순차적으로 옛날에 생성되었던 물방울들이 점점 수축되면서 증발하는듯한 효과를 줘.\"\n\nv9의 알록달록하고 극단적인 색수차, 고정형 스플래터 로직으로 완전히 롤백(Rollback)한 뒤, 물파장 캔버스의 감쇠(Fade) 로직과 방사형 알파 그라데이션(Radial gradient) 구조를 선형적으로 튜닝. 이를 통해 캔버스의 픽셀이 증발할 때 외곽에서 중앙으로 서서히 알파가 제거되며 **오래된 물방울일수록 순차적으로 크기가 줄어들다 소멸하는(Sequential Shrinking)** 완벽한 증발 효과를 재수립.",
+                    script: "ctx.fillStyle = 'rgba(0, 0, 0, 0.015)';\ngrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.3)');",
+                },
             ],
         },
         {
