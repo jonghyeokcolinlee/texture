@@ -265,6 +265,12 @@ export default function Home() {
                     prompt: "\"웹캠 화면 위에 투명한 사각 유리 블록들이 쌓여있는 효과. 마우스를 올리면 블록이 볼록렌즈처럼 왜곡되고, 꾹 누르면 오목하게 눌리는 느낌을 줘.\"\n\n웹캠 스트림 비디오 텍스처를 15겹의 모자이크 타일로 분할(Segmentation)한 뒤, 타일별로 무작위 오프셋(Refraction), 색수차(CA), 다중 탭 방식의 흐림 효과(Blur)를 주어 유리 블록을 모사한 쉐이더. 호버/클릭 시 물리적으로 타일이 확대(Zoom)/축소되며 빛의 굴절이 즉각적으로 변하는 상호작용 구현.",
                     script: "vec2 tileCenterAspect = (gridId + 0.5) / tiles;\nvec2 sampleUv = tileCenter + (vUv - tileCenter) * zoom;",
                 },
+                {
+                    id: "v2",
+                    url: "/glassgrid/2",
+                    prompt: "\"전체 화면이 하얗게 나오는 버그 수정 (웹캠 로드 및 Fallback 지원). 카메라 텍스처를 화면 비율에 맞춰 강제로 늘리지 말고 Object-fit: contain 처럼 비율을 유지하게끔 해줘.\"\n\n웹캠 로딩 안정성을 개선하고, 카메라 권한 거부 시 예비 추상 캔버스(Fallback Gradient)를 로드하여 빈 화면 현상을 완벽 차단. 텍스처 원본 종횡비(Aspect ratio)에 맞춰 3D 평면 메쉬 크기를 스스로 재계산하는 Object-fit Contain 로직을 브라우저 리사이징 시에도 실시간으로 대응하도록 구축.",
+                    script: "planeW = viewport.width; planeH = planeW / texAspect;\ncolor = pow(color, vec3(0.9));",
+                },
             ],
         },
     ];
