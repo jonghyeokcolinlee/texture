@@ -137,6 +137,12 @@ export default function Home() {
                     prompt: "\"물끼리 붙는듯한 gooey한 effect넣어주고, 물방울의 개수에 제한 없도록 해줘. 증발하는 효과 유지.\"\n\n임시 캔버스(FBO)를 다시 도입하여 무제한 갯수의 물방울 생성을 지원하고, 캔버스의 Additive Blending(lighter)과 쉐이더의 smoothstep을 결합해 가까이 있는 물방울끼리 스르륵 합쳐지는 메타볼(Gooey) 표면 장력 효과를 구현.",
                     script: "ctx.globalCompositeOperation = 'lighter';\nfloat h = smoothstep(0.05, 0.2, rawH) * rawH;",
                 },
+                {
+                    id: "v4",
+                    url: "/rgb/4",
+                    prompt: "\"전체에 rgb가 다 보이는게 아니고, 물방울 테두리변두리에 보이게, 작다면 전체가 rgb로 보이게끔. 누르는 압력에 따라 크기도 조절해줘.\"\n\n물방울의 곡률(Slope, 편미분 벡터의 길이)을 계산하여 곡률이 가파른 가장자리나 작은 물방울에서만 RGB가 굴절되게 보이도록 visibility를 조절. 사용자가 마우스를 누르고 있는 시간(Pressure / Hold Time)을 추적해 `requestAnimationFrame` 내에서 브러시 크기를 키워 거대한 물방울 웅덩이가 만들어지도록 인터랙션 고도화.",
+                    script: "float slope = length(normalOffset);\nfloat rgbVisibility = smoothstep(0.02, 0.3, slope);",
+                },
             ],
         },
         {
