@@ -69,33 +69,34 @@ void main() {
     float u = dotL2T - dotV2T; 
     
     bool isCap = abs(vLocalPos.y) > 0.005;
-    vec3 finalColor = vec3(0.08); 
+    vec3 finalColor = vec3(0.12); // Slightly higher base for flat feel
 
     if (isCap) {
-        float spread = 6.4; 
+        float spread = 6.8; 
         for(float m = 1.0; m <= 3.0; m++) {
-            float w = abs(u) * spread / m + (radius * 0.12); 
+            float w = abs(u) * spread / m + (radius * 0.1); 
             vec3 spectral = spectralColor(w);
-            float mask = smoothstep(0.0, 0.4, w) * smoothstep(2.4, 1.2, w);
-            finalColor += spectral * mask * (1.8 / m);
+            float mask = smoothstep(0.0, 0.5, w) * smoothstep(2.5, 1.0, w);
+            finalColor += spectral * mask * (2.0 / m);
         }
         
         vec3 H = normalize(L + V);
         float HdotT = dot(H, T);
-        float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 110.0);
-        finalColor += vec3(1.0) * specStreak * 2.0;
+        float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 100.0);
+        finalColor += vec3(1.0) * specStreak * 2.2;
 
         float dotLN = clamp(dot(N, L), 0.0, 1.0);
-        finalColor += vec3(0.18) * dotLN + vec3(0.05);
+        finalColor += vec3(0.2) * dotLN + vec3(0.05);
 
-        float innerRim = smoothstep(0.22, 0.18, radius);
-        float outerRim = smoothstep(0.95, 1.0, radius);
-        finalColor *= (1.0 - innerRim * 0.3);
-        finalColor *= (1.0 - outerRim * 0.4);
+        // REMOVED: Deep rim/edge shadows to maintain FLAT feel
     } else {
         float dotLN = clamp(dot(N, L), 0.0, 1.0);
-        finalColor = vec3(0.6, 0.63, 0.66) * dotLN + vec3(0.2);
+        finalColor = vec3(0.65, 0.68, 0.7) * dotLN + vec3(0.2);
     }
+
+    // Very subtle fade only at the absolute edge for antialiasing
+    float fade = smoothstep(0.99, 1.0, radius);
+    finalColor *= (1.0 - fade);
 
     gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }
@@ -108,7 +109,6 @@ const RequestGyroBanner = ({ onGranted, granted }: { onGranted: () => void, gran
         if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
             setNeedsUI(true);
         }
-        // If not a mobile device needing permission (like Desktop), just return
     }, []);
 
     const requestPermission = () => {
@@ -119,7 +119,6 @@ const RequestGyroBanner = ({ onGranted, granted }: { onGranted: () => void, gran
             .catch(console.error);
     };
 
-    // Only show if we need permission AND it hasn't been granted yet
     if (!needsUI || granted) return null;
 
     return (
@@ -137,8 +136,6 @@ const RequestGyroBanner = ({ onGranted, granted }: { onGranted: () => void, gran
 const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: number, y: number }> }) => {
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const meshRef = useRef<THREE.Mesh>(null);
-    const shadowOuterRef = useRef<THREE.Mesh>(null);
-    const shadowInnerRef = useRef<THREE.Mesh>(null);
     const currentInput = useRef({ x: 0, y: 0 });
     const { viewport } = useThree();
 
@@ -150,7 +147,7 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
     const isMobile = useMemo(() => viewport.width < 4.0, [viewport]);
 
     useFrame((state) => {
-        if (!meshRef.current || !materialRef.current || !shadowOuterRef.current || !shadowInnerRef.current) return;
+        if (!meshRef.current || !materialRef.current) return;
         
         currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.1;
         currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.1;
@@ -159,24 +156,11 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
         meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
-        // Alignment based on environment
-        // Mobile: Show right half by positioning center to the left
-        const offsetX = isMobile ? -viewport.width * 0.45 : 0;
-        meshRef.current.position.x = offsetX;
-        
-        shadowOuterRef.current.position.x = offsetX + currentInput.current.x * 0.12;
-        shadowOuterRef.current.position.y = -0.75 - currentInput.current.y * 0.12;
-        shadowOuterRef.current.scale.setScalar(1.0 + Math.abs(currentInput.current.y) * 0.1);
-        
-        shadowInnerRef.current.position.x = offsetX + currentInput.current.x * 0.08;
-        shadowInnerRef.current.position.y = -0.75 - currentInput.current.y * 0.08;
-        shadowInnerRef.current.scale.setScalar(0.22);
-        
-        if (shadowOuterRef.current.material instanceof THREE.MeshBasicMaterial) {
-            shadowOuterRef.current.material.opacity = 0.12;
-        }
-        if (shadowInnerRef.current.material instanceof THREE.MeshBasicMaterial) {
-            shadowInnerRef.current.material.opacity = 0.18;
+        // Alignment: Mobile shows right half centered on left edge
+        if (isMobile) {
+            meshRef.current.position.x = -viewport.width / 2;
+        } else {
+            meshRef.current.position.x = 0;
         }
 
         uniforms.u_cameraPos.value.copy(state.camera.position);
@@ -187,31 +171,15 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    const cdScale = Math.min(viewport.width, viewport.height) * (isMobile ? 0.35 : 0.28); 
-
-    const shadowTex = useMemo(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 128; canvas.height = 128;
-        const ctx = canvas.getContext('2d')!;
-        const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-        grad.addColorStop(0, 'rgba(0,0,0,1)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, 128, 128);
-        return new THREE.CanvasTexture(canvas);
-    }, []);
+    // Scale logic as requested: On mobile, radius (1.0 in geo) fills viewport width
+    const cdScale = isMobile ? viewport.width : Math.min(viewport.width, viewport.height) * 0.28; 
 
     return (
         <group>
-            <mesh ref={shadowOuterRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.75, 0]}>
-                <planeGeometry args={[1.6, 1.6]} />
-                <meshBasicMaterial transparent map={shadowTex} opacity={0.12} />
-            </mesh>
-            <mesh ref={shadowInnerRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.75, 0]}>
-                <planeGeometry args={[1, 1]} />
-                <meshBasicMaterial transparent map={shadowTex} opacity={0.18} color="#000" />
-            </mesh>
-
+            {/* REMOVED: Outer and Inner Shadows as requested */}
             <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
-                <cylinderGeometry args={[1, 1, 0.015, 64]} />
+                {/* Thin cylinder geometry maintained */}
+                <cylinderGeometry args={[1, 1, 0.012, 64]} />
                 <shaderMaterial
                     ref={materialRef}
                     vertexShader={vertexShader}
@@ -231,7 +199,6 @@ const CDIridescence4: React.FC = () => {
 
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
-            // Only use mouse if gyro is definitely NOT active/available
             if (gyroActive) return;
             const x = (e.clientX / window.innerWidth) * 2 - 1;
             const y = -(e.clientY / window.innerHeight) * 2 + 1;
