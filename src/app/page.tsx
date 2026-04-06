@@ -338,6 +338,12 @@ export default function Home() {
                     prompt: "\"흰색비닐 바스락거리는 효과로 09 만들어줘\"",
                     script: "folds = pow(1.0 - folds, 3.0);\ninteractScale.current += (speed * 5.0 - interactScale.current) * 0.1;",
                 },
+                {
+                    id: "v2",
+                    url: "/vinyl/2",
+                    prompt: "\"interaction으로 사부작사부작할 수 있게, 실제 비닐처럼 인터랙션을 넣어줘\"",
+                    script: "float grab = smoothstep(0.4, 0.0, distToMouse) * u_interact;\nvec2 displacedUv = uv + (uv - u_mouse) * grab * 0.15;",
+                },
             ],
         },
     ];
