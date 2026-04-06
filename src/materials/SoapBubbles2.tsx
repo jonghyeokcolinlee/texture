@@ -140,11 +140,11 @@ const BubbleSystem = () => {
         const newBubble: BubbleData = {
             id: nextId.current++,
             position: pos,
-            scale: 0.15 + Math.random() * 0.25,
+            scale: 0.05 + Math.random() * 0.12,
             velocity: new THREE.Vector3(
-                (Math.random() - 0.5) * 0.005,
-                0.008 + Math.random() * 0.012,
-                (Math.random() - 0.5) * 0.005
+                (Math.random() - 0.5) * 0.003,
+                0.006 + Math.random() * 0.01,
+                (Math.random() - 0.5) * 0.003
             ),
             life: 4.0 + Math.random() * 3.0
         };
