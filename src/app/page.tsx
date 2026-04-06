@@ -290,6 +290,12 @@ export default function Home() {
                     prompt: "\"깨진유리가 화면 상에 쌓여있고, 거기에 카메라를 통해 큐비즘처럼 여러 각도에서 비춰지는 모습의 interaction 07로 만들어줘\"",
                     script: "float shardID = hash(cid);\nvec2 cubistUv = (vUv - 0.5) * shardZoom + shift * (shardID * 2.0 - 1.0);",
                 },
+                {
+                    id: "v2",
+                    url: "/shattered/2",
+                    prompt: "\"깨진 거울처럼 보이질 않아서, 깨진 거울 조각들이 흰 화면에 집중되어서 모여있고, 거기서 생기는 각도에 따른 서로 다른 모습이 나오면 좋을 것 같아\"",
+                    script: "float mask = smoothstep(0.5, 0.2, length(centeredP));\nif (shardID > mask * 1.5) discard;",
+                },
             ],
         },
     ];
