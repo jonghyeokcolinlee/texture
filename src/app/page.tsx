@@ -317,6 +317,12 @@ export default function Home() {
                     prompt: "\"다음은 비눗방울... 그냥 마우스 커서로 생성해서 되는 인터랙션으로\"",
                     script: "const iris = iridescence(dot(vNormal, vViewDir) * thickness);",
                 },
+                {
+                    id: "v2",
+                    url: "/bubbles/2",
+                    prompt: "\"이런 레퍼런스로 (드림이하고 영롱한 비눗방울 이미지)\"",
+                    script: "vec3 highlights = vec3(1.0) * (spec1 * 1.2 + spec2 * 0.4);\nfloat wobble = sin(position.x * 4.0 + u_time * 2.0);",
+                },
             ],
         },
     ];
