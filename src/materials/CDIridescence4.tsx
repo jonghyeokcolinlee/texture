@@ -72,46 +72,44 @@ void main() {
     vec3 finalColor = vec3(0.08); 
 
     if (isCap) {
-        float spread = 6.2; 
+        float spread = 6.4; 
         for(float m = 1.0; m <= 3.0; m++) {
-            float w = abs(u) * spread / m + (radius * 0.1); 
+            float w = abs(u) * spread / m + (radius * 0.12); 
             vec3 spectral = spectralColor(w);
-            float mask = smoothstep(0.0, 0.4, w) * smoothstep(2.2, 1.1, w);
-            finalColor += spectral * mask * (1.7 / m);
+            float mask = smoothstep(0.0, 0.4, w) * smoothstep(2.4, 1.2, w);
+            finalColor += spectral * mask * (1.8 / m);
         }
         
         vec3 H = normalize(L + V);
         float HdotT = dot(H, T);
         float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 110.0);
-        finalColor += vec3(1.0) * specStreak * 1.8;
+        finalColor += vec3(1.0) * specStreak * 2.0;
 
         float dotLN = clamp(dot(N, L), 0.0, 1.0);
-        finalColor += vec3(0.15) * dotLN + vec3(0.05);
+        finalColor += vec3(0.18) * dotLN + vec3(0.05);
 
-        // Subtle plastic inner/outer darkening
         float innerRim = smoothstep(0.22, 0.18, radius);
         float outerRim = smoothstep(0.95, 1.0, radius);
         finalColor *= (1.0 - innerRim * 0.3);
         finalColor *= (1.0 - outerRim * 0.4);
     } else {
         float dotLN = clamp(dot(N, L), 0.0, 1.0);
-        finalColor = vec3(0.62, 0.65, 0.68) * dotLN + vec3(0.2);
+        finalColor = vec3(0.6, 0.63, 0.66) * dotLN + vec3(0.2);
     }
 
     gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }
 `;
 
-const RequestGyroBanner = ({ onGranted }: { onGranted: () => void }) => {
+const RequestGyroBanner = ({ onGranted, granted }: { onGranted: () => void, granted: boolean }) => {
     const [needsUI, setNeedsUI] = useState(false);
 
     useEffect(() => {
         if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
             setNeedsUI(true);
-        } else {
-            onGranted();
         }
-    }, [onGranted]);
+        // If not a mobile device needing permission (like Desktop), just return
+    }, []);
 
     const requestPermission = () => {
         (DeviceOrientationEvent as any).requestPermission()
@@ -121,10 +119,11 @@ const RequestGyroBanner = ({ onGranted }: { onGranted: () => void }) => {
             .catch(console.error);
     };
 
-    if (!needsUI) return null;
+    // Only show if we need permission AND it hasn't been granted yet
+    if (!needsUI || granted) return null;
 
     return (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-white/90 backdrop-blur-sm pointer-events-auto">
+        <div className="absolute inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm pointer-events-auto">
             <button 
                 onClick={requestPermission}
                 className="px-8 py-4 border border-black/10 text-black font-medium hover:bg-black/5 transition-all lowercase text-lg tracking-tight"
@@ -148,6 +147,8 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         u_cameraPos: { value: new THREE.Vector3() }
     }), []);
 
+    const isMobile = useMemo(() => viewport.width < 4.0, [viewport]);
+
     useFrame((state) => {
         if (!meshRef.current || !materialRef.current || !shadowOuterRef.current || !shadowInnerRef.current) return;
         
@@ -158,22 +159,24 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
         meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
-        // Shadow tracking
-        const tiltIntensity = 1.0 - Math.min(1.0, Math.sqrt(currentInput.current.x**2 + currentInput.current.y**2));
+        // Alignment based on environment
+        // Mobile: Show right half by positioning center to the left
+        const offsetX = isMobile ? -viewport.width * 0.45 : 0;
+        meshRef.current.position.x = offsetX;
         
-        shadowOuterRef.current.position.x = currentInput.current.x * 0.12;
+        shadowOuterRef.current.position.x = offsetX + currentInput.current.x * 0.12;
         shadowOuterRef.current.position.y = -0.75 - currentInput.current.y * 0.12;
         shadowOuterRef.current.scale.setScalar(1.0 + Math.abs(currentInput.current.y) * 0.1);
         
-        shadowInnerRef.current.position.x = currentInput.current.x * 0.08;
+        shadowInnerRef.current.position.x = offsetX + currentInput.current.x * 0.08;
         shadowInnerRef.current.position.y = -0.75 - currentInput.current.y * 0.08;
         shadowInnerRef.current.scale.setScalar(0.22);
         
         if (shadowOuterRef.current.material instanceof THREE.MeshBasicMaterial) {
-            shadowOuterRef.current.material.opacity = 0.12 * (0.6 + 0.4 * tiltIntensity);
+            shadowOuterRef.current.material.opacity = 0.12;
         }
         if (shadowInnerRef.current.material instanceof THREE.MeshBasicMaterial) {
-            shadowInnerRef.current.material.opacity = 0.18 * (0.6 + 0.4 * tiltIntensity);
+            shadowInnerRef.current.material.opacity = 0.18;
         }
 
         uniforms.u_cameraPos.value.copy(state.camera.position);
@@ -184,8 +187,7 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    // Physical aspect scale: keep perfectly circular but responsive to width
-    const cdScale = Math.min(viewport.width, viewport.height) * 0.28; 
+    const cdScale = Math.min(viewport.width, viewport.height) * (isMobile ? 0.35 : 0.28); 
 
     const shadowTex = useMemo(() => {
         const canvas = document.createElement('canvas');
@@ -199,18 +201,15 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
 
     return (
         <group>
-            {/* Outer Shadow */}
             <mesh ref={shadowOuterRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.75, 0]}>
                 <planeGeometry args={[1.6, 1.6]} />
                 <meshBasicMaterial transparent map={shadowTex} opacity={0.12} />
             </mesh>
-            {/* Inner Shadow (Hole) */}
             <mesh ref={shadowInnerRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.75, 0]}>
                 <planeGeometry args={[1, 1]} />
                 <meshBasicMaterial transparent map={shadowTex} opacity={0.18} color="#000" />
             </mesh>
 
-            {/* CD Disc */}
             <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
                 <cylinderGeometry args={[1, 1, 0.015, 64]} />
                 <shaderMaterial
@@ -232,14 +231,15 @@ const CDIridescence4: React.FC = () => {
 
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
+            // Only use mouse if gyro is definitely NOT active/available
             if (gyroActive) return;
             const x = (e.clientX / window.innerWidth) * 2 - 1;
             const y = -(e.clientY / window.innerHeight) * 2 + 1;
             targetInput.current = { x, y };
         };
         const handleOrientation = (e: DeviceOrientationEvent) => {
-            if (e.beta !== null && e.gamma !== null) {
-                // beta: tilt front/back [-180, 180], gamma: left/right [-90, 90]
+            if (e.beta !== null && e.gamma !== null && (e.beta !== 0 || e.gamma !== 0)) {
+                setGyroActive(true);
                 const bx = (e.gamma || 0) / 40.0;
                 const by = ((e.beta || 45) - 45) / 40.0;
                 targetInput.current = { 
@@ -258,7 +258,7 @@ const CDIridescence4: React.FC = () => {
 
     return (
         <div className="canvas-container bg-white cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
-            <RequestGyroBanner onGranted={() => setGyroActive(true)} />
+            <RequestGyroBanner granted={gyroActive} onGranted={() => setGyroActive(true)} />
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
