@@ -304,6 +304,21 @@ export default function Home() {
                 },
             ],
         },
+        {
+            title: "08 soap bubbles",
+            activeInfo: {
+                version: "v1",
+                description: "화면을 클릭하거나 드래그하면 영롱한 비눗방울들이 생성되어 공중으로 떠오릅니다. 비눗방울 표면에는 빛의 간섭 현상(Thin-film interference)에 의한 무지갯빛 오일 슬릭 효과가 실시간으로 일렁이며, 실제 비눗방울처럼 가볍게 흔들리다 사라지는 몽환적인 상호작용을 선사합니다.",
+            },
+            versions: [
+                {
+                    id: "v1",
+                    url: "/bubbles/1",
+                    prompt: "\"다음은 비눗방울... 그냥 마우스 커서로 생성해서 되는 인터랙션으로\"",
+                    script: "const iris = iridescence(dot(vNormal, vViewDir) * thickness);",
+                },
+            ],
+        },
     ];
 
     const toggleExpanded = (title: string) => {
