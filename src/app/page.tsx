@@ -263,6 +263,12 @@ export default function Home() {
                     prompt: "\"The CD must have visible thickness (not a flat plane). Model it as a thin cylinder (disc with depth). Maintain correct aspect ratio regardless of screen size. The ENTIRE back surface should display iridescent colors continuously.\"\n\nThree.js의 `ExtrudeGeometry`를 활용해 실제 CD와 동일하게 구멍이 뚫린 입체 원판(Solid Disc)을 물리적으로 압출(Extrusion)하여 모델링했습니다. 카메라와 거리를 둔 원근(Perspective) 모델의 Z축을 역으로 뒤집어 유저가 항상 CD의 광원이 반사되는 뒷면(-Z)을 바라볼 수 있도록 기본 셋업을 강제했습니다. 표면의 z값을 감별해 측면의 링 형태에는 메탈 질감을 부여하고 뒷면에만 연속적인 회절 프리즘(Continuous Diffraction) 무지갯빛이 끊임없이 쪼개어지며 발광하도록 수식을 안전하게 클램핑(Clamp)하여 오류를 완벽히 해결했습니다.",
                     script: "float isBackFace = smoothstep(-0.015, -0.019, vLocalPos.z);\nvec3 finalColor = mix(silverMaterial, iridescenceMaterial, isBackFace);",
                 },
+                {
+                    id: "v3",
+                    url: "/cd/3",
+                    prompt: "\"CD 크기를 조금 줄여주고, 좌우로도 움직였을 때 기울어지고 색 바뀌는 인터랙션 추가 + 배경흰색으로 변경, 그대신 CD 그림자 추가해서 v3로 수정\"\n\nCD의 전체적인 스케일을 콤팩트하게 조정하고, 마우스/자이로 X축 입력에 따른 Y축 회전 관성을 추가하여 좌우 기울기에서도 다이내믹한 무지갯빛 변화를 유도했습니다. 배경을 순백색(#fff)으로 전환하는 대신, 부유하는 CD 하단에 타원형의 방사형 그라데이션 그림자(Radial Shadow)를 동적으로 배치하여 화이트 캔버스상의 입체감과 물리적 존재감을 극대화했습니다.",
+                    script: "meshRef.current.rotation.y = currentInput.current.x * maxTilt;\n// Shadow logic: 1.0 - Math.abs(input.y) * 0.1",
+                },
             ],
         },
     ];
