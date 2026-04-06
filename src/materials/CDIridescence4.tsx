@@ -94,9 +94,11 @@ void main() {
         finalColor = vec3(0.65, 0.68, 0.7) * dotLN + vec3(0.2);
     }
 
-    // Very subtle fade only at the absolute edge for antialiasing
-    float fade = smoothstep(0.99, 1.0, radius);
-    finalColor *= (1.0 - fade);
+    // Subtle black rims for both inner and outer edges for physical detail
+    float outerFade = smoothstep(0.985, 0.995, radius);
+    float innerFade = smoothstep(0.195, 0.185, radius);
+    finalColor *= (1.0 - outerFade * 0.8);
+    finalColor *= (1.0 - innerFade * 0.8);
 
     gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }
@@ -144,7 +146,7 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         u_cameraPos: { value: new THREE.Vector3() }
     }), []);
 
-    const isMobile = useMemo(() => viewport.width < 4.0, [viewport]);
+    const isMobile = useMemo(() => viewport.width < 4.5, [viewport]);
 
     useFrame((state) => {
         if (!meshRef.current || !materialRef.current) return;
@@ -156,9 +158,9 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
         meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
-        // Alignment: Mobile shows right half centered on left edge
+        // Alignment: Mobile shows right half centered slightly off left edge
         if (isMobile) {
-            meshRef.current.position.x = -viewport.width / 2;
+            meshRef.current.position.x = -viewport.width * 0.42;
         } else {
             meshRef.current.position.x = 0;
         }
@@ -171,12 +173,11 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    // Scale logic as requested: On mobile, radius (1.0 in geo) fills viewport width
-    const cdScale = isMobile ? viewport.width : Math.min(viewport.width, viewport.height) * 0.28; 
+    // Scale logic: On mobile, radius fills most of the width but not 100%
+    const cdScale = isMobile ? viewport.width * 0.88 : Math.min(viewport.width, viewport.height) * 0.28; 
 
     return (
         <group>
-            {/* REMOVED: Outer and Inner Shadows as requested */}
             <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
                 {/* Thin cylinder geometry maintained */}
                 <cylinderGeometry args={[1, 1, 0.012, 64]} />
