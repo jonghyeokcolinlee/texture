@@ -296,6 +296,12 @@ export default function Home() {
                     prompt: "\"깨진 거울처럼 보이질 않아서, 깨진 거울 조각들이 흰 화면에 집중되어서 모여있고, 거기서 생기는 각도에 따른 서로 다른 모습이 나오면 좋을 것 같아\"",
                     script: "float mask = smoothstep(0.5, 0.2, length(centeredP));\nif (shardID > mask * 1.5) discard;",
                 },
+                {
+                    id: "v3",
+                    url: "/shattered/3",
+                    prompt: "\"사실적으로 유리가 깨진 모습, 유리조각이 퍼져있는 모습이거 레퍼런스 삼아서 흰 배경으로 해서 넣어줘\"",
+                    script: "float radial = smoothstep(0.01, 0.0, abs(angle - rAngle));\nfloat concentric = smoothstep(0.02, 0.0, abs(dist - cDist));",
+                },
             ],
         },
     ];
