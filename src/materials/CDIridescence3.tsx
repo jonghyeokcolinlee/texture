@@ -17,7 +17,6 @@ void main() {
     vLocalPos = position;
     vNormal = normalize(normalMatrix * normal);
     
-    // Anisotropic tangent for circular grooves
     vec3 localT = vec3(-position.z, 0.0, position.x);
     float tLen = length(localT);
     if (tLen < 0.001) {
@@ -62,7 +61,6 @@ void main() {
     vec3 L = normalize(u_lightDir);
     vec3 T = normalize(vTangent); 
 
-    // Optical divergence for vibrant rainbow at all angles
     vec3 L2 = normalize(L + T * 0.12); 
     vec3 V2 = normalize(V - T * 0.12);
 
@@ -101,10 +99,11 @@ void main() {
 }
 `;
 
-const DiscMesh = ({ currentInput }: { currentInput: { x: number, y: number } }) => {
+const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: number, y: number }> }) => {
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const meshRef = useRef<THREE.Mesh>(null);
     const shadowRef = useRef<THREE.Mesh>(null);
+    const currentInput = useRef({ x: 0, y: 0 });
     const { viewport } = useThree();
 
     const uniforms = useMemo(() => ({
@@ -115,33 +114,33 @@ const DiscMesh = ({ currentInput }: { currentInput: { x: number, y: number } }) 
     useFrame((state) => {
         if (!meshRef.current || !materialRef.current || !shadowRef.current) return;
         
+        // Interpolate input inside Canvas for smooth R3F behavior
+        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.1;
+        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.1;
+
         const maxTilt = 0.5;
-        // CD Tilt and Rotation based on X and Y input (Mouse/Gyro)
-        meshRef.current.rotation.x = Math.PI / 2 + currentInput.y * maxTilt;
-        meshRef.current.rotation.y = currentInput.x * maxTilt;
+        meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
+        meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
-        // Shadow follows the CD tilt but stays flat
-        shadowRef.current.position.x = currentInput.x * 0.15;
-        shadowRef.current.position.y = -0.7 - currentInput.y * 0.15;
-        shadowRef.current.scale.setScalar(1.0 - Math.abs(currentInput.y) * 0.1);
+        shadowRef.current.position.x = currentInput.current.x * 0.15;
+        shadowRef.current.position.y = -0.7 - currentInput.current.y * 0.15;
+        shadowRef.current.scale.setScalar(1.0 - Math.abs(currentInput.current.y) * 0.1);
         if (shadowRef.current.material instanceof THREE.MeshBasicMaterial) {
-            shadowRef.current.material.opacity = 0.1 - Math.abs(currentInput.y) * 0.05;
+            shadowRef.current.material.opacity = 0.1 - Math.abs(currentInput.current.y) * 0.05;
         }
 
         uniforms.u_cameraPos.value.copy(state.camera.position);
 
-        const lx = currentInput.x * 4.0; 
-        const ly = currentInput.y * 4.0; 
+        const lx = currentInput.current.x * 4.0; 
+        const ly = currentInput.current.y * 4.0; 
         const lz = 1.5; 
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    // Scale reduced slightly for a focused premium look
     const cdScale = 1.1; 
 
     return (
         <group>
-            {/* CD Shadow (Blurred ellipse) */}
             <mesh ref={shadowRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.7, 0]}>
                 <planeGeometry args={[1.5, 1.5]} />
                 <meshBasicMaterial 
@@ -162,7 +161,6 @@ const DiscMesh = ({ currentInput }: { currentInput: { x: number, y: number } }) 
                 />
             </mesh>
 
-            {/* CD Disc */}
             <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
                 <cylinderGeometry args={[1, 1, 0.015, 64]} />
                 <shaderMaterial
@@ -180,7 +178,6 @@ const CDIridescence3: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const triggerExport = useExport(canvasRef, 'cd-iridescence-v3.png') as () => void;
     const targetInput = useRef({ x: 0, y: 0 });
-    const currentInput = useRef({ x: 0, y: 0 });
     const [gyroGranted, setGyroGranted] = useState(false);
 
     useEffect(() => {
@@ -206,11 +203,6 @@ const CDIridescence3: React.FC = () => {
         };
     }, [gyroGranted]);
 
-    useFrame(() => {
-        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.1;
-        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.1;
-    });
-
     return (
         <div className="canvas-container bg-white cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
             <Canvas
@@ -219,7 +211,7 @@ const CDIridescence3: React.FC = () => {
                 camera={{ position: [0, 0, 5], fov: 30 }} 
                 className="w-full h-full"
             >
-                <DiscMesh currentInput={currentInput.current} />
+                <DiscMesh targetInput={targetInput} />
             </Canvas>
             <InteractionUI onExport={triggerExport} />
         </div>
