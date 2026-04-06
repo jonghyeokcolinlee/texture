@@ -6,12 +6,14 @@ import * as THREE from 'three';
 import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
+varying vec2 vUv;
 varying vec3 vLocalPos;
 varying vec3 vWorldPos;
 varying vec3 vNormal;
 varying vec3 vTangent;
 
 void main() {
+    vUv = uv;
     vLocalPos = position;
     vNormal = normalize(normalMatrix * normal);
     
@@ -36,6 +38,7 @@ const fragmentShader = `
 uniform vec3 u_lightDir;
 uniform vec3 u_cameraPos;
 
+varying vec2 vUv;
 varying vec3 vLocalPos;
 varying vec3 vWorldPos;
 varying vec3 vNormal;
@@ -49,7 +52,7 @@ vec3 spectralColor(float w) {
 }
 
 void main() {
-    // 1. CD Physical Bounds (Radius 0.2 to 1.0)
+    // 1. CD Geometry (radius check)
     float radius = length(vLocalPos.xz);
     if (radius < 0.18 || radius > 1.0) {
         discard;
@@ -61,50 +64,48 @@ void main() {
     vec3 L = normalize(u_lightDir);
     vec3 T = normalize(vTangent); 
 
-    // 3. Selection: Which face are we looking at?
-    // With Math.PI/2 X rotation, Y is depth. -0.01 to 0.01.
-    // Facing camera is Bottom (Y < 0).
-    bool facingCamera = vLocalPos.y < -0.005;
+    // 3. Diffraction Logic (Anisotropic interference)
+    // Add divergence to light to simulate environment spread and force colors
+    vec3 L2 = normalize(L + T * 0.1); 
+    vec3 V2 = normalize(V - T * 0.1);
 
-    // 4. Iridescence (Rainbow)
-    // To solve the "U=0" problem when light/view are parallel to normal:
-    // We add a subtle virtual offset to the vectors to simulate the cone of light
-    vec3 offsetV = normalize(V + vec3(0.05, 0.05, 0.0));
-    vec3 offsetL = normalize(L + vec3(-0.05, -0.05, 0.0));
+    float dotL2T = dot(L2, T);
+    float dotV2T = dot(V2, T);
+    
+    // Primary diffraction term
+    float u = dotL2T - dotV2T; 
+    
+    // Selection: Is it a cap or the edge?
+    // Local Y is depth. -0.01 to 0.01
+    bool isCap = abs(vLocalPos.y) > 0.005;
 
-    float dotLT = dot(offsetL, T);
-    float dotVT = dot(offsetV, T);
-    
-    float u = dotLT - dotVT; 
-    
-    vec3 finalColor = vec3(0.0);
-    
-    if (facingCamera) {
-        // Multiple orders of diffraction to fill the surface
+    vec3 finalColor = vec3(0.1); // Dark base
+
+    if (isCap) {
+        // Rainbow orders
+        float spread = 5.0; 
         for(float m = 1.0; m <= 3.0; m++) {
-            float w = abs(u) * (4.5 / m) + radius * 0.1; // Offset by radius to prevent center-deadness
+            float w = abs(u) * spread / m + (radius * 0.05); // Radius offset for variation
             vec3 spectral = spectralColor(w);
             
-            // Mask for this order
-            float mask = smoothstep(0.0, 0.5, w) * smoothstep(2.0, 1.0, w);
-            finalColor += spectral * mask * (1.0 / m);
+            // Masking higher orders for realism
+            float mask = smoothstep(0.0, 0.4, w) * smoothstep(1.8, 0.9, w);
+            finalColor += spectral * mask * (1.5 / m);
         }
         
-        // Specular streak
+        // Specular Streak
         vec3 H = normalize(L + V);
         float HdotT = dot(H, T);
-        float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 100.0);
-        finalColor += vec3(1.0) * specStreak * 0.8;
-        
-        // Base silver
+        float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 120.0);
+        finalColor += vec3(1.0) * specStreak * 1.5;
+
+        // Ambient Silver
         float dotLN = clamp(dot(N, L), 0.0, 1.0);
-        finalColor += vec3(0.3) * dotLN + vec3(0.1);
+        finalColor += vec3(0.2) * dotLN + vec3(0.05);
     } else {
-        // Silver edges and back
+        // Edge silver
         float dotLN = clamp(dot(N, L), 0.0, 1.0);
-        finalColor = vec3(0.65, 0.68, 0.7) * dotLN + vec3(0.15);
-        vec3 H = normalize(L + V);
-        finalColor += vec3(1.0) * pow(max(dot(N, H), 0.0), 30.0) * 0.5;
+        finalColor = vec3(0.5, 0.52, 0.55) * dotLN + vec3(0.1);
     }
 
     // Edge fading
@@ -141,23 +142,23 @@ const DiscMesh = () => {
     useFrame((state) => {
         if (!meshRef.current || !materialRef.current) return;
         
-        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.08;
-        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.08;
+        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.1;
+        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.1;
         
-        const maxTilt = 0.5;
-        // X-rotation 90 deg + tilt
+        const maxTilt = 0.45;
+        // Flip CD 180 degrees initially to ensure we see iridescence cap
         meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
         meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
         uniforms.u_cameraPos.value.copy(state.camera.position);
 
-        const lx = currentInput.current.x * 3.0; 
-        const ly = currentInput.current.y * 3.0; 
-        const lz = 1.5; 
+        const lx = currentInput.current.x * 5.0; 
+        const ly = currentInput.current.y * 5.0; 
+        const lz = 2.0; 
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    const cdScale = 1.5; 
+    const cdScale = 1.35; 
 
     return (
         <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
@@ -177,7 +178,7 @@ const CDIridescence2: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'cd-iridescence-v2.png') as () => void;
 
     return (
-        <div className="canvas-container bg-[#0a0a0a] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className="canvas-container bg-[#080808] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
