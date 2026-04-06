@@ -49,9 +49,9 @@ vec3 spectralColor(float w) {
 }
 
 void main() {
-    // 1. Hole (discard center)
+    // 1. CD Physical Bounds (Radius 0.2 to 1.0)
     float radius = length(vLocalPos.xz);
-    if (radius < 0.18) {
+    if (radius < 0.18 || radius > 1.0) {
         discard;
     }
 
@@ -61,45 +61,55 @@ void main() {
     vec3 L = normalize(u_lightDir);
     vec3 T = normalize(vTangent); 
 
-    // 3. Surface differentiation
-    // Cylinder Y is depth. -0.01 to 0.01.
-    // If we rotate X by 90deg, local Y- faces us.
+    // 3. Selection: Which face are we looking at?
+    // With Math.PI/2 X rotation, Y is depth. -0.01 to 0.01.
+    // Facing camera is Bottom (Y < 0).
     bool facingCamera = vLocalPos.y < -0.005;
 
-    // 4. CD Interaction (Continuous Iridescence)
-    float dotLN = clamp(dot(N, L), 0.0, 1.0);
-    float dotLT = dot(L, T);
-    float dotVT = dot(V, T);
+    // 4. Iridescence (Rainbow)
+    // To solve the "U=0" problem when light/view are parallel to normal:
+    // We add a subtle virtual offset to the vectors to simulate the cone of light
+    vec3 offsetV = normalize(V + vec3(0.05, 0.05, 0.0));
+    vec3 offsetL = normalize(L + vec3(-0.05, -0.05, 0.0));
+
+    float dotLT = dot(offsetL, T);
+    float dotVT = dot(offsetV, T);
     
     float u = dotLT - dotVT; 
-    float w = abs(u) * 2.5; 
     
-    vec3 spectral = spectralColor(w);
-    // Saturate and contrast the rainbow for premium high-end feel
-    spectral = pow(spectral, vec3(0.6)) * 1.6;
-    spectral = clamp(spectral, 0.0, 1.0);
+    vec3 finalColor = vec3(0.0);
     
-    // Specular Streak
-    vec3 H = normalize(L + V);
-    float HdotT = dot(H, T);
-    float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 80.0);
-    
-    vec3 iridescence = spectral * (0.4 + 0.6 * dotLN) + vec3(1.0) * specStreak * 0.9;
-    
-    // Sub-specular highlight (rim-like effect)
-    float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0) * 0.3;
-    iridescence += vec3(0.8, 0.9, 1.0) * rim;
+    if (facingCamera) {
+        // Multiple orders of diffraction to fill the surface
+        for(float m = 1.0; m <= 3.0; m++) {
+            float w = abs(u) * (4.5 / m) + radius * 0.1; // Offset by radius to prevent center-deadness
+            vec3 spectral = spectralColor(w);
+            
+            // Mask for this order
+            float mask = smoothstep(0.0, 0.5, w) * smoothstep(2.0, 1.0, w);
+            finalColor += spectral * mask * (1.0 / m);
+        }
+        
+        // Specular streak
+        vec3 H = normalize(L + V);
+        float HdotT = dot(H, T);
+        float specStreak = pow(max(1.0 - HdotT * HdotT, 0.0), 100.0);
+        finalColor += vec3(1.0) * specStreak * 0.8;
+        
+        // Base silver
+        float dotLN = clamp(dot(N, L), 0.0, 1.0);
+        finalColor += vec3(0.3) * dotLN + vec3(0.1);
+    } else {
+        // Silver edges and back
+        float dotLN = clamp(dot(N, L), 0.0, 1.0);
+        finalColor = vec3(0.65, 0.68, 0.7) * dotLN + vec3(0.15);
+        vec3 H = normalize(L + V);
+        finalColor += vec3(1.0) * pow(max(dot(N, H), 0.0), 30.0) * 0.5;
+    }
 
-    // 5. Silver side (The metal layer)
-    vec3 silver = vec3(0.7, 0.72, 0.75) * (dotLN * 0.5 + 0.5) + vec3(0.1);
-    silver += vec3(1.0) * pow(max(dot(N, H), 0.0), 100.0) * 0.5;
-
-    // 6. Final Color
-    vec3 finalColor = facingCamera ? iridescence : silver;
-    
-    // Micro-groove noise to simulate CD material
-    float noise = fract(sin(dot(vLocalPos.xz, vec2(12.9898, 78.233))) * 43758.5453) * 0.02;
-    finalColor -= noise;
+    // Edge fading
+    float fade = smoothstep(0.98, 1.0, radius);
+    finalColor *= (1.0 - fade);
 
     gl_FragColor = vec4(clamp(finalColor, 0.0, 1.0), 1.0);
 }
@@ -108,13 +118,13 @@ void main() {
 const DiscMesh = () => {
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const meshRef = useRef<THREE.Mesh>(null);
-    const { viewport, camera } = useThree();
+    const { viewport } = useThree();
     
     const targetInput = useRef({ x: 0, y: 0 });
     const currentInput = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
-        const handleMove = (e: any) => {
+        const handleMove = (e: MouseEvent) => {
             const x = (e.clientX / window.innerWidth) * 2 - 1;
             const y = -(e.clientY / window.innerHeight) * 2 + 1;
             targetInput.current = { x, y };
@@ -131,29 +141,27 @@ const DiscMesh = () => {
     useFrame((state) => {
         if (!meshRef.current || !materialRef.current) return;
         
-        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.1;
-        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.1;
+        currentInput.current.x += (targetInput.current.x - currentInput.current.x) * 0.08;
+        currentInput.current.y += (targetInput.current.y - currentInput.current.y) * 0.08;
         
-        // Orient cylinder cap to camera
-        const maxTilt = 0.4;
+        const maxTilt = 0.5;
+        // X-rotation 90 deg + tilt
         meshRef.current.rotation.x = Math.PI / 2 + currentInput.current.y * maxTilt;
         meshRef.current.rotation.y = currentInput.current.x * maxTilt;
         
-        // Pass camera position explicitly to be safe
         uniforms.u_cameraPos.value.copy(state.camera.position);
 
-        const lx = currentInput.current.x * 2.0; 
-        const ly = currentInput.current.y * 2.0; 
-        const lz = 1.8; 
+        const lx = currentInput.current.x * 3.0; 
+        const ly = currentInput.current.y * 3.0; 
+        const lz = 1.5; 
         materialRef.current.uniforms.u_lightDir.value.set(lx, ly, lz).normalize();
     });
     
-    // Use a fixed scale that fits the FOV 30 at dist 5 safely
-    const meshSize = 1.2; 
+    const cdScale = 1.5; 
 
     return (
-        <mesh ref={meshRef} scale={[meshSize, meshSize, meshSize]}>
-            <cylinderGeometry args={[1, 1, 0.02, 64]} />
+        <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
+            <cylinderGeometry args={[1, 1, 0.015, 64]} />
             <shaderMaterial
                 ref={materialRef}
                 vertexShader={vertexShader}
@@ -169,7 +177,7 @@ const CDIridescence2: React.FC = () => {
     const triggerExport = useExport(canvasRef, 'cd-iridescence-v2.png') as () => void;
 
     return (
-        <div className="canvas-container bg-[#111] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className="canvas-container bg-[#0a0a0a] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
