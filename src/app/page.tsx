@@ -346,6 +346,21 @@ export default function Home() {
                 },
             ],
         },
+        {
+            title: "10 frosted glassmorphism",
+            activeInfo: {
+                version: "v1",
+                description: "반투명하게 가공된 프로스티드 유리의 질감(Frosted Glass)을 시뮬레이션한 글래스모피즘(Glassmorphism) 상호작용입니다. 화면 뒤로 비치는 카메라 영상을 정교한 블러(Blur) 필터로 확산시키며, 마우스가 움직이는 지점만이 성에가 닦이듯 선명하게 보이게 하여 신비로운 공간감과 현대적인 UI 미학을 제공합니다.",
+            },
+            versions: [
+                {
+                    id: "v1",
+                    url: "/frosted-glassmorphism/1",
+                    prompt: "\"불투명? 반투명한 유리에 비춰지는 모습처럼 구현해줘 glassmorphism느낌으로 10번 새로운 인터랙션\"",
+                    script: "float blurRadius = smoothstep(0.1, 0.4, dist) * 3.5;\ncolor = blur(u_videoTexture, uv, 1.0 + blurRadius);",
+                },
+            ],
+        },
     ];
 
     const toggleExpanded = (title: string) => {
