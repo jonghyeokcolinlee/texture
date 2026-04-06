@@ -325,6 +325,21 @@ export default function Home() {
                 },
             ],
         },
+        {
+            title: "09 white vinyl",
+            activeInfo: {
+                version: "v1",
+                description: "순백색의 얇은 플라스틱 비닐 소재로, 화면 위로 커서를 움직이면 비닐 특유의 날카로운 주름(Creases)들이 바스락거리며 실시간으로 생성됩니다. 빛을 강하게 반사하는 매끄러운 재질감과 겹겹이 접힌 주름들 사이의 명암 대비를 통해 비닐 특유의 바스락거리는 물성을 시각적으로 재현했습니다.",
+            },
+            versions: [
+                {
+                    id: "v1",
+                    url: "/vinyl/1",
+                    prompt: "\"흰색비닐 바스락거리는 효과로 09 만들어줘\"",
+                    script: "folds = pow(1.0 - folds, 3.0);\ninteractScale.current += (speed * 5.0 - interactScale.current) * 0.1;",
+                },
+            ],
+        },
     ];
 
     const toggleExpanded = (title: string) => {
