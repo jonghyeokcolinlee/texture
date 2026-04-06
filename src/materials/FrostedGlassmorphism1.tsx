@@ -21,14 +21,20 @@ uniform float u_aspect;
 uniform int u_hasVideo;
 varying vec2 vUv;
 
-// Gaussian Blur Kernel
-vec3 blur(sampler2D tex, vec2 uv, float radius) {
+// High-fidelity Grain / Frost noise
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+// Wider Gaussian Blur for deep translucency
+vec3 deepBlur(sampler2D tex, vec2 uv, float radius) {
     vec3 col = vec3(0.0);
     float total = 0.0;
-    float step = 0.005 * radius;
-    for (float x = -2.0; x <= 2.0; x++) {
-        for (float y = -2.0; y <= 2.0; y++) {
-            float weight = exp(-(x*x + y*y) / (2.0));
+    float step = 0.008 * radius;
+    // 7x7 kernel for smoother diffusion
+    for (float x = -3.0; x <= 3.0; x++) {
+        for (float y = -3.0; y <= 3.0; y++) {
+            float weight = exp(-(x*x + y*y) / (6.0));
             col += texture2D(tex, uv + vec2(x, y) * step).rgb * weight;
             total += weight;
         }
@@ -41,42 +47,40 @@ void main() {
     vec2 p = (uv - 0.5) * vec2(u_aspect, 1.0);
     vec2 m = (u_mouse - 0.5) * vec2(u_aspect, 1.0);
     
-    // Glassmorphism Parameters
     float dist = length(p - m);
-    float blurRadius = smoothstep(0.1, 0.4, dist) * 3.5; // Clearer around mouse
     
-    // Background Sample (Video feed)
-    vec3 color;
+    // Dynamic translucency: Blurrier at edges, slightly clearer at focus
+    float blurAmount = 1.8 + smoothstep(0.15, 0.45, dist) * 2.5;
+    
+    vec3 bg;
     if (u_hasVideo == 1) {
-        // Blurred background
-        color = blur(u_videoTexture, uv, 1.0 + blurRadius);
+        bg = deepBlur(u_videoTexture, uv, blurAmount);
     } else {
-        // Warm abstract fallback
-        color = vec3(0.8, 0.82, 0.85);
+        bg = vec3(0.85, 0.88, 0.9);
     }
     
-    // Frosted UI Overlay (Glassmorphism white tint)
-    float frost = 0.35 + 0.15 * sin(uv.x * 50.0 + uv.y * 50.0); // Surface noise
-    color = mix(color, vec3(1.0), 0.25); // White tint
+    // Glassmorphism Frost Effect
+    float grain = hash(uv * 500.0 + u_time * 0.01) * 0.08;
     
-    // Specular Highlight (Light hit on glass)
-    vec3 L = normalize(vec3(0.5, 0.5, 1.0));
-    vec3 N = vec3(0.0, 0.0, 1.0);
-    // Add micro-normal noise for frost
-    N.xy += (vec2(hash(uv.x * 123.0), hash(uv.y * 456.0)) - 0.5) * 0.05;
-    N = normalize(N);
+    // Translucent white layer (The "Glass" itself)
+    // Darken the background shapes slightly and add white tint
+    vec3 glassColor = mix(bg * 0.9, vec3(1.0), 0.35); 
+    glassColor += grain; // Frosted texture
     
-    float spec = pow(max(0.0, dot(N, L)), 30.0);
-    color += spec * 0.4;
+    // Specular / Light interaction
+    vec3 L = normalize(vec3(0.3, 0.6, 1.0));
+    vec3 N = normalize(vec3(grain * 0.1, grain * 0.1, 1.0));
+    float highlight = pow(max(0.0, dot(N, L)), 40.0) * 0.5;
     
-    // Edge lighting on clear spot
-    float rim = smoothstep(0.12, 0.1, dist) * smoothstep(0.08, 0.1, dist);
-    color += rim * vec3(1.0) * 0.1;
+    // Combine layers
+    vec3 finalColor = glassColor + highlight;
+    
+    // Subtle edge fade for the clarity spot
+    float clarity = smoothstep(0.18, 0.12, dist);
+    finalColor = mix(finalColor, bg * 1.1 + highlight, clarity * 0.3);
 
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(finalColor, 1.0);
 }
-
-float hash(float n) { return fract(sin(n) * 43758.5453); }
 `;
 
 const GlassScene = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: number, y: number }> }) => {
@@ -89,7 +93,6 @@ const GlassScene = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: 
     useEffect(() => {
         const video = document.createElement('video');
         video.autoplay = true; video.playsInline = true;
-        
         const setupCamera = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -148,7 +151,7 @@ const GlassScene = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: 
 const FrostedGlassmorphism1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const targetInput = useRef({ x: 0, y: 0 });
-    const triggerExport = useExport(canvasRef, 'frosted-glassmorphism.png') as () => void;
+    const triggerExport = useExport(canvasRef, 'frosted-glassmorphism-v1.png') as () => void;
 
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
@@ -162,7 +165,7 @@ const FrostedGlassmorphism1: React.FC = () => {
     }, []);
 
     return (
-        <div className="canvas-container bg-[#f0f0f0] cursor-crosshair relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className="canvas-container bg-white cursor-crosshair relative w-full h-full flex items-center justify-center overflow-hidden">
             <Canvas
                 ref={canvasRef}
                 gl={{ preserveDrawingBuffer: true, antialias: true }}
@@ -171,9 +174,6 @@ const FrostedGlassmorphism1: React.FC = () => {
             >
                 <GlassScene targetInput={targetInput} />
             </Canvas>
-            <div className="absolute top-10 left-10 text-black/20 uppercase text-[9px] tracking-[0.3em] font-medium pointer-events-none">
-                frosted glassmorphism / camera diffusion active
-            </div>
             <InteractionUI onExport={triggerExport} />
         </div>
     );
