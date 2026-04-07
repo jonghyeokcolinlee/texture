@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 type HoverData = {
@@ -248,7 +248,7 @@ export default function Home() {
                 {
                     id: "v19",
                     url: "/rgb/19",
-                    prompt: "\"아니 근데 rgb자체가 입자가 커져야되고, 한쪽에만 뭉쳐있는게 아니라, 보낸 사진처럼 random한 가장자리에 위치하게끔!\"\n\nRGB 픽셀 연산 스케일을 한 번 더 극한으로 줄여서(`0.008 -> 0.0035`), 마치 브릭 장난감처럼 **물리적인 픽셀 입자 크기를 거대하게 키웠습니다**. 또한 항상 특정 방향(Top-Left)에만 RGB가 맺히던 고정 로직을 폐기하고, 낮은 주파수의 3D 노이즈(snoise)를 화면 공간 전체에 매핑하는 방식으로 변경했습니다. 이를 통해 **조명 방향에 관계없이 윤곽선을 따라 예측 불가능한 랜덤한 위치에 RGB 블록들이 무작위로 맺히거나 사라지는(Random Edge CA Placement) 형태**를 완벽하게 구현했습니다.",
+                    prompt: "\"아니 근데 rgb자체가 입자가 커져야되고, 한쪽에만 뭉쳐있는개 아니라, 보낸 사진처럼 random한 가장자리에 위치하게끔!\"\n\nRGB 픽셀 연산 스케일을 한 번 더 극한으로 줄여서(`0.008 -> 0.0035`), 마치 브릭 장난감처럼 **물리적인 픽셀 입자 크기를 거대하게 키웠습니다**. 또한 항상 특정 방향(Top-Left)에만 RGB가 맺히던 고정 로직을 폐기하고, 낮은 주파수의 3D 노이즈(snoise)를 화면 공간 전체에 매핑하는 방식으로 변경했습니다. 이를 통해 **조명 방향에 관계없이 윤곽선을 따라 예측 불가능한 랜덤한 위치에 RGB 블록들이 무작위로 맺히거나 사라지는(Random Edge CA Placement) 형태**를 완벽하게 구현했습니다.",
                     script: "vec2 p = uv * u_resolution.xy * 0.0035;\nfloat edgeNoise = snoise(vUv * 15.0); float rgbSide = smoothstep(-0.1, 0.5, edgeNoise);",
                 },
             ],
@@ -395,7 +395,7 @@ export default function Home() {
             title: "10 frosted glassmorphism",
             activeInfo: {
                 version: "v1",
-                description: "반투명하게 가공된 프로스티드 유리의 질감(Frosted Glass)을 시뮬레이션한 글래스모피즘(Glassmorphism) 상호작용입니다. 화면 뒤로 비치는 카메라 영상을 정교한 블러(Blur) 필터로 확산시키며, 마우스가 움직이는 지점만이 성에가 닦이듯 선명하게 보이게 하여 신비로운 공간감과 현대적인 UI 미학을 제공합니다.",
+                description: "반투명하게 가공된 프로스티드 유리의 질감(Frosted Glass)을 시큐레이션한 글래스모피즘(Glassmorphism) 상호작용입니다. 화면 뒤로 비치는 카메라 영상을 정교한 블러(Blur) 필터로 확산시키며, 마우스가 움직이는 지점만이 성에가 닦이듯 선명하게 보이게 하여 신비로운 공간감과 현대적인 UI 미학을 제공합니다.",
             },
             versions: [
                 {
@@ -408,38 +408,92 @@ export default function Home() {
         },
     ];
 
+    const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
+    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
 
-    const activeMat = materials.find(m => m.title === activeMaterialTitle);
-    const activeVersion = activeMat?.versions[activeVersionIndex];
+    const activeMat = materials.find(m => m.title === activeMaterialTitle) || materials[0];
+    const activeVersion = activeMat.versions[activeVersionIndex];
+
+    const wheelRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    useEffect(() => {
+        if (wheelRef.current && itemRefs.current[0]) {
+            const container = wheelRef.current;
+            const item = itemRefs.current[0];
+            container.scrollTop = item.offsetTop - container.clientHeight / 2 + item.clientHeight / 2;
+        }
+    }, []);
+
+    const handleScroll = () => {
+        if (!wheelRef.current) return;
+        const container = wheelRef.current;
+        const center = container.scrollTop + container.clientHeight / 2;
+
+        let closestIdx = 0;
+        let minDiff = Infinity;
+
+        materials.forEach((mat, i) => {
+            const item = itemRefs.current[i];
+            if (!item) return;
+            const itemCenter = item.offsetTop + item.clientHeight / 2;
+            const diff = Math.abs(itemCenter - center);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestIdx = i;
+            }
+        });
+
+        const newActive = materials[closestIdx].title;
+        if (newActive !== activeMaterialTitle) {
+            setActiveMaterialTitle(newActive);
+            // Always move slider to the latest version on material change
+            setActiveVersionIndex(materials[closestIdx].versions.length - 1);
+        }
+    };
 
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
-            {/* 1. Left / Top Pane: Navigation Menu */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full overflow-y-auto no-scrollbar p-4 lg:p-6 border-b md:border-b-0 md:border-r border-black/10">
-                <div className="w-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1] font-medium text-black pb-20">
-                    <div className="flex flex-col">
-                        {materials.map((mat) => {
-                            const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
-                            const num = match ? parseInt(match[1]) : 0;
-                            const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
-                            const text = match ? match[2] : mat.title;
-                            const isActive = activeMaterialTitle === mat.title;
+            {/* 1. Left / Top Pane: Navigation Wheel */}
+            <div className="flex-1 md:w-1/2 h-1/2 md:h-full p-4 lg:p-6 bg-white relative">
+                <div className="w-full max-w-[400px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1] font-medium text-black">
+                    {/* Scroll Selection Container */}
+                    <div className="relative w-full h-[200px] md:h-[260px] overflow-hidden mt-4 md:mt-24">
+                        {/* Top/Bottom Fade Gradients */}
+                        <div className="absolute top-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-b from-white to-transparent pointer-events-none z-30" />
+                        <div className="absolute bottom-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
 
-                            return (
-                                <div 
-                                    key={mat.title}
-                                    onClick={() => {
-                                        if (isActive) return;
-                                        setActiveMaterialTitle(mat.title);
-                                        setActiveVersionIndex(0);
-                                    }}
-                                    className={`flex items-start lg:items-center cursor-pointer group w-full mb-0 lg:mb-0 transition-opacity ${isActive ? "opacity-100" : "opacity-30 hover:opacity-100"}`}
-                                >
-                                    <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
-                                    <p className={`mb-0 flex-1 text-left ${isActive ? "font-semibold" : ""}`}>{text}</p>
-                                </div>
-                            );
-                        })}
+                        {/* Fixed Focus Indicator */}
+                        <div className="absolute top-1/2 left-0 w-[0.8em] h-[2px] bg-black opacity-100 pointer-events-none z-10 transform -translate-y-1/2 rounded-full" />
+
+                        {/* Scrollable Wheel */}
+                        <div
+                            ref={wheelRef}
+                            onScroll={handleScroll}
+                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
+                            style={{ scrollBehavior: 'smooth' }}
+                        >
+                            <div className="h-[85px] md:h-[115px]" /> {/* Spacer top */}
+                            {materials.map((mat, i) => {
+                                const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
+                                const num = match ? parseInt(match[1]) : 0;
+                                const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
+                                const text = match ? match[2] : mat.title;
+                                const isActive = activeMaterialTitle === mat.title;
+
+                                return (
+                                    <div
+                                        key={mat.title}
+                                        ref={(el) => { itemRefs.current[i] = el; }}
+                                        className={`flex items-start w-full py-2 snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
+                                    >
+                                        <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
+                                        <p className="mb-0 flex-1 text-left">{text}</p>
+                                    </div>
+                                );
+                            })}
+                            <div className="h-[85px] md:h-[115px]" /> {/* Spacer bottom */}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -474,13 +528,18 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-center items-center w-32 border-l border-black/5 px-8 bg-[#f9f9f9] z-10 shrink-0">
-                         <VersionControls 
-                             versions={activeMat.versions} 
-                             activeIndex={activeVersionIndex} 
-                             onChange={setActiveVersionIndex} 
-                             className="w-full" 
-                         />
+                    <div className="hidden md:flex flex-col justify-end items-center w-32 border-l border-black/5 px-8 bg-[#f9f9f9] z-10 shrink-0 pb-12">
+                         <div className="relative w-full h-[60%] flex flex-col items-center">
+                            {/* Gradient/Fade effect at the bottom area of the slider container */}
+                            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-20" />
+                            
+                            <VersionControls 
+                                versions={activeMat.versions} 
+                                activeIndex={activeVersionIndex} 
+                                onChange={setActiveVersionIndex} 
+                                className="w-full h-full pb-8" 
+                            />
+                         </div>
                     </div>
                 )}
 
