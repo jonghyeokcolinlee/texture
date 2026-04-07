@@ -19,17 +19,17 @@ const renderMixedText = (text: string) => {
     });
 };
 
-const VersionControls = ({ versions, activeIndex, onChange, className }: any) => {
+const VersionControls = ({ versions, activeIndex, onChange, className, vertical = false }: any) => {
     const trackRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [tempP, setTempP] = useState(0);
 
     const percent = isDragging ? tempP * 100 : (versions.length > 1 ? (activeIndex / (versions.length - 1)) * 100 : 50);
 
-    const updateFromX = (clientX: number) => {
+    const updateFromPos = (clientX: number, clientY: number) => {
         if (!trackRef.current) return;
         const rect = trackRef.current.getBoundingClientRect();
-        let p = (clientX - rect.left) / rect.width;
+        let p = vertical ? (clientY - rect.top) / rect.height : (clientX - rect.left) / rect.width;
         p = Math.max(0, Math.min(1, p));
         setTempP(p);
         const idx = Math.round(p * Math.max(0, versions.length - 1));
@@ -40,32 +40,37 @@ const VersionControls = ({ versions, activeIndex, onChange, className }: any) =>
 
     return (
         <div 
-            className={`relative flex items-center h-12 cursor-ew-resize select-none touch-none ${className}`}
+            className={`relative flex ${vertical ? 'flex-col justify-center h-full max-h-[400px] w-12' : 'items-center h-12 w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
             onPointerDown={(e) => {
                 setIsDragging(true);
-                updateFromX(e.clientX);
+                updateFromPos(e.clientX, e.clientY);
                 e.currentTarget.setPointerCapture(e.pointerId);
             }}
             onPointerMove={(e) => {
-                if(isDragging) updateFromX(e.clientX);
+                if(isDragging) updateFromPos(e.clientX, e.clientY);
             }}
             onPointerUp={(e) => {
                 setIsDragging(false);
                 e.currentTarget.releasePointerCapture(e.pointerId);
             }}
         >
-            <div ref={trackRef} className="w-full h-[1px] bg-black/20 relative" />
+            <div ref={trackRef} className={`${vertical ? 'h-full w-[2px]' : 'w-full h-[2px]'} bg-black relative`} />
             <div 
-                className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none"
+                className="absolute flex items-center justify-center pointer-events-none"
                 style={{ 
-                    left: `${percent}%`, 
-                    transition: isDragging ? 'none' : 'left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' 
+                    [vertical ? 'top' : 'left']: `${percent}%`, 
+                    [vertical ? 'left' : 'top']: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    transition: isDragging ? 'none' : `${vertical ? 'top' : 'left'} 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)` 
                 }}
             >
-                <div className="absolute bottom-4 whitespace-nowrap text-[12px] font-medium tracking-widest uppercase text-black">
+                <div 
+                    className={`absolute ${vertical ? 'right-6' : 'bottom-4'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
+                    style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
+                >
                     {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                 </div>
-                <div className={`w-3 h-3 bg-black rounded-full transition-transform duration-200 ${isDragging ? 'scale-150' : 'scale-100'}`} />
+                <div className="w-3 h-3 bg-black rounded-full" />
             </div>
         </div>
     );
@@ -436,7 +441,7 @@ export default function Home() {
                                     className={`flex items-start lg:items-center cursor-pointer group w-full mb-2 lg:mb-1 transition-opacity ${isActive ? "opacity-100" : "opacity-30 hover:opacity-100"}`}
                                 >
                                     <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
-                                    <p className={`mb-0 flex-1 text-left ${isActive ? "font-semibold" : ""}`}>{text}</p>
+                                    <p className="mb-0 flex-1 text-left">{text}</p>
                                 </div>
                             );
                         })}
@@ -474,12 +479,12 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-center items-center w-32 border-l border-black/5 px-8 bg-[#f9f9f9] z-10 shrink-0">
+                    <div className="hidden md:flex flex-col justify-center items-center w-32 border-l border-black/5 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
                          <VersionControls 
                              versions={activeMat.versions} 
                              activeIndex={activeVersionIndex} 
                              onChange={setActiveVersionIndex} 
-                             className="w-full" 
+                             vertical={true}
                          />
                     </div>
                 )}
@@ -487,7 +492,7 @@ export default function Home() {
                 {/* Mobile Slider / Overlay */}
                 {activeMat && activeMat.versions.length > 1 && (
                     <>
-                        <div className="md:hidden absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-10" />
+                        <div className="md:hidden absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#f9f9f9] from-20% via-[#f9f9f9]/80 via-50% to-transparent pointer-events-none z-10" />
                         <div className="md:hidden absolute bottom-8 left-[10%] right-[10%] z-20">
                             <VersionControls 
                                 versions={activeMat.versions} 
