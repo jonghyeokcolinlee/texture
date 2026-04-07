@@ -264,11 +264,11 @@ export default function Home() {
 
             {/* 2. Bottom Pane: Information Details (Mobile reduced height) */}
             <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row">
-                <div className="flex-1 h-full overflow-hidden p-4 lg:p-12 relative">
+                <div className="flex-1 h-full overflow-hidden pt-4 px-4 pb-0 lg:pt-12 lg:px-12 lg:pb-0 relative">
                     <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-20" />
                     <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
 
-                    <div className="h-full overflow-y-auto no-scrollbar pb-8">
+                    <div className="h-full overflow-y-auto no-scrollbar pb-0">
                         <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
@@ -297,7 +297,7 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-end items-center w-32 bg-white z-10 shrink-0 pb-8">
+                    <div className="hidden md:flex flex-col justify-end items-center w-32 bg-white z-10 shrink-0 pb-0">
                          <div className="relative w-full h-[40%] flex flex-col items-center">
                             <VersionControls 
                                 versions={activeMat.versions} 
@@ -314,7 +314,7 @@ export default function Home() {
                 {activeMat && activeMat.versions.length > 1 && (
                     <>
                         <div className="md:hidden absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
-                        <div className="md:hidden absolute bottom-4 left-[10%] right-[10%] z-20">
+                        <div className="md:hidden absolute bottom-0 left-[10%] right-[10%] z-20">
                             <VersionControls 
                                 versions={activeMat.versions} 
                                 activeIndex={activeVersionIndex} 
