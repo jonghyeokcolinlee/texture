@@ -40,7 +40,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
 
     return (
         <div 
-            className={`relative flex ${vertical ? 'flex-col justify-center h-full max-h-[400px] w-12' : 'items-center h-12 w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
+            className={`relative flex ${vertical ? 'flex-col justify-start h-[200px] w-[24px]' : 'items-center h-[24px] w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
             onPointerDown={(e) => {
                 setIsDragging(true);
                 updateFromPos(e.clientX, e.clientY);
@@ -54,7 +54,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                 e.currentTarget.releasePointerCapture(e.pointerId);
             }}
         >
-            <div ref={trackRef} className={`${vertical ? 'h-full w-[2px]' : 'w-full h-[2px]'} bg-black relative`} />
+            <div ref={trackRef} className={`${vertical ? 'h-full w-[15px] mx-auto' : 'w-full h-[15px] my-auto'} bg-black relative`} />
             <div 
                 className="absolute flex items-center justify-center pointer-events-none"
                 style={{ 
@@ -65,12 +65,12 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                 }}
             >
                 <div 
-                    className={`absolute ${vertical ? 'right-6' : 'bottom-4'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
+                    className={`absolute ${vertical ? 'right-[24px]' : 'bottom-[24px]'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
                     style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
                 >
                     {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                 </div>
-                <div className="w-3 h-3 bg-black rounded-full" />
+                <div className="w-6 h-6 bg-black rounded-full" />
             </div>
         </div>
     );
@@ -436,7 +436,7 @@ export default function Home() {
                                     onClick={() => {
                                         if (isActive) return;
                                         setActiveMaterialTitle(mat.title);
-                                        setActiveVersionIndex(0);
+                                        setActiveVersionIndex(mat.versions.length - 1);
                                     }}
                                     className={`flex items-start lg:items-center cursor-pointer group w-full mb-2 lg:mb-1 transition-opacity ${isActive ? "opacity-100" : "opacity-30 hover:opacity-100"}`}
                                 >
@@ -479,7 +479,7 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-center items-center w-32 border-l border-black/5 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
+                    <div className="hidden md:flex flex-col justify-start items-center w-32 border-l border-black/5 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
                          <VersionControls 
                              versions={activeMat.versions} 
                              activeIndex={activeVersionIndex} 
@@ -493,7 +493,7 @@ export default function Home() {
                 {activeMat && activeMat.versions.length > 1 && (
                     <>
                         <div className="md:hidden absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#f9f9f9] from-20% via-[#f9f9f9]/80 via-50% to-transparent pointer-events-none z-10" />
-                        <div className="md:hidden absolute bottom-8 left-[10%] right-[10%] z-20">
+                        <div className="md:hidden absolute bottom-4 left-[10%] right-[10%] z-20">
                             <VersionControls 
                                 versions={activeMat.versions} 
                                 activeIndex={activeVersionIndex} 
