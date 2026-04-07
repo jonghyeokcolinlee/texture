@@ -364,12 +364,13 @@ export default function Home() {
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
             {/* 1. Left / Top Pane: Navigation Menu */}
             <div className="flex-1 md:w-1/2 h-1/2 md:h-full overflow-y-auto no-scrollbar p-4 lg:p-6 border-b md:border-b-0 md:border-r border-black/10">
-                <div className="w-full text-[26px] lg:text-[28px] tracking-[-0.03em] leading-[1.25] font-medium text-black pb-20">
+                <div className="w-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black pb-20">
 
                     <div className="flex flex-col">
                         {materials.map((mat) => {
                             const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
-                            const num = match ? match[1] : "";
+                            const num = match ? parseInt(match[1]) : 0;
+                            const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
                             const text = match ? match[2] : mat.title;
                             return (
                             <div key={mat.title} className="flex flex-col">
@@ -377,7 +378,7 @@ export default function Home() {
                                     onClick={() => toggleExpanded(mat.title)}
                                     className="flex items-start lg:items-center cursor-pointer group w-full mb-2 lg:mb-1"
                                 >
-                                    <span className="w-[1.2em] shrink-0 text-left">{num}</span>
+                                    <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
                                     <p className="mb-0 flex-1 text-left">{text}</p>
                                     <svg 
                                         className={`w-[0.55em] h-[0.55em] mt-[0.35em] lg:mt-[0.1em] ml-3 shrink-0 opacity-30 group-hover:opacity-100 transition-transform duration-300 ${expanded[mat.title] ? "" : "-rotate-90"}`}
@@ -410,7 +411,7 @@ export default function Home() {
 
             {/* 2. Right / Bottom Pane: Information Details */}
             <div className="flex-1 md:w-1/2 h-1/2 md:h-full overflow-y-auto no-scrollbar p-4 lg:p-6 bg-[#f9f9f9]">
-                <div className="max-w-[500px] text-[24px] lg:text-[28px] tracking-[-0.03em] leading-[1.25] text-black pb-20 font-medium">
+                <div className="max-w-[500px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black pb-20 font-medium">
                     {activeInfo ? (
                         <div className="flex flex-col justify-start">
                             <div className="whitespace-pre-wrap">
