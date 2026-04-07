@@ -71,7 +71,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                 {/* 텍스트와 안 겹치게끔 white fade gradient 효과 (배경) */}
                 <div className={`absolute ${vertical ? 'right-6' : 'bottom-5'} flex items-center justify-center`}>
                     <div className="absolute inset-[-4px] bg-white/80 blur-[2px] rounded-full" />
-                    <div className="relative whitespace-nowrap text-[12px] font-medium tracking-widest uppercase text-black z-10">
+                    <div className="relative whitespace-nowrap text-[14px] font-medium tracking-widest uppercase text-black z-10">
                         {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                     </div>
                 </div>
@@ -198,6 +198,7 @@ export default function Home() {
 
     const handleScroll = () => {
         if (!wheelRef.current) return;
+        if (window.innerWidth >= 768) return; // Disable scroll selection on PC
         const container = wheelRef.current;
         const topOffset = container.scrollTop;
 
@@ -226,7 +227,7 @@ export default function Home() {
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
             {/* 1. Top Pane: Navigation Wheel (Mobile / Desktop) */}
-            <div className="flex-none md:flex-1 h-[30%] md:h-full p-4 lg:p-8 bg-white relative">
+            <div className="flex-none md:flex-1 h-[30%] md:h-full px-4 pt-2 pb-4 lg:px-8 lg:pt-4 lg:pb-8 bg-white relative">
                 <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
                         <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
@@ -235,7 +236,7 @@ export default function Home() {
                         <div
                             ref={wheelRef}
                             onScroll={handleScroll}
-                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
+                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory md:snap-none relative z-20"
                             style={{ scrollBehavior: 'smooth' }}
                         >
                             {materials.map((mat, i) => {
@@ -249,7 +250,15 @@ export default function Home() {
                                     <div
                                         key={mat.title}
                                         ref={(el) => { itemRefs.current[i] = el; }}
-                                        className={`flex items-start w-full py-1 snap-start transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
+                                        onMouseEnter={() => {
+                                            if (window.innerWidth >= 768) {
+                                                if (mat.title !== activeMaterialTitle) {
+                                                    setActiveMaterialTitle(mat.title);
+                                                    setActiveVersionIndex(mat.versions.length - 1);
+                                                }
+                                            }
+                                        }}
+                                        className={`flex items-start w-full py-1 snap-start md:snap-align-none transition-opacity duration-300 md:cursor-pointer select-none ${isActive ? "opacity-100" : "opacity-30"}`}
                                     >
                                         <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
                                         <p className="mb-0 flex-1 text-left">{text}</p>
@@ -264,14 +273,14 @@ export default function Home() {
 
             {/* 2. Bottom Pane: Information Details (Mobile reduced height) */}
             <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row">
-                <div className="flex-1 h-full overflow-hidden pt-4 px-4 pb-0 lg:pt-12 lg:px-12 lg:pb-0 relative">
+                <div className="flex-1 h-full overflow-hidden pt-2 px-4 pb-0 lg:pt-8 lg:px-12 lg:pb-0 relative">
                     <div className="absolute bottom-0 left-0 w-full h-[20%] bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
 
                     <div className="h-full overflow-y-auto no-scrollbar pb-0">
                         <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium w-full pb-12 md:pb-24">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
-                                    <div className="whitespace-pre-wrap">
+                                    <div className="whitespace-pre-wrap break-keep">
                                         {renderMixedText(activeVersion.prompt)}
                                     </div>
                                     <Link 
@@ -293,8 +302,8 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-end items-center w-32 bg-white z-10 shrink-0 pb-0">
-                         <div className="relative w-full h-[40%] flex flex-col items-center">
+                    <div className="hidden md:flex flex-col justify-start items-center w-32 bg-white z-10 shrink-0 pt-2 lg:pt-8">
+                         <div className="relative w-full h-[30%] flex flex-col items-center">
                             <VersionControls 
                                 versions={activeMat.versions} 
                                 activeIndex={activeVersionIndex} 
