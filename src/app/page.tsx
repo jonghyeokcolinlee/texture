@@ -229,7 +229,7 @@ export default function Home() {
             <div className="flex-none md:flex-1 h-[30%] md:h-full p-4 lg:p-8 bg-white relative">
                 <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
-                        <div className="absolute bottom-0 left-0 w-full h-[30%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
+                        <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
 
                         {/* Scrollable Wheel - using snap-start now to align top */}
                         <div
@@ -256,7 +256,7 @@ export default function Home() {
                                     </div>
                                 );
                             })}
-                            <div className="h-[70%]" /> {/* End Spacer to allow scrolling past the last item */}
+                            <div className="min-h-[100%]" /> {/* End Spacer to allow scrolling past the last item */}
                         </div>
                     </div>
                 </div>
@@ -265,10 +265,10 @@ export default function Home() {
             {/* 2. Bottom Pane: Information Details (Mobile reduced height) */}
             <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row">
                 <div className="flex-1 h-full overflow-hidden pt-4 px-4 pb-0 lg:pt-12 lg:px-12 lg:pb-0 relative">
-                    <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
+                    <div className="absolute bottom-0 left-0 w-full h-[20%] bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
 
-                    <div className="h-full overflow-y-auto no-scrollbar pb-0 flex flex-col justify-end">
-                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium mt-auto w-full pb-4 md:pb-8">
+                    <div className="h-full overflow-y-auto no-scrollbar pb-0">
+                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium w-full pb-12 md:pb-24">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
                                     <div className="whitespace-pre-wrap">
