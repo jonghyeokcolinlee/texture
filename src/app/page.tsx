@@ -457,43 +457,45 @@ export default function Home() {
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
             {/* 1. Left / Top Pane: Navigation Wheel */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full flex items-center justify-center p-4 lg:p-6 bg-white relative">
-                {/* Scroll Selection Container */}
-                <div className="relative w-full max-w-[400px] h-[240px] md:h-[300px] overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
-                    {/* Top/Bottom Fade Gradients */}
-                    <div className="absolute top-0 left-0 w-full h-[60px] md:h-[80px] bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
-                    <div className="absolute bottom-0 left-0 w-full h-[60px] md:h-[80px] bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
-                    
-                    {/* Fixed Focus Indicator */}
-                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-black opacity-10 pointer-events-none z-0 transform -translate-y-1/2" />
-                    
-                    {/* Scrollable Wheel */}
-                    <div 
-                        ref={wheelRef}
-                        onScroll={handleScroll}
-                        className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
-                        style={{ scrollBehavior: 'smooth' }}
-                    >
-                        <div className="h-[100px] md:h-[130px]" /> {/* Spacer top */}
-                        {materials.map((mat, i) => {
-                            const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
-                            const num = match ? parseInt(match[1]) : 0;
-                            const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
-                            const text = match ? match[2] : mat.title;
-                            const isActive = activeMaterial === mat.title;
+            <div className="flex-1 md:w-1/2 h-1/2 md:h-full p-4 lg:p-6 bg-white relative">
+                <div className="w-full max-w-[400px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
+                    {/* Scroll Selection Container */}
+                    <div className="relative w-full h-[200px] md:h-[260px] overflow-hidden mt-4 md:mt-24">
+                        {/* Top/Bottom Fade Gradients */}
+                        <div className="absolute top-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-b from-white to-transparent pointer-events-none z-30" />
+                        <div className="absolute bottom-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
+                        
+                        {/* Fixed Focus Indicator */}
+                        <div className="absolute top-1/2 left-0 w-[0.8em] h-[2px] bg-black opacity-100 pointer-events-none z-10 transform -translate-y-1/2 rounded-full" />
+                        
+                        {/* Scrollable Wheel */}
+                        <div 
+                            ref={wheelRef}
+                            onScroll={handleScroll}
+                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
+                            style={{ scrollBehavior: 'smooth' }}
+                        >
+                            <div className="h-[85px] md:h-[115px]" /> {/* Spacer top */}
+                            {materials.map((mat, i) => {
+                                const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
+                                const num = match ? parseInt(match[1]) : 0;
+                                const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
+                                const text = match ? match[2] : mat.title;
+                                const isActive = activeMaterial === mat.title;
 
-                            return (
-                                <div 
-                                    key={mat.title}
-                                    ref={(el) => { itemRefs.current[i] = el; }}
-                                    className={`flex items-start lg:items-center w-full min-h-[40px] snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
-                                >
-                                    <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
-                                    <p className="mb-0 flex-1 text-left">{text}</p>
-                                </div>
-                            );
-                        })}
-                        <div className="h-[100px] md:h-[130px]" /> {/* Spacer bottom */}
+                                return (
+                                    <div 
+                                        key={mat.title}
+                                        ref={(el) => { itemRefs.current[i] = el; }}
+                                        className={`flex items-start w-full py-2 snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
+                                    >
+                                        <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
+                                        <p className="mb-0 flex-1 text-left">{text}</p>
+                                    </div>
+                                );
+                            })}
+                            <div className="h-[85px] md:h-[115px]" /> {/* Spacer bottom */}
+                        </div>
                     </div>
                 </div>
             </div>
