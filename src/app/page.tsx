@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 
 type HoverData = {
@@ -19,9 +19,61 @@ const renderMixedText = (text: string) => {
     });
 };
 
+const VersionControls = ({ versions, activeIndex, onChange, className }: any) => {
+    const trackRef = useRef<HTMLDivElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [tempP, setTempP] = useState(0);
+
+    const percent = isDragging ? tempP * 100 : (versions.length > 1 ? (activeIndex / (versions.length - 1)) * 100 : 50);
+
+    const updateFromX = (clientX: number) => {
+        if (!trackRef.current) return;
+        const rect = trackRef.current.getBoundingClientRect();
+        let p = (clientX - rect.left) / rect.width;
+        p = Math.max(0, Math.min(1, p));
+        setTempP(p);
+        const idx = Math.round(p * Math.max(0, versions.length - 1));
+        onChange(idx);
+    };
+
+    if (versions.length <= 1) return null;
+
+    return (
+        <div 
+            className={`relative flex items-center h-12 cursor-ew-resize select-none touch-none ${className}`}
+            onPointerDown={(e) => {
+                setIsDragging(true);
+                updateFromX(e.clientX);
+                e.currentTarget.setPointerCapture(e.pointerId);
+            }}
+            onPointerMove={(e) => {
+                if(isDragging) updateFromX(e.clientX);
+            }}
+            onPointerUp={(e) => {
+                setIsDragging(false);
+                e.currentTarget.releasePointerCapture(e.pointerId);
+            }}
+        >
+            <div ref={trackRef} className="w-full h-[1px] bg-black/20 relative" />
+            <div 
+                className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none"
+                style={{ 
+                    left: `${percent}%`, 
+                    transition: isDragging ? 'none' : 'left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' 
+                }}
+            >
+                <div className="absolute bottom-4 whitespace-nowrap text-[12px] font-medium tracking-widest uppercase text-black">
+                    {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
+                </div>
+                <div className={`w-3 h-3 bg-black rounded-full transition-transform duration-200 ${isDragging ? 'scale-150' : 'scale-100'}`} />
+            </div>
+        </div>
+    );
+};
+
 export default function Home() {
-    const [activeInfo, setActiveInfo] = useState<HoverData | null>(null);
-    const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+    const [activeMaterialTitle, setActiveMaterialTitle] = useState<string | null>(null);
+    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
 
     const materials = [
         {
@@ -356,77 +408,96 @@ export default function Home() {
         },
     ];
 
-    const toggleExpanded = (title: string) => {
-        setExpanded(prev => ({ ...prev, [title]: !prev[title] }));
-    };
+
+    const activeMat = materials.find(m => m.title === activeMaterialTitle);
+    const activeVersion = activeMat?.versions[activeVersionIndex];
 
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
             {/* 1. Left / Top Pane: Navigation Menu */}
             <div className="flex-1 md:w-1/2 h-1/2 md:h-full overflow-y-auto no-scrollbar p-4 lg:p-6 border-b md:border-b-0 md:border-r border-black/10">
                 <div className="w-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black pb-20">
-
                     <div className="flex flex-col">
                         {materials.map((mat) => {
                             const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
                             const num = match ? parseInt(match[1]) : 0;
                             const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
                             const text = match ? match[2] : mat.title;
+                            const isActive = activeMaterialTitle === mat.title;
+
                             return (
-                            <div key={mat.title} className="flex flex-col">
                                 <div 
-                                    onClick={() => toggleExpanded(mat.title)}
-                                    className="flex items-start lg:items-center cursor-pointer group w-full mb-2 lg:mb-1"
+                                    key={mat.title}
+                                    onClick={() => {
+                                        if (isActive) return;
+                                        setActiveMaterialTitle(mat.title);
+                                        setActiveVersionIndex(0);
+                                    }}
+                                    className={`flex items-start lg:items-center cursor-pointer group w-full mb-2 lg:mb-1 transition-opacity ${isActive ? "opacity-100" : "opacity-30 hover:opacity-100"}`}
                                 >
                                     <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
-                                    <p className="mb-0 flex-1 text-left">{text}</p>
-                                    <svg 
-                                        className={`w-[0.55em] h-[0.55em] mt-[0.35em] lg:mt-[0.1em] ml-3 shrink-0 opacity-30 group-hover:opacity-100 transition-transform duration-300 ${expanded[mat.title] ? "" : "-rotate-90"}`}
-                                        fill="currentColor" viewBox="0 0 10 10"
-                                    >
-                                        <path d="M0 2L10 2L5 8Z" />
-                                    </svg>
+                                    <p className={`mb-0 flex-1 text-left ${isActive ? "font-semibold" : ""}`}>{text}</p>
                                 </div>
-                                <div className={`flex flex-col overflow-hidden transition-all duration-300 ease-in-out pl-[1.2em] ${expanded[mat.title] ? "max-h-[2000px] opacity-100 pb-4" : "max-h-0 opacity-0"}`}>
-                                    {mat.versions.map((ver) => (
-                                        <Link
-                                            key={ver.id}
-                                            href={ver.url}
-                                            onMouseEnter={() => setActiveInfo(ver)}
-                                            className={`text-left opacity-30 hover:opacity-100 transition-opacity duration-300 block w-fit font-medium ${
-                                                activeInfo?.url === ver.url ? "opacity-100" : ""
-                                            }`}
-                                        >
-                                            {ver.id}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
                             );
                         })}
                     </div>
-
                 </div>
             </div>
 
             {/* 2. Right / Bottom Pane: Information Details */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full overflow-y-auto no-scrollbar p-4 lg:p-6 bg-[#f9f9f9]">
-                <div className="max-w-[500px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black pb-20 font-medium">
-                    {activeInfo ? (
-                        <div className="flex flex-col justify-start">
-                            <div className="whitespace-pre-wrap">
-                                {renderMixedText(activeInfo.prompt)}
+            <div className="flex-1 md:w-1/2 h-1/2 md:h-full bg-[#f9f9f9] relative flex flex-row">
+                <div className="flex-1 h-full overflow-y-auto no-scrollbar p-4 lg:p-6 relative">
+                    <div className="max-w-[500px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black pb-32 font-medium">
+                        {activeMat && activeVersion ? (
+                            <div className="flex flex-col justify-start">
+                                <div className="whitespace-pre-wrap">
+                                    {renderMixedText(activeVersion.prompt)}
+                                </div>
+                                <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-8 lg:mt-12 font-normal">
+                                    {activeVersion.script}
+                                </div>
+                                <Link 
+                                    href={activeVersion.url} 
+                                    className="mt-12 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
+                                >
+                                    View Interaction
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                </Link>
                             </div>
-                            <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-8 lg:mt-12 font-normal">
-                                {activeInfo.script}
+                        ) : (
+                            <div className="opacity-30 font-medium select-none">
+                                choose a material
                             </div>
-                        </div>
-                    ) : (
-                        <div className="opacity-30 font-medium">
-                            select iteration
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
+
+                {/* Desktop Slider Space */}
+                {activeMat && activeMat.versions.length > 1 && (
+                    <div className="hidden md:flex flex-col justify-center items-center w-32 border-l border-black/5 px-8 bg-[#f9f9f9] z-10 shrink-0">
+                         <VersionControls 
+                             versions={activeMat.versions} 
+                             activeIndex={activeVersionIndex} 
+                             onChange={setActiveVersionIndex} 
+                             className="w-full" 
+                         />
+                    </div>
+                )}
+
+                {/* Mobile Slider / Overlay */}
+                {activeMat && activeMat.versions.length > 1 && (
+                    <>
+                        <div className="md:hidden absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-10" />
+                        <div className="md:hidden absolute bottom-8 left-[10%] right-[10%] z-20">
+                            <VersionControls 
+                                versions={activeMat.versions} 
+                                activeIndex={activeVersionIndex} 
+                                onChange={setActiveVersionIndex} 
+                                className="w-full" 
+                            />
+                        </div>
+                    </>
+                )}
             </div>
         </main>
     );
