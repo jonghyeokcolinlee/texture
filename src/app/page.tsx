@@ -408,9 +408,6 @@ export default function Home() {
         },
     ];
 
-    const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
-    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
-
     const activeMat = materials.find(m => m.title === activeMaterialTitle) || materials[0];
     const activeVersion = activeMat.versions[activeVersionIndex];
 
