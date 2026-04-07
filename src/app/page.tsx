@@ -39,7 +39,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
     if (versions.length <= 1) return null;
 
     return (
-        <div 
+        <div
             className={`relative flex ${vertical ? 'flex-col justify-start h-[200px] w-[16px]' : 'items-center h-[16px] w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
             onPointerDown={(e) => {
                 setIsDragging(true);
@@ -47,7 +47,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                 e.currentTarget.setPointerCapture(e.pointerId);
             }}
             onPointerMove={(e) => {
-                if(isDragging) updateFromPos(e.clientX, e.clientY);
+                if (isDragging) updateFromPos(e.clientX, e.clientY);
             }}
             onPointerUp={(e) => {
                 setIsDragging(false);
@@ -55,16 +55,16 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
             }}
         >
             <div ref={trackRef} className={`${vertical ? 'h-full w-[1px] mx-auto' : 'w-full h-[1px] my-auto'} bg-black relative`} />
-            <div 
+            <div
                 className="absolute flex items-center justify-center pointer-events-none"
-                style={{ 
-                    [vertical ? 'top' : 'left']: `${percent}%`, 
+                style={{
+                    [vertical ? 'top' : 'left']: `${percent}%`,
                     [vertical ? 'left' : 'top']: '50%',
                     transform: 'translate(-50%, -50%)',
-                    transition: isDragging ? 'none' : `${vertical ? 'top' : 'left'} 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)` 
+                    transition: isDragging ? 'none' : `${vertical ? 'top' : 'left'} 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)`
                 }}
             >
-                <div 
+                <div
                     className={`absolute ${vertical ? 'right-[16px]' : 'bottom-[16px]'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
                     style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
                 >
@@ -464,12 +464,12 @@ export default function Home() {
                         {/* Top/Bottom Fade Gradients */}
                         <div className="absolute top-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-b from-white to-transparent pointer-events-none z-30" />
                         <div className="absolute bottom-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
-                        
+
                         {/* Fixed Focus Indicator */}
                         <div className="absolute top-1/2 left-0 w-[0.8em] h-[2px] bg-black opacity-100 pointer-events-none z-10 transform -translate-y-1/2 rounded-full" />
-                        
+
                         {/* Scrollable Wheel */}
-                        <div 
+                        <div
                             ref={wheelRef}
                             onScroll={handleScroll}
                             className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
@@ -484,7 +484,7 @@ export default function Home() {
                                 const isActive = activeMaterial === mat.title;
 
                                 return (
-                                    <div 
+                                    <div
                                         key={mat.title}
                                         ref={(el) => { itemRefs.current[i] = el; }}
                                         className={`flex items-start w-full py-2 snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
@@ -512,8 +512,8 @@ export default function Home() {
                                 <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-8 lg:mt-12 font-normal">
                                     {activeVersion.script}
                                 </div>
-                                <Link 
-                                    href={activeVersion.url} 
+                                <Link
+                                    href={activeVersion.url}
                                     className="mt-12 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
                                 >
                                     View Interaction
@@ -531,12 +531,12 @@ export default function Home() {
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
                     <div className="hidden md:flex flex-col justify-start items-center w-32 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
-                         <VersionControls 
-                             versions={activeMat.versions} 
-                             activeIndex={activeVersionIndex} 
-                             onChange={setActiveVersionIndex} 
-                             vertical={true}
-                         />
+                        <VersionControls
+                            versions={activeMat.versions}
+                            activeIndex={activeVersionIndex}
+                            onChange={setActiveVersionIndex}
+                            vertical={true}
+                        />
                     </div>
                 )}
 
@@ -545,11 +545,11 @@ export default function Home() {
                     <>
                         <div className="md:hidden absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#f9f9f9] from-20% via-[#f9f9f9]/80 via-50% to-transparent pointer-events-none z-10" />
                         <div className="md:hidden absolute bottom-4 left-[10%] right-[10%] z-20">
-                            <VersionControls 
-                                versions={activeMat.versions} 
-                                activeIndex={activeVersionIndex} 
-                                onChange={setActiveVersionIndex} 
-                                className="w-full" 
+                            <VersionControls
+                                versions={activeMat.versions}
+                                activeIndex={activeVersionIndex}
+                                onChange={setActiveVersionIndex}
+                                className="w-full"
                             />
                         </div>
                     </>
