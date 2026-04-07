@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 type HoverData = {
@@ -40,7 +40,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
 
     return (
         <div 
-            className={`relative flex ${vertical ? 'flex-col justify-start h-[200px] w-[24px]' : 'items-center h-[24px] w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
+            className={`relative flex ${vertical ? 'flex-col justify-start h-[200px] w-[16px]' : 'items-center h-[16px] w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
             onPointerDown={(e) => {
                 setIsDragging(true);
                 updateFromPos(e.clientX, e.clientY);
@@ -54,7 +54,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                 e.currentTarget.releasePointerCapture(e.pointerId);
             }}
         >
-            <div ref={trackRef} className={`${vertical ? 'h-full w-[15px] mx-auto' : 'w-full h-[15px] my-auto'} bg-black relative`} />
+            <div ref={trackRef} className={`${vertical ? 'h-full w-[1px] mx-auto' : 'w-full h-[1px] my-auto'} bg-black relative`} />
             <div 
                 className="absolute flex items-center justify-center pointer-events-none"
                 style={{ 
@@ -65,12 +65,12 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                 }}
             >
                 <div 
-                    className={`absolute ${vertical ? 'right-[24px]' : 'bottom-[24px]'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
+                    className={`absolute ${vertical ? 'right-[16px]' : 'bottom-[16px]'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
                     style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
                 >
                     {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                 </div>
-                <div className="w-6 h-6 bg-black rounded-full" />
+                <div className="w-[12px] h-[12px] bg-black rounded-full" />
             </div>
         </div>
     );
@@ -413,38 +413,87 @@ export default function Home() {
         },
     ];
 
+    const activeMaterial = activeMaterialTitle || materials[0].title;
+    const activeMat = materials.find(m => m.title === activeMaterial);
+    const activeVersion = activeMat?.versions[activeVersionIndex] || (activeMat ? activeMat.versions[activeMat.versions.length - 1] : null);
 
-    const activeMat = materials.find(m => m.title === activeMaterialTitle);
-    const activeVersion = activeMat?.versions[activeVersionIndex];
+    const wheelRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+    useEffect(() => {
+        if (wheelRef.current && itemRefs.current[0]) {
+            const container = wheelRef.current;
+            const item = itemRefs.current[0];
+            container.scrollTop = item.offsetTop - container.clientHeight / 2 + item.clientHeight / 2;
+        }
+    }, []);
+
+    const handleScroll = () => {
+        if (!wheelRef.current) return;
+        const container = wheelRef.current;
+        const center = container.scrollTop + container.clientHeight / 2;
+
+        let closestIdx = 0;
+        let minDiff = Infinity;
+
+        materials.forEach((mat, i) => {
+            const item = itemRefs.current[i];
+            if (!item) return;
+            const itemCenter = item.offsetTop + item.clientHeight / 2;
+            const diff = Math.abs(itemCenter - center);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestIdx = i;
+            }
+        });
+
+        const newActive = materials[closestIdx].title;
+        if (newActive !== activeMaterial) {
+            setActiveMaterialTitle(newActive);
+            setActiveVersionIndex(materials[closestIdx].versions.length - 1);
+        }
+    };
 
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
-            {/* 1. Left / Top Pane: Navigation Menu */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full overflow-y-auto no-scrollbar p-4 lg:p-6 border-b md:border-b-0 md:border-r border-black/10">
-                <div className="w-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black pb-20">
-                    <div className="flex flex-col">
-                        {materials.map((mat) => {
+            {/* 1. Left / Top Pane: Navigation Wheel */}
+            <div className="flex-1 md:w-1/2 h-1/2 md:h-full flex items-center justify-center p-4 lg:p-6 bg-white relative">
+                {/* Scroll Selection Container */}
+                <div className="relative w-full max-w-[400px] h-[240px] md:h-[300px] overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
+                    {/* Top/Bottom Fade Gradients */}
+                    <div className="absolute top-0 left-0 w-full h-[60px] md:h-[80px] bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
+                    <div className="absolute bottom-0 left-0 w-full h-[60px] md:h-[80px] bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
+                    
+                    {/* Fixed Focus Indicator */}
+                    <div className="absolute top-1/2 left-0 w-full h-[1px] bg-black opacity-10 pointer-events-none z-0 transform -translate-y-1/2" />
+                    
+                    {/* Scrollable Wheel */}
+                    <div 
+                        ref={wheelRef}
+                        onScroll={handleScroll}
+                        className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
+                        style={{ scrollBehavior: 'smooth' }}
+                    >
+                        <div className="h-[100px] md:h-[130px]" /> {/* Spacer top */}
+                        {materials.map((mat, i) => {
                             const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
                             const num = match ? parseInt(match[1]) : 0;
                             const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
                             const text = match ? match[2] : mat.title;
-                            const isActive = activeMaterialTitle === mat.title;
+                            const isActive = activeMaterial === mat.title;
 
                             return (
                                 <div 
                                     key={mat.title}
-                                    onClick={() => {
-                                        if (isActive) return;
-                                        setActiveMaterialTitle(mat.title);
-                                        setActiveVersionIndex(mat.versions.length - 1);
-                                    }}
-                                    className={`flex items-start lg:items-center cursor-pointer group w-full mb-2 lg:mb-1 transition-opacity ${isActive ? "opacity-100" : "opacity-30 hover:opacity-100"}`}
+                                    ref={(el) => { itemRefs.current[i] = el; }}
+                                    className={`flex items-start lg:items-center w-full min-h-[40px] snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
                                 >
                                     <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
                                     <p className="mb-0 flex-1 text-left">{text}</p>
                                 </div>
                             );
                         })}
+                        <div className="h-[100px] md:h-[130px]" /> {/* Spacer bottom */}
                     </div>
                 </div>
             </div>
@@ -479,7 +528,7 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-start items-center w-32 border-l border-black/5 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
+                    <div className="hidden md:flex flex-col justify-start items-center w-32 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
                          <VersionControls 
                              versions={activeMat.versions} 
                              activeIndex={activeVersionIndex} 
