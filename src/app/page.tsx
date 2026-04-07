@@ -54,7 +54,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className }: any) =>
                 e.currentTarget.releasePointerCapture(e.pointerId);
             }}
         >
-            <div ref={trackRef} className="w-full h-[1px] bg-black/20 relative" />
+            <div ref={trackRef} className="w-full h-[2px] bg-black/20 relative" />
             <div 
                 className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none"
                 style={{ 
@@ -65,16 +65,13 @@ const VersionControls = ({ versions, activeIndex, onChange, className }: any) =>
                 <div className="absolute bottom-4 whitespace-nowrap text-[12px] font-medium tracking-widest uppercase text-black">
                     {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                 </div>
-                <div className={`w-3 h-3 bg-black rounded-full transition-transform duration-200 ${isDragging ? 'scale-150' : 'scale-100'}`} />
+                <div className="w-4 h-4 bg-black rounded-full" />
             </div>
         </div>
     );
 };
 
 export default function Home() {
-    const [activeMaterialTitle, setActiveMaterialTitle] = useState<string | null>(null);
-    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
-
     const materials = [
         {
             title: "01 brushed steel",
@@ -408,6 +405,9 @@ export default function Home() {
         },
     ];
 
+    const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
+    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
+
     const activeMat = materials.find(m => m.title === activeMaterialTitle) || materials[0];
     const activeVersion = activeMat.versions[activeVersionIndex];
 
@@ -444,24 +444,20 @@ export default function Home() {
         const newActive = materials[closestIdx].title;
         if (newActive !== activeMaterialTitle) {
             setActiveMaterialTitle(newActive);
-            // Always move slider to the latest version on material change
             setActiveVersionIndex(materials[closestIdx].versions.length - 1);
         }
     };
 
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
-            {/* 1. Left / Top Pane: Navigation Wheel */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full p-4 lg:p-6 bg-white relative">
-                <div className="w-full max-w-[400px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1] font-medium text-black">
+            {/* 1. Top Pane: Navigation Wheel (Mobile 30% / Desktop Half) */}
+            <div className="flex-none md:flex-1 h-[30%] md:h-full p-4 lg:p-8 bg-white relative">
+                <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1] font-medium text-black">
                     {/* Scroll Selection Container */}
-                    <div className="relative w-full h-[200px] md:h-[260px] overflow-hidden mt-4 md:mt-24">
+                    <div className="relative w-full h-full overflow-hidden">
                         {/* Top/Bottom Fade Gradients */}
-                        <div className="absolute top-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-b from-white to-transparent pointer-events-none z-30" />
-                        <div className="absolute bottom-0 left-0 w-full h-[60px] md:h-[90px] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
-
-                        {/* Fixed Focus Indicator */}
-                        <div className="absolute top-1/2 left-0 w-[0.8em] h-[2px] bg-black opacity-100 pointer-events-none z-10 transform -translate-y-1/2 rounded-full" />
+                        <div className="absolute top-0 left-0 w-full h-[30%] bg-gradient-to-b from-white to-transparent pointer-events-none z-30" />
+                        <div className="absolute bottom-0 left-0 w-full h-[30%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
 
                         {/* Scrollable Wheel */}
                         <div
@@ -470,7 +466,7 @@ export default function Home() {
                             className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
                             style={{ scrollBehavior: 'smooth' }}
                         >
-                            <div className="h-[85px] md:h-[115px]" /> {/* Spacer top */}
+                            <div className="h-[40%]" /> {/* Initial Spacer */}
                             {materials.map((mat, i) => {
                                 const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
                                 const num = match ? parseInt(match[1]) : 0;
@@ -482,53 +478,58 @@ export default function Home() {
                                     <div
                                         key={mat.title}
                                         ref={(el) => { itemRefs.current[i] = el; }}
-                                        className={`flex items-start w-full py-2 snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
+                                        className={`flex items-start w-full py-2.5 snap-center transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
                                     >
                                         <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
                                         <p className="mb-0 flex-1 text-left">{text}</p>
                                     </div>
                                 );
                             })}
-                            <div className="h-[85px] md:h-[115px]" /> {/* Spacer bottom */}
+                            <div className="h-[40%]" /> {/* End Spacer */}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* 2. Right / Bottom Pane: Information Details */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full bg-[#f9f9f9] relative flex flex-row">
-                <div className="flex-1 h-full overflow-y-auto no-scrollbar p-4 lg:p-6 relative">
-                    <div className="max-w-[500px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black pb-32 font-medium">
-                        {activeMat && activeVersion ? (
-                            <div className="flex flex-col justify-start">
-                                <div className="whitespace-pre-wrap">
-                                    {renderMixedText(activeVersion.prompt)}
+            {/* 2. Bottom Pane: Information Details (Mobile 60-70% / Desktop Half) */}
+            <div className="flex-1 md:flex-1 h-[70%] md:h-full bg-white relative flex flex-row">
+                <div className="flex-1 h-full overflow-hidden p-4 lg:p-12 relative">
+                    {/* Top/Bottom Fade for contentarea */}
+                    <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-20" />
+                    <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
+
+                    <div className="h-full overflow-y-auto no-scrollbar pb-32">
+                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium">
+                            {activeMat && activeVersion ? (
+                                <div className="flex flex-col justify-start">
+                                    <div className="whitespace-pre-wrap">
+                                        {renderMixedText(activeVersion.prompt)}
+                                    </div>
+                                    <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-12 font-normal">
+                                        {activeVersion.script}
+                                    </div>
+                                    <Link 
+                                        href={activeVersion.url} 
+                                        className="mt-16 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
+                                    >
+                                        View Interaction
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                    </Link>
                                 </div>
-                                <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-8 lg:mt-12 font-normal">
-                                    {activeVersion.script}
+                            ) : (
+                                <div className="opacity-30 font-medium select-none">
+                                    choose a material
                                 </div>
-                                <Link 
-                                    href={activeVersion.url} 
-                                    className="mt-12 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
-                                >
-                                    View Interaction
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="opacity-30 font-medium select-none">
-                                choose a material
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-end items-center w-32 border-l border-black/5 px-8 bg-[#f9f9f9] z-10 shrink-0 pb-12">
+                    <div className="hidden md:flex flex-col justify-end items-center w-32 border-l border-black/5 px-8 bg-white z-10 shrink-0 pb-12">
                          <div className="relative w-full h-[60%] flex flex-col items-center">
-                            {/* Gradient/Fade effect at the bottom area of the slider container */}
-                            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-20" />
+                            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
                             
                             <VersionControls 
                                 versions={activeMat.versions} 
@@ -543,8 +544,8 @@ export default function Home() {
                 {/* Mobile Slider / Overlay */}
                 {activeMat && activeMat.versions.length > 1 && (
                     <>
-                        <div className="md:hidden absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-10" />
-                        <div className="md:hidden absolute bottom-8 left-[10%] right-[10%] z-20">
+                        <div className="md:hidden absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
+                        <div className="md:hidden absolute bottom-12 left-[10%] right-[10%] z-20">
                             <VersionControls 
                                 versions={activeMat.versions} 
                                 activeIndex={activeVersionIndex} 
