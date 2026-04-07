@@ -227,7 +227,7 @@ export default function Home() {
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
             {/* 1. Top Pane: Navigation Wheel (Mobile / Desktop) */}
             <div className="flex-none md:flex-1 h-[30%] md:h-full p-4 lg:p-8 bg-white relative">
-                <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1] font-medium text-black">
+                <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
                         <div className="absolute bottom-0 left-0 w-full h-[30%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
 
@@ -249,7 +249,7 @@ export default function Home() {
                                     <div
                                         key={mat.title}
                                         ref={(el) => { itemRefs.current[i] = el; }}
-                                        className={`flex items-start w-full py-2.5 snap-start transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
+                                        className={`flex items-start w-full py-1 snap-start transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
                                     >
                                         <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
                                         <p className="mb-0 flex-1 text-left">{text}</p>
@@ -265,22 +265,18 @@ export default function Home() {
             {/* 2. Bottom Pane: Information Details (Mobile reduced height) */}
             <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row">
                 <div className="flex-1 h-full overflow-hidden pt-4 px-4 pb-0 lg:pt-12 lg:px-12 lg:pb-0 relative">
-                    <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-20" />
                     <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
 
-                    <div className="h-full overflow-y-auto no-scrollbar pb-0">
-                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium">
+                    <div className="h-full overflow-y-auto no-scrollbar pb-0 flex flex-col justify-end">
+                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium mt-auto w-full pb-4 md:pb-8">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
                                     <div className="whitespace-pre-wrap">
                                         {renderMixedText(activeVersion.prompt)}
                                     </div>
-                                    <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-12 font-normal">
-                                        {activeVersion.script}
-                                    </div>
                                     <Link 
                                         href={activeVersion.url} 
-                                        className="mt-16 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
+                                        className="mt-12 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
                                     >
                                         View Interaction
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
