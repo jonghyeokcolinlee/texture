@@ -1,0 +1,102 @@
+
+> texture@0.0.0 build
+> next build
+
+▲ Next.js 16.2.1 (Turbopack)
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 4 errors:
+./src/app/page.tsx:411:12
+the name `activeMaterialTitle` is defined multiple times
+  [90m409 |[0m ...
+  [90m410 |[0m ...
+[31m[1m>[0m [90m411 |[0m ...tiveMaterialTi...
+  [90m    |[0m    [31m[1m^^^^^^^^^^^^^^^^^[0m
+  [90m412 |[0m ...tiveVersionInd...
+  [90m413 |[0m ...
+  [90m414 |[0m ...iveMat = mater...
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+./src/app/page.tsx:412:12
+the name `activeVersionIndex` is defined multiple times
+  [90m410 |[0m ...
+  [90m411 |[0m ...tiveMaterialTi...
+[31m[1m>[0m [90m412 |[0m ...tiveVersionInd...
+  [90m    |[0m    [31m[1m^^^^^^^^^^^^^^^^^[0m
+  [90m413 |[0m ...
+  [90m414 |[0m ...iveMat = mater...
+  [90m415 |[0m ...iveVersion = a...
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+./src/app/page.tsx:411:33
+the name `setActiveMaterialTitle` is defined multiple times
+  [90m409 |[0m ...
+  [90m410 |[0m ...
+[31m[1m>[0m [90m411 |[0m ...ctiveMaterialT...
+  [90m    |[0m    [31m[1m^^^^^^^^^^^^^^^^^[0m
+  [90m412 |[0m ...tiveVersionInd...
+  [90m413 |[0m ...
+  [90m414 |[0m ...(m => m.title ...
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+./src/app/page.tsx:412:32
+the name `setActiveVersionIndex` is defined multiple times
+  [90m410 |[0m ...
+  [90m411 |[0m ...tActiveMateria...
+[31m[1m>[0m [90m412 |[0m ...ActiveVersionI...
+  [90m    |[0m    [31m[1m^^^^^^^^^^^^^^^^^[0m
+  [90m413 |[0m ...
+  [90m414 |[0m ...nd(m => m.titl...
+  [90m415 |[0m ...t.versions[act...
+
+Ecmascript file had an error
+
+Import traces:
+  Client Component Browser:
+    ./src/app/page.tsx [Client Component Browser]
+    ./src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/page.tsx [Client Component SSR]
+    ./src/app/page.tsx [Server Component]
+
+
+    at <unknown> (./src/app/page.tsx:411:12)
+    at <unknown> (./src/app/page.tsx:412:12)
+    at <unknown> (./src/app/page.tsx:411:33)
+    at <unknown> (./src/app/page.tsx:412:32)
