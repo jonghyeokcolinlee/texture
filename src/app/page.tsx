@@ -19,63 +19,6 @@ const renderMixedText = (text: string) => {
     });
 };
 
-const VersionControls = ({ versions, activeIndex, onChange, className, vertical = false }: any) => {
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [tempP, setTempP] = useState(0);
-
-    const percent = isDragging ? tempP * 100 : (versions.length > 1 ? (activeIndex / (versions.length - 1)) * 100 : 50);
-
-    const updateFromPos = (clientX: number, clientY: number) => {
-        if (!trackRef.current) return;
-        const rect = trackRef.current.getBoundingClientRect();
-        let p = vertical ? (clientY - rect.top) / rect.height : (clientX - rect.left) / rect.width;
-        p = Math.max(0, Math.min(1, p));
-        setTempP(p);
-        const idx = Math.round(p * Math.max(0, versions.length - 1));
-        onChange(idx);
-    };
-
-    if (versions.length <= 1) return null;
-
-    return (
-        <div
-            className={`relative flex ${vertical ? 'flex-col justify-start h-[200px] w-[16px]' : 'items-center h-[16px] w-full flex-row'} ${vertical ? 'cursor-ns-resize' : 'cursor-ew-resize'} select-none touch-none ${className || ""}`}
-            onPointerDown={(e) => {
-                setIsDragging(true);
-                updateFromPos(e.clientX, e.clientY);
-                e.currentTarget.setPointerCapture(e.pointerId);
-            }}
-            onPointerMove={(e) => {
-                if (isDragging) updateFromPos(e.clientX, e.clientY);
-            }}
-            onPointerUp={(e) => {
-                setIsDragging(false);
-                e.currentTarget.releasePointerCapture(e.pointerId);
-            }}
-        >
-            <div ref={trackRef} className={`${vertical ? 'h-full w-[1px] mx-auto' : 'w-full h-[1px] my-auto'} bg-black relative`} />
-            <div
-                className="absolute flex items-center justify-center pointer-events-none"
-                style={{
-                    [vertical ? 'top' : 'left']: `${percent}%`,
-                    [vertical ? 'left' : 'top']: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    transition: isDragging ? 'none' : `${vertical ? 'top' : 'left'} 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)`
-                }}
-            >
-                <div
-                    className={`absolute ${vertical ? 'right-[16px]' : 'bottom-[16px]'} whitespace-nowrap text-[12px] font-medium tracking-widest text-black lowercase`}
-                    style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}
-                >
-                    {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
-                </div>
-                <div className="w-[12px] h-[12px] bg-black rounded-full" />
-            </div>
-        </div>
-    );
-};
-
 export default function Home() {
     const [activeMaterialTitle, setActiveMaterialTitle] = useState<string | null>(null);
     const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
@@ -420,97 +363,164 @@ export default function Home() {
     const wheelRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+    const versionWheelRef = useRef<HTMLDivElement>(null);
+    const versionRefs = useRef<(HTMLDivElement | null)[]>([]);
+
     useEffect(() => {
         if (wheelRef.current && itemRefs.current[0]) {
-            const container = wheelRef.current;
-            const item = itemRefs.current[0];
-            container.scrollTop = item.offsetTop - container.clientHeight / 2 + item.clientHeight / 2;
+            wheelRef.current.scrollTop = itemRefs.current[0].offsetTop - 12; 
         }
     }, []);
 
+    useEffect(() => {
+        if (versionWheelRef.current && versionRefs.current[activeVersionIndex]) {
+            versionWheelRef.current.scrollTop = versionRefs.current[activeVersionIndex]!.offsetTop - 12;
+        }
+    }, [activeMaterial, activeVersionIndex]);
+
     const handleScroll = () => {
         if (!wheelRef.current) return;
-        const container = wheelRef.current;
-        const center = container.scrollTop + container.clientHeight / 2;
-
+        const top = wheelRef.current.scrollTop;
         let closestIdx = 0;
         let minDiff = Infinity;
-
-        materials.forEach((mat, i) => {
+        materials.forEach((_, i) => {
             const item = itemRefs.current[i];
             if (!item) return;
-            const itemCenter = item.offsetTop + item.clientHeight / 2;
-            const diff = Math.abs(itemCenter - center);
+            const diff = Math.abs(item.offsetTop - top - 12);
             if (diff < minDiff) {
                 minDiff = diff;
                 closestIdx = i;
             }
         });
-
-        const newActive = materials[closestIdx].title;
-        if (newActive !== activeMaterial) {
-            setActiveMaterialTitle(newActive);
+        if (materials[closestIdx].title !== activeMaterial) {
+            setActiveMaterialTitle(materials[closestIdx].title);
             setActiveVersionIndex(materials[closestIdx].versions.length - 1);
         }
     };
 
+    const handleVersionScroll = () => {
+        if (!versionWheelRef.current || !activeMat || activeMat.versions.length <= 1) return;
+        const top = versionWheelRef.current.scrollTop;
+        let closestIdx = 0;
+        let minDiff = Infinity;
+        activeMat.versions.forEach((_, i) => {
+            const item = versionRefs.current[i];
+            if (!item) return;
+            const diff = Math.abs(item.offsetTop - top - 12);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestIdx = i;
+            }
+        });
+        if (closestIdx !== activeVersionIndex) {
+            setActiveVersionIndex(closestIdx);
+        }
+    };
+
     return (
-        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
-            {/* 1. Left / Top Pane: Navigation Wheel */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full p-4 lg:p-6 bg-white relative">
-                <div className="w-full max-w-[400px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
-                    {/* Scroll Selection Container */}
-                    <div className="relative w-full h-[250px] md:h-[350px] overflow-hidden">
-                        
-                        {/* Bottom Fade Gradient Only */}
-                        <div className="absolute bottom-0 left-0 w-full h-[80px] md:h-[100px] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
+        <main className="h-full w-full flex flex-col overflow-hidden lowercase bg-[#f9f9f9]">
+            {/* Top Panel: Control Area */}
+            <div className="w-full h-[140px] md:h-[160px] flex-none bg-[#f9f9f9] border-b border-black/10 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-row z-20">
+                
+                {/* Left Control: Materials List */}
+                <div className="flex-1 w-1/2 h-full relative border-r border-black/5">
+                    <div className="absolute inset-0 p-6 lg:p-8 pb-0">
+                        <div className="relative w-full h-full overflow-hidden text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
+                            <div className="absolute bottom-0 left-0 w-full h-[40px] bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-30" />
+                            
+                            <div 
+                                ref={wheelRef}
+                                onScroll={handleScroll}
+                                className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
+                                style={{ scrollBehavior: 'smooth' }}
+                            >
+                                <div className="h-[12px]" />
+                                {materials.map((mat, i) => {
+                                    const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
+                                    const num = match ? parseInt(match[1]) : 0;
+                                    const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
+                                    const text = match ? match[2] : mat.title;
+                                    const isActive = activeMaterial === mat.title;
 
-                        {/* Scrollable Wheel */}
-                        <div
-                            ref={wheelRef}
-                            onScroll={handleScroll}
-                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
-                            style={{ scrollBehavior: 'smooth' }}
-                        >
-                            {materials.map((mat, i) => {
-                                const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
-                                const num = match ? parseInt(match[1]) : 0;
-                                const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
-                                const text = match ? match[2] : mat.title;
-                                const isActive = activeMaterial === mat.title;
-
-                                return (
-                                    <div
-                                        key={mat.title}
-                                        ref={(el) => { itemRefs.current[i] = el; }}
-                                        className={`flex items-start w-full py-2.5 snap-start transition-opacity duration-300 select-none ${isActive ? "opacity-100" : "opacity-30"}`}
-                                    >
-                                        <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
-                                        <p className="mb-0 flex-1 text-left">{text}</p>
-                                    </div>
-                                );
-                            })}
-                            <div className="h-[200px] md:h-[300px]" /> {/* Bottom spacer */}
+                                    return (
+                                        <div
+                                            key={mat.title}
+                                            ref={(el) => { itemRefs.current[i] = el; }}
+                                            className={`flex items-start w-full py-2.5 lg:py-3 scroll-mt-[12px] snap-start transition-opacity duration-300 select-none cursor-pointer ${isActive ? "opacity-100" : "opacity-30"}`}
+                                            onClick={() => {
+                                                if (isActive) return;
+                                                setActiveMaterialTitle(mat.title);
+                                                setActiveVersionIndex(mat.versions.length - 1);
+                                            }}
+                                        >
+                                            <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
+                                            <p className="mb-0 flex-1 text-left">{text}</p>
+                                        </div>
+                                    );
+                                })}
+                                <div className="h-[100px] md:h-[120px]" />
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Right Control: Version History */}
+                <div className="flex-1 w-1/2 h-full relative">
+                    <div className="absolute inset-0 p-6 lg:p-8 pb-0">
+                        {activeMat && activeMat.versions.length > 1 ? (
+                            <div className="relative w-full h-full overflow-hidden text-[16px] lg:text-[20px] tracking-widest font-medium text-black lowercase" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+                                <div className="absolute bottom-0 left-0 w-full h-[40px] bg-gradient-to-t from-[#f9f9f9] to-transparent pointer-events-none z-30" />
+                                
+                                <div 
+                                    ref={versionWheelRef}
+                                    onScroll={handleVersionScroll}
+                                    className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory relative z-20"
+                                    style={{ scrollBehavior: 'smooth' }}
+                                >
+                                    <div className="h-[12px]" />
+                                    {activeMat.versions.map((ver, i) => {
+                                        const isActive = activeVersionIndex === i;
+                                        return (
+                                            <div
+                                                key={ver.id}
+                                                ref={(el) => { versionRefs.current[i] = el; }}
+                                                className={`flex items-start w-full py-2.5 lg:py-3 scroll-mt-[12px] snap-start transition-opacity duration-300 select-none cursor-pointer ${isActive ? "opacity-100" : "opacity-30"}`}
+                                                onClick={() => {
+                                                    if (isActive) return;
+                                                    setActiveVersionIndex(i);
+                                                }}
+                                            >
+                                                <p className="mb-0">{ver.id}</p>
+                                            </div>
+                                        );
+                                    })}
+                                    <div className="h-[100px] md:h-[120px]" />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="w-full h-full flex items-start pt-[12px] opacity-30 text-[16px] lg:text-[20px] tracking-widest lowercase font-medium" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+                                v1
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* 2. Right / Bottom Pane: Information Details */}
-            <div className="flex-1 md:w-1/2 h-1/2 md:h-full bg-[#f9f9f9] relative flex flex-row">
-                <div className="flex-1 h-full overflow-y-auto no-scrollbar p-4 lg:p-6 relative">
-                    <div className="max-w-[500px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black pb-32 font-medium">
+            {/* Bottom Panel: Main Content View */}
+            <div className="flex-1 w-full bg-white relative flex flex-col z-10">
+                <div className="flex-1 h-full overflow-y-auto no-scrollbar p-6 lg:p-12 relative flex justify-center">
+                    <div className="w-full max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black pb-32 font-medium">
                         {activeMat && activeVersion ? (
                             <div className="flex flex-col justify-start">
                                 <div className="whitespace-pre-wrap">
                                     {renderMixedText(activeVersion.prompt)}
                                 </div>
-                                <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-8 lg:mt-12 font-normal">
+                                <div className="font-mono opacity-40 text-[14px] leading-[1.6] tracking-normal whitespace-pre-wrap mt-12 font-normal">
                                     {activeVersion.script}
                                 </div>
                                 <Link
                                     href={activeVersion.url}
-                                    className="mt-12 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mt-16 sm:mt-24 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
                                 >
                                     View Interaction
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
@@ -523,33 +533,6 @@ export default function Home() {
                         )}
                     </div>
                 </div>
-
-                {/* Desktop Slider Space */}
-                {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-start items-center w-32 px-8 pt-8 pb-32 bg-[#f9f9f9] z-10 shrink-0">
-                        <VersionControls
-                            versions={activeMat.versions}
-                            activeIndex={activeVersionIndex}
-                            onChange={setActiveVersionIndex}
-                            vertical={true}
-                        />
-                    </div>
-                )}
-
-                {/* Mobile Slider / Overlay */}
-                {activeMat && activeMat.versions.length > 1 && (
-                    <>
-                        <div className="md:hidden absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#f9f9f9] from-20% via-[#f9f9f9]/80 via-50% to-transparent pointer-events-none z-10" />
-                        <div className="md:hidden absolute bottom-4 left-[10%] right-[10%] z-20">
-                            <VersionControls
-                                versions={activeMat.versions}
-                                activeIndex={activeVersionIndex}
-                                onChange={setActiveVersionIndex}
-                                className="w-full"
-                            />
-                        </div>
-                    </>
-                )}
             </div>
         </main>
     );
