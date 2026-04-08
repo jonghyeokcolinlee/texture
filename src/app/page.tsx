@@ -226,17 +226,17 @@ export default function Home() {
     };
 
     return (
-        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-20 md:gap-12 lg:gap-20">
+        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-20 md:gap-24 lg:gap-40">
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
             <div className="flex-none md:w-[22%] h-[28%] min-h-[160px] md:h-full px-4 md:px-0 bg-white relative flex flex-col">
                 {/* Fixed Title: textures */}
-                <div className="flex items-start w-full pt-8 pb-4 md:pt-0 md:pb-6 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2]">
+                <div className="flex items-start w-full py-1 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1]">
                     <span className="w-[1.8em] shrink-0 text-left" />
                     <p className="mb-0 flex-1 text-left font-medium">textures</p>
                 </div>
 
-                <div className="w-full flex-1 overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] font-medium text-black">
+                <div className="w-full flex-1 overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
                         <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30 md:hidden" />
 
@@ -294,38 +294,46 @@ export default function Home() {
 
             {/* 2. Right Pane: Information Details */}
             <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row overflow-hidden">
-                <div className="flex-1 h-full overflow-hidden pt-2 px-4 pb-0 md:pt-0 md:px-0 md:pb-0 relative">
-                    <div className="absolute bottom-0 left-0 w-full h-[20%] bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
+                    <div className="h-full overflow-y-auto no-scrollbar pb-0 flex flex-col">
+                        {/* Fixed Title: prompt */}
+                        <div className="flex items-start w-full py-1 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1]">
+                            <span className="w-[1.8em] shrink-0 text-left" />
+                            <p className="mb-0 flex-1 text-left font-medium">prompt</p>
+                        </div>
 
-                    <div className="h-full overflow-y-auto no-scrollbar pb-0">
-                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium w-full pb-12 md:pb-24">
+                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black font-medium w-full pb-12 md:pb-24">
                             {activeMat && activeVersion ? (
-                                <div className="flex flex-col justify-start">
-                                    <div className="whitespace-pre-wrap break-keep flex flex-col gap-4">
-                                        <div className="opacity-100">
-                                            {renderMixedText(activeVersion.prompt.split("\n\n")[0])}
-                                        </div>
-                                        {activeVersion.prompt.includes("\n\n") && (
-                                            <div className="opacity-30">
-                                                {renderMixedText(activeVersion.prompt.split("\n\n").slice(1).join("\n\n"))}
+                                <div className="flex items-start">
+                                    <span className="w-[1.8em] shrink-0 text-left" />
+                                    <div className="flex-1 flex flex-col justify-start">
+                                        <div className="whitespace-pre-wrap break-keep flex flex-col gap-4">
+                                            <div className="opacity-100">
+                                                {renderMixedText(activeVersion.prompt.split("\n\n")[0])}
                                             </div>
-                                        )}
+                                            {activeVersion.prompt.includes("\n\n") && (
+                                                <div className="opacity-30">
+                                                    {renderMixedText(activeVersion.prompt.split("\n\n").slice(1).join("\n\n"))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <Link 
+                                            href={activeVersion.url} 
+                                            className="mt-12 inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-70 transition-opacity"
+                                        >
+                                            view interaction
+                                        </Link>
                                     </div>
-                                    <Link 
-                                        href={activeVersion.url} 
-                                        className="mt-12 inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-70 transition-opacity"
-                                    >
-                                        view interaction
-                                    </Link>
                                 </div>
                             ) : (
-                                <div className="opacity-30 font-medium select-none">
-                                    choose a material
+                                <div className="flex items-start">
+                                    <span className="w-[1.8em] shrink-0 text-left" />
+                                    <div className="opacity-30 font-medium select-none">
+                                        choose a material
+                                    </div>
                                 </div>
                             )}
                         </div>
                     </div>
-                </div>
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
