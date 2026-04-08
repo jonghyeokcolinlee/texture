@@ -218,7 +218,7 @@ export default function Home() {
     return (
         <main className="h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40">
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
-            <div className="flex-none md:w-[22%] h-[180px] md:h-[180px] px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
+            <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
                 {/* Fixed Title: textures */}
                 <div className="w-full py-1 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
                     textures
@@ -289,9 +289,6 @@ export default function Home() {
                     </div>
 
                     <div className="flex-1 w-full relative overflow-hidden">
-                        {/* FIXED OVERLAY: Bottom gradient for scroll affordance */}
-                        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
-
                         <div className="h-full w-full overflow-y-auto no-scrollbar pb-0 flex flex-col">
                             <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-32 md:pb-40">
                                 {activeMat && activeVersion ? (
