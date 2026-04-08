@@ -137,7 +137,7 @@ export default function Home() {
             title: "06 cd iridescence",
             versions: [
                 { id: "v1", url: "/cd/1", prompt: "CD 표면의 무지갯빛 간섭 현상을 박막 간섭(Thin-film interference) 수식으로 정밀하게 묘사.", script: "vec3 spec = iridescence(dot(N, V), layerThickness);" },
- 좌우 기울기에서도 다이내믹한 무지갯빛 변화를 유도했습니다. 배경을 순백색(#fff)으로 전환하는 대신, 부유하는 CD 하단에 타원형의 방사형 그라데이션 그림자(Radial Shadow)를 동적으로 배치하여 화이트 캔버스상의 입체감과 물리적 존재감을 극대화했습니다.", script: "meshRef.current.rotation.y = currentInput.current.x * maxTilt;\n// Shadow logic: 1.0 - Math.abs(input.y) * 0.1" },
+                { id: "v3", url: "/cd/3", prompt: "좌우 기울기에서도 다이내믹한 무지갯빛 변화를 유도했습니다. 배경을 순백색(#fff)으로 전환하는 대신, 부유하는 CD 하단에 타원형의 방사형 그라데이션 그림자(Radial Shadow)를 동적으로 배치하여 화이트 캔버스상의 입체감과 물리적 존재감을 극대화했습니다.", script: "meshRef.current.rotation.y = currentInput.current.x * maxTilt;\n// Shadow logic: 1.0 - Math.abs(input.y) * 0.1" },
                 { id: "v4", url: "/cd/4", prompt: "\"속에 있는 원에도 그림자 주고, 가장자리 원도 그림자 적용, 그리고 화면 가로 크기에 따라 interactiveg하게 크기 변하도록, 그리고 모바일에서는 자이로 센서 허용을 받아서, 핸드폰 실제 기울임에 따라 기울어지도록 v4로 업데이트\"\n\nCD의 중앙 홀(Hole)과 외곽 테두리에 각각 독립적인 이중 그림자(Dual Shadow) 시스템을 적용하여 디테일을 살렸습니다. `viewport.width`에 대응하는 반응형 스케일 로직을 통해 어떤 기기에서도 최적의 크기로 노출되며, 모바일 환경에서는 DeviceOrientation API 권한 획득 오버레이를 통해 실제 기기의 물리적 기울임과 1:1 동기화되는 실감 나는 물성 상호작용을 구현했습니다.", script: "const cdScale = Math.min(viewport.width, viewport.height) * 0.28;\n// RequestGyroBanner Integration" },
             ],
         },
