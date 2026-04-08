@@ -276,7 +276,7 @@ export default function Home() {
                                     </div>
                                 );
                             })}
-                            <div className="md:hidden min-h-[100%]" /> {/* End Spacer to allow scrolling past the last item on mobile */}
+                            <div className="min-h-[100%] md:min-h-0 md:h-24" /> {/* End Spacer to allow scrolling past the last item */}
                         </div>
                     </div>
                 </div>
@@ -295,7 +295,7 @@ export default function Home() {
                         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
 
                         <div className="h-full w-full overflow-y-auto no-scrollbar pb-0 flex flex-col pt-4 md:pt-0">
-                            <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-12 md:pb-24">
+                            <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-32 md:pb-40">
                                 {activeMat && activeVersion ? (
                                     <div className="flex flex-col justify-start">
                                         <div className="flex flex-col gap-8 py-1">
