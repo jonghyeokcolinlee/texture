@@ -230,8 +230,8 @@ export default function Home() {
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
             <div className="flex-none md:w-[22%] h-[28%] min-h-[160px] md:h-full px-4 md:px-0 bg-white relative flex flex-col">
                 {/* Fixed Title: textures */}
-                <div className="flex items-start w-full pt-4 pb-2 md:pt-0 md:pb-6 opacity-50 select-none flex-none">
-                    <span className="w-[1.8em] shrink-0" />
+                <div className="flex items-start w-full pt-4 pb-2 md:pt-0 md:pb-6 text-black/40 select-none flex-none bg-white z-30">
+                    <span className="w-[1.8em] shrink-0 text-left" />
                     <p className="mb-0 flex-1 text-left font-medium">textures</p>
                 </div>
 
