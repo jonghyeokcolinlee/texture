@@ -68,9 +68,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                     transition: isDragging ? 'none' : (vertical ? 'top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)')
                 }}
             >
-                {/* 텍스트와 안 겹치게끔 white fade gradient 효과 (배경) */}
                 <div className={`absolute ${vertical ? 'right-6' : 'bottom-5'} flex items-center justify-center`}>
-                    <div className="absolute inset-[-4px] bg-white/80 blur-[2px] rounded-full" />
                     <div className="relative whitespace-nowrap text-[14px] font-medium tracking-widest uppercase text-black z-10">
                         {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                     </div>
@@ -220,7 +218,7 @@ export default function Home() {
     return (
         <main className="h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40">
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
-            <div className="flex-none md:w-[22%] h-[155px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
+            <div className="flex-none md:w-[22%] h-[180px] md:h-[180px] px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
                 {/* Fixed Title: textures */}
                 <div className="w-full py-1 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
                     textures
@@ -228,7 +226,7 @@ export default function Home() {
 
                 <div className="w-full flex-1 overflow-visible text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black relative">
                     {/* Gradient Mask strictly for Top Panel */}
-                    <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
+                    <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
                     
                     <div className="relative w-full h-full overflow-hidden">
                         <div
@@ -294,7 +292,7 @@ export default function Home() {
                         {/* FIXED OVERLAY: Bottom gradient for scroll affordance */}
                         <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
 
-                        <div className="h-full w-full overflow-y-auto no-scrollbar pb-0 flex flex-col pt-4 md:pt-0">
+                        <div className="h-full w-full overflow-y-auto no-scrollbar pb-0 flex flex-col">
                             <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-32 md:pb-40">
                                 {activeMat && activeVersion ? (
                                     <div className="flex flex-col justify-start">
@@ -344,7 +342,6 @@ export default function Home() {
                 {/* Mobile Slider / Overlay */}
                 {activeMat && activeMat.versions.length > 1 && (
                     <div className="md:hidden">
-                        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-10" />
                         <div className="absolute bottom-0 left-[10%] right-[10%] z-20">
                             <VersionControls 
                                 versions={activeMat.versions} 
