@@ -181,10 +181,11 @@ export default function Home() {
     ];
 
     const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
-    const [hoveredMaterialTitle, setHoveredMaterialTitle] = useState<string | null>(null);
+    const [previewMaterialTitle, setPreviewMaterialTitle] = useState<string | null>(null);
     const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
 
-    const activeMat = materials.find(m => m.title === activeMaterialTitle) || materials[0];
+    const displayMaterialTitle = previewMaterialTitle || activeMaterialTitle;
+    const activeMat = materials.find(m => m.title === displayMaterialTitle) || materials[0];
     const activeVersion = activeMat.versions[activeVersionIndex];
 
     const wheelRef = useRef<HTMLDivElement>(null);
@@ -237,10 +238,10 @@ export default function Home() {
                 </div>
 
                 <div className="w-full flex-1 overflow-visible text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
-                    <div className="relative w-full h-full overflow-visible">
-                        <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30 md:hidden" />
+                    <div className="relative w-full h-full overflow-hidden">
+                        {/* Mobile Gradient Mask for Scrollable List */}
+                        <div className="absolute bottom-0 left-0 w-full h-[40%] bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30 md:hidden" />
 
-                        {/* Scrollable Wheel - using snap-start now to align top */}
                         <div
                             ref={wheelRef}
                             onScroll={handleScroll}
@@ -260,12 +261,12 @@ export default function Home() {
                                         ref={(el) => { itemRefs.current[i] = el; }}
                                         onMouseEnter={() => {
                                             if (window.innerWidth >= 768) {
-                                                setHoveredMaterialTitle(mat.title);
+                                                setPreviewMaterialTitle(mat.title);
                                             }
                                         }}
                                         onMouseLeave={() => {
                                             if (window.innerWidth >= 768) {
-                                                setHoveredMaterialTitle(null);
+                                                setPreviewMaterialTitle(null);
                                             }
                                         }}
                                         onClick={() => {
@@ -277,9 +278,9 @@ export default function Home() {
                                             }
                                         }}
                                         className={`flex items-start w-full py-1 snap-start md:snap-align-none transition-opacity duration-300 md:cursor-pointer select-none 
-                                            ${activeMaterialTitle === mat.title ? "opacity-100" : "opacity-30"}`}
+                                            ${displayMaterialTitle === mat.title ? "opacity-100" : (activeMaterialTitle === mat.title ? "opacity-30" : "opacity-30")}`}
                                     >
-                                        <span className={`w-[1.8em] shrink-0 text-left transition-colors duration-300 ${hoveredMaterialTitle === mat.title && activeMaterialTitle !== mat.title ? "text-black/100" : ""}`}>
+                                        <span className={`w-[1.8em] shrink-0 text-left transition-colors duration-300 ${displayMaterialTitle === mat.title && activeMaterialTitle !== mat.title ? "text-black/100" : ""}`}>
                                             {indicator}
                                         </span>
                                         <p className="mb-0 flex-1 text-left">{text}</p>
@@ -294,17 +295,20 @@ export default function Home() {
 
             {/* 2. Right Pane: Information Details */}
             <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row overflow-hidden px-4 md:px-0">
-                    <div className="h-full overflow-y-auto no-scrollbar pb-0 flex flex-col w-full">
+                    {/* Gradient overlay for bottom of right pane */}
+                    <div className="absolute bottom-0 left-0 w-full h-[20%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
+
+                    <div className="h-full w-full overflow-y-auto no-scrollbar pb-0 flex flex-col pt-2 md:pt-0">
                         {/* Fixed Title: prompt */}
                         <div className="flex items-start w-full py-1 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1]">
                             <span className="w-[1.8em] shrink-0 text-left" />
                             <p className="mb-0 flex-1 text-left font-medium">prompt</p>
                         </div>
 
-                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] text-black font-medium w-full pb-12 md:pb-24">
+                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-12 md:pb-24">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
-                                    <div className="whitespace-pre-wrap break-keep flex flex-col gap-4">
+                                    <div className="whitespace-pre-wrap break-keep flex flex-col gap-4 py-1">
                                         <div className="opacity-100">
                                             {renderMixedText(activeVersion.prompt.split("\n\n")[0])}
                                         </div>
@@ -322,7 +326,7 @@ export default function Home() {
                                     </Link>
                                 </div>
                             ) : (
-                                <div className="opacity-30 font-medium select-none">
+                                <div className="opacity-30 font-medium select-none py-1">
                                     choose a material
                                 </div>
                             )}
