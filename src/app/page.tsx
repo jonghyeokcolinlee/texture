@@ -227,22 +227,22 @@ export default function Home() {
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
             {/* 1. Top Pane: Navigation Wheel (Mobile / Desktop) */}
-            <div className="flex-none md:flex-1 h-[30%] md:h-full px-4 pt-2 pb-4 lg:px-8 lg:pt-4 lg:pb-8 bg-white relative">
+            <div className="flex-none md:w-[28%] h-[30%] md:h-full px-4 pt-2 pb-4 lg:px-8 lg:pt-4 lg:pb-8 bg-white relative">
                 <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
-                        <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30" />
+                        <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30 md:hidden" />
 
                         {/* Scrollable Wheel - using snap-start now to align top */}
                         <div
                             ref={wheelRef}
                             onScroll={handleScroll}
-                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory md:snap-none relative z-20"
+                            className="w-full h-full overflow-y-auto md:overflow-y-hidden no-scrollbar snap-y snap-mandatory md:snap-none relative z-20"
                             style={{ scrollBehavior: 'smooth' }}
                         >
                             {materials.map((mat, i) => {
                                 const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
                                 const num = match ? parseInt(match[1]) : 0;
-                                const indicator = num > 0 ? String.fromCharCode(96 + num) + "." : "";
+                                const indicator = num > 0 ? num + "." : "";
                                 const text = match ? match[2] : mat.title;
                                 const isActive = activeMaterialTitle === mat.title;
 
@@ -265,7 +265,7 @@ export default function Home() {
                                     </div>
                                 );
                             })}
-                            <div className="min-h-[100%]" /> {/* End Spacer to allow scrolling past the last item */}
+                            <div className="md:hidden min-h-[100%]" /> {/* End Spacer to allow scrolling past the last item on mobile */}
                         </div>
                     </div>
                 </div>
@@ -280,15 +280,21 @@ export default function Home() {
                         <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium w-full pb-12 md:pb-24">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
-                                    <div className="whitespace-pre-wrap break-keep">
-                                        {renderMixedText(activeVersion.prompt)}
+                                    <div className="whitespace-pre-wrap break-keep flex flex-col gap-4">
+                                        <div className="opacity-100">
+                                            {renderMixedText(activeVersion.prompt.split("\n\n")[0])}
+                                        </div>
+                                        {activeVersion.prompt.includes("\n\n") && (
+                                            <div className="opacity-30">
+                                                {renderMixedText(activeVersion.prompt.split("\n\n").slice(1).join("\n\n"))}
+                                            </div>
+                                        )}
                                     </div>
                                     <Link 
                                         href={activeVersion.url} 
-                                        className="mt-12 inline-flex items-center gap-2 text-[14px] tracking-widest font-bold uppercase opacity-80 hover:opacity-100 transition-opacity"
+                                        className="mt-12 inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-70 transition-opacity"
                                     >
-                                        View Interaction
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                        view interaction
                                     </Link>
                                 </div>
                             ) : (
