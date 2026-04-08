@@ -60,7 +60,7 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
             }}
             style={{ cursor: vertical ? 'ns-resize' : 'ew-resize' }}
         >
-            <div ref={trackRef} className={`${vertical ? 'h-full w-[10px]' : 'w-full h-[10px]'} bg-black/10 rounded-full relative`} />
+            <div ref={trackRef} className={`${vertical ? 'h-full w-[10px]' : 'w-full h-[10px]'} bg-white/20 rounded-full relative`} />
             <div 
                 className={`absolute flex items-center justify-center pointer-events-none`}
                 style={{ 
@@ -68,15 +68,15 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
                     transition: isDragging ? 'none' : (vertical ? 'top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)')
                 }}
             >
-                {/* 텍스트와 안 겹치게끔 white fade gradient 효과 (배경) */}
+                {/* 텍스트와 안 겹치게끔 fade gradient 효과 (배경) */}
                 <div className={`absolute ${vertical ? 'right-6' : 'bottom-5'} flex items-center justify-center`}>
-                    <div className="absolute inset-[-4px] bg-white/80 blur-[2px] rounded-full" />
-                    <div className="relative whitespace-nowrap text-[14px] font-medium tracking-widest uppercase text-black z-10">
+                    <div className="absolute inset-[-4px] bg-black/40 blur-[2px] rounded-full" />
+                    <div className="relative whitespace-nowrap text-[14px] font-medium tracking-widest uppercase text-white z-10">
                         {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
                     </div>
                 </div>
                 {/* 반지름 8px 원 (w-4 h-4) */}
-                <div className="w-4 h-4 bg-black rounded-full relative z-20" />
+                <div className="w-4 h-4 bg-white rounded-full relative z-20 shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
             </div>
         </div>
     );
@@ -225,9 +225,9 @@ export default function Home() {
     };
 
     return (
-        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase">
+        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 md:gap-12 lg:gap-20">
             {/* 1. Top Pane: Navigation Wheel (Mobile / Desktop) */}
-            <div className="flex-none md:w-[28%] h-[30%] md:h-full px-4 pt-2 pb-4 lg:px-8 lg:pt-4 lg:pb-8 bg-white relative">
+            <div className="flex-none md:w-[22%] h-[30%] md:h-full px-4 pt-2 pb-4 md:px-0 md:pt-0 md:pb-0 bg-white relative">
                 <div className="w-full h-full text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
                         <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30 md:hidden" />
@@ -236,13 +236,18 @@ export default function Home() {
                         <div
                             ref={wheelRef}
                             onScroll={handleScroll}
-                            className="w-full h-full overflow-y-auto md:overflow-y-hidden no-scrollbar snap-y snap-mandatory md:snap-none relative z-20"
                             style={{ scrollBehavior: 'smooth' }}
                         >
+                            {/* Title: textures */}
+                            <div className="hidden md:flex items-start w-full py-2 opacity-30 select-none">
+                                <span className="w-[1.8em] shrink-0" />
+                                <p className="mb-0 flex-1 text-left">textures</p>
+                            </div>
+
                             {materials.map((mat, i) => {
                                 const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
                                 const num = match ? parseInt(match[1]) : 0;
-                                const indicator = num > 0 ? num + "." : "";
+                                const indicator = num > 0 ? num : "";
                                 const text = match ? match[2] : mat.title;
                                 const isActive = activeMaterialTitle === mat.title;
 
@@ -260,7 +265,7 @@ export default function Home() {
                                         }}
                                         className={`flex items-start w-full py-1 snap-start md:snap-align-none transition-opacity duration-300 md:cursor-pointer select-none ${isActive ? "opacity-100" : "opacity-30"}`}
                                     >
-                                        <span className="w-[1.2em] shrink-0 text-left">{indicator}</span>
+                                        <span className="w-[1.8em] shrink-0 text-left">{indicator}</span>
                                         <p className="mb-0 flex-1 text-left">{text}</p>
                                     </div>
                                 );
@@ -271,13 +276,13 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* 2. Bottom Pane: Information Details (Mobile reduced height) */}
-            <div className="flex-none md:flex-1 h-[60%] md:h-full bg-white relative flex flex-row">
-                <div className="flex-1 h-full overflow-hidden pt-2 px-4 pb-0 lg:pt-8 lg:px-12 lg:pb-0 relative">
-                    <div className="absolute bottom-0 left-0 w-full h-[20%] bg-gradient-to-t from-white to-transparent pointer-events-none z-20" />
+            {/* 2. Right Pane: Information Details */}
+            <div className="flex-none md:flex-1 h-[60%] md:h-full bg-black md:rounded-[40px] relative flex flex-row overflow-hidden">
+                <div className="flex-1 h-full overflow-hidden pt-2 px-4 pb-0 md:pt-12 md:px-14 md:pb-0 relative">
+                    <div className="absolute bottom-0 left-0 w-full h-[20%] bg-gradient-to-t from-black to-transparent pointer-events-none z-20" />
 
                     <div className="h-full overflow-y-auto no-scrollbar pb-0">
-                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-black font-medium w-full pb-12 md:pb-24">
+                        <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] text-white font-medium w-full pb-12 md:pb-24">
                             {activeMat && activeVersion ? (
                                 <div className="flex flex-col justify-start">
                                     <div className="whitespace-pre-wrap break-keep flex flex-col gap-4">
@@ -308,13 +313,13 @@ export default function Home() {
 
                 {/* Desktop Slider Space */}
                 {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-start items-center w-32 bg-white z-10 shrink-0 pt-2 lg:pt-8">
-                         <div className="relative w-full h-[30%] flex flex-col items-center">
+                    <div className="hidden md:flex flex-col justify-start items-center w-32 z-10 shrink-0 pt-2 md:pt-12">
+                         <div className="relative w-full h-full flex flex-col items-center">
                             <VersionControls 
                                 versions={activeMat.versions} 
                                 activeIndex={activeVersionIndex} 
                                 onChange={setActiveVersionIndex} 
-                                className="w-full h-full"
+                                className="w-full h-[40%]"
                                 vertical={true}
                             />
                          </div>
