@@ -227,11 +227,12 @@ export default function Home() {
     return (
         <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 md:gap-12 lg:gap-20">
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
-            <div className="flex-none md:w-[22%] h-[28%] md:h-full px-4 md:px-0 bg-white relative flex flex-col">
+            {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
+            <div className="flex-none md:w-[22%] h-[28%] min-h-[160px] md:h-full px-4 md:px-0 bg-white relative flex flex-col">
                 {/* Fixed Title: textures */}
-                <div className="flex items-start w-full py-2 md:pt-0 md:pb-4 opacity-30 select-none flex-none">
+                <div className="flex items-start w-full pt-4 pb-2 md:pt-0 md:pb-6 opacity-50 select-none flex-none">
                     <span className="w-[1.8em] shrink-0" />
-                    <p className="mb-0 flex-1 text-left">textures</p>
+                    <p className="mb-0 flex-1 text-left font-medium">textures</p>
                 </div>
 
                 <div className="w-full flex-1 overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
