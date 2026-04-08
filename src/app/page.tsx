@@ -275,7 +275,6 @@ export default function Home() {
                                 );
                             })}
                             <div className="min-h-[100%] md:min-h-0 md:h-24" /> {/* End Spacer to allow scrolling past the last item */}
-                        </div>
                     </div>
                 </div>
             </div>
