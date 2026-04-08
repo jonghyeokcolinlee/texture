@@ -181,6 +181,7 @@ export default function Home() {
     ];
 
     const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
+    const [hoveredMaterialTitle, setHoveredMaterialTitle] = useState<string | null>(null);
     const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
 
     const activeMat = materials.find(m => m.title === activeMaterialTitle) || materials[0];
@@ -225,17 +226,17 @@ export default function Home() {
     };
 
     return (
-        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 md:gap-12 lg:gap-20">
+        <main className="h-full w-full bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-20 md:gap-12 lg:gap-20">
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
             {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
             <div className="flex-none md:w-[22%] h-[28%] min-h-[160px] md:h-full px-4 md:px-0 bg-white relative flex flex-col">
                 {/* Fixed Title: textures */}
-                <div className="flex items-start w-full pt-4 pb-2 md:pt-0 md:pb-6 text-black/40 select-none flex-none bg-white z-30">
+                <div className="flex items-start w-full pt-8 pb-4 md:pt-0 md:pb-6 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2]">
                     <span className="w-[1.8em] shrink-0 text-left" />
                     <p className="mb-0 flex-1 text-left font-medium">textures</p>
                 </div>
 
-                <div className="w-full flex-1 overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.3] font-medium text-black">
+                <div className="w-full flex-1 overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] font-medium text-black">
                     <div className="relative w-full h-full overflow-hidden">
                         <div className="absolute bottom-0 left-0 w-full h-[50%] bg-gradient-to-t from-white to-transparent pointer-events-none z-30 md:hidden" />
 
@@ -259,15 +260,28 @@ export default function Home() {
                                         ref={(el) => { itemRefs.current[i] = el; }}
                                         onMouseEnter={() => {
                                             if (window.innerWidth >= 768) {
+                                                setHoveredMaterialTitle(mat.title);
+                                            }
+                                        }}
+                                        onMouseLeave={() => {
+                                            if (window.innerWidth >= 768) {
+                                                setHoveredMaterialTitle(null);
+                                            }
+                                        }}
+                                        onClick={() => {
+                                            if (window.innerWidth >= 768) {
                                                 if (mat.title !== activeMaterialTitle) {
                                                     setActiveMaterialTitle(mat.title);
                                                     setActiveVersionIndex(mat.versions.length - 1);
                                                 }
                                             }
                                         }}
-                                        className={`flex items-start w-full py-1 snap-start md:snap-align-none transition-opacity duration-300 md:cursor-pointer select-none ${isActive ? "opacity-100" : "opacity-30"}`}
+                                        className={`flex items-start w-full py-1 snap-start md:snap-align-none transition-opacity duration-300 md:cursor-pointer select-none 
+                                            ${activeMaterialTitle === mat.title ? "opacity-100" : "opacity-30"}`}
                                     >
-                                        <span className="w-[1.8em] shrink-0 text-left">{indicator}</span>
+                                        <span className={`w-[1.8em] shrink-0 text-left transition-colors duration-300 ${hoveredMaterialTitle === mat.title && activeMaterialTitle !== mat.title ? "text-black/100" : ""}`}>
+                                            {indicator}
+                                        </span>
                                         <p className="mb-0 flex-1 text-left">{text}</p>
                                     </div>
                                 );
