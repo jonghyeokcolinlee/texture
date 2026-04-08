@@ -224,18 +224,18 @@ export default function Home() {
                     textures
                 </div>
 
-                <div className="w-full flex-1 overflow-visible text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black relative">
-                    {/* FIXED OVERLAY: Bottom gradient for scroll reveal */}
-                    <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
-                    
-                    <div className="relative w-full h-full overflow-hidden">
-                        <div
-                            ref={wheelRef}
-                            onScroll={handleScroll}
-                            className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory md:snap-none relative z-20"
-                            style={{ scrollBehavior: 'smooth' }}
-                        >
-                            {materials.map((mat, i) => {
+                <div className="w-full flex-1 relative overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
+                    {/* gradient overlay (position: absolute; bottom: 0) */}
+                    <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
+
+                    {/* scrollable list (overflow: auto) */}
+                    <div
+                        ref={wheelRef}
+                        onScroll={handleScroll}
+                        className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory md:snap-none relative z-20"
+                        style={{ scrollBehavior: 'smooth' }}
+                    >
+                        {materials.map((mat, i) => {
                                 const match = mat.title.match(/^0?(\d+)\s+(.*)$/);
                                 const num = match ? parseInt(match[1]) : 0;
                                 const indicator = num > 0 ? num : "";
