@@ -18,13 +18,13 @@ const renderMixedText = (text: string) => {
 };
 
 const TriangleUp = ({ className }: { className?: string }) => (
-    <svg width="18" height="15" viewBox="0 0 24 20" fill="currentColor" className={className}>
+    <svg width="12" height="10" viewBox="0 0 24 20" fill="currentColor" className={className}>
         <path d="M12 0l12 20h-24z" />
     </svg>
 );
 
 const TriangleDown = ({ className }: { className?: string }) => (
-    <svg width="18" height="15" viewBox="0 0 24 20" fill="currentColor" className={className}>
+    <svg width="12" height="10" viewBox="0 0 24 20" fill="currentColor" className={className}>
         <path d="M12 20l12-20h-24z" />
     </svg>
 );
@@ -229,27 +229,27 @@ export default function Home() {
                     <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-baseline">
                         <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="inline-flex items-baseline ml-2 gap-1.5">
+                            <div className="inline-flex items-center ml-2 border-[1.5px] border-black rounded-[4px] px-2 py-0.5 gap-1.5 translate-y-[0.1em]">
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
                                     }}
-                                    className={`transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30' : 'opacity-100 hover:opacity-60'}`}
+                                    className={`flex items-center justify-center transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30' : 'opacity-100 hover:opacity-60'}`}
                                     aria-label="older version"
                                 >
-                                    <TriangleDown className="translate-y-[0.1em]" />
+                                    <TriangleDown />
                                 </button>
-                                <span className="text-black">v{activeVersionIndex + 1}</span>
+                                <span className="text-black text-[0.85em] lg:text-[0.8em] tracking-tight min-w-[1.2em] text-center select-none">v{activeVersionIndex + 1}</span>
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex < activeMat.versions.length - 1) {
                                             setActiveVersionIndex(activeVersionIndex + 1);
                                         }
                                     }}
-                                    className={`transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30Space' : 'opacity-100 hover:opacity-60'}`}
+                                    className={`flex items-center justify-center transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30' : 'opacity-100 hover:opacity-60'}`}
                                     aria-label="newer version"
                                 >
-                                    <TriangleUp className="translate-y-[-0.05em]" />
+                                    <TriangleUp />
                                 </button>
                             </div>
                         )}
