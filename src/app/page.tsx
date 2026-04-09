@@ -236,7 +236,7 @@ export default function Home() {
     return (
         <main className="h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40">
             <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
-                <div className="w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
+                <div className="w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium">
                     textures
                 </div>
 
@@ -299,7 +299,7 @@ export default function Home() {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* FIXED HEADER: prompt + version picker */}
                     <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
-                        <span className="indent-[1.8em]">prompt </span>
+                        <span>prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
                             <div className="inline-flex items-center ml-2 gap-0.5 h-[1.1em]">
                                 <button 
@@ -341,10 +341,10 @@ export default function Home() {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="mt-12 indent-[1.8em]">
+                                        <div className="mt-12">
                                             <Link 
                                                 href={activeVersion.url} 
-                                                className="inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-70 transition-opacity underline underline-offset-4"
+                                                className="inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-60 transition-opacity bg-[#f2f2f2] rounded-[4px] px-3 py-1 h-[1.2em] leading-none"
                                             >
                                                 view interaction
                                             </Link>
