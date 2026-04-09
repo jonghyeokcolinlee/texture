@@ -163,25 +163,28 @@ export default function Home() {
             }
         }
 
+        // Handle scroll restoration and initialization cleanup
         if (savedScroll && wheelRef.current) {
             const scrollTop = parseInt(savedScroll, 10);
             if (!isNaN(scrollTop)) {
                 requestAnimationFrame(() => {
                     if (wheelRef.current) {
                         wheelRef.current.scrollTop = scrollTop;
-                        // After scroll is set, we can end the restoration phase
                         setTimeout(() => {
                             setIsRestoring(false);
                             setIsInitialized(true);
                         }, 100);
                     } else {
+                        setIsRestoring(false);
                         setIsInitialized(true);
                     }
                 });
             } else {
+                setIsRestoring(false);
                 setIsInitialized(true);
             }
         } else {
+            setIsRestoring(false);
             setIsInitialized(true);
         }
     }, []);
@@ -190,12 +193,7 @@ export default function Home() {
     const activeMat = materials.find(m => m.title === displayMaterialTitle) || materials[0];
     const activeVersion = activeMat.versions[activeVersionIndex] || activeMat.versions[0];
 
-    useEffect(() => {
-        if (wheelRef.current && itemRefs.current[0] && !isInitialized) {
-            const container = wheelRef.current;
-            container.scrollTop = 0;
-        }
-    }, [activeMaterialTitle, isInitialized]);
+    // (Removed redundant scroll reset to prevent conflict with restoration)
 
     const handleScroll = (e?: React.UIEvent<HTMLDivElement>) => {
         // 0. Suppress logic during restoration to prevent state resets
@@ -344,7 +342,7 @@ export default function Home() {
                                         <div className="mt-12">
                                             <Link 
                                                 href={activeVersion.url} 
-                                                className="inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-60 transition-opacity bg-[#f2f2f2] rounded-[4px] px-3 py-1 h-[1.2em] leading-none"
+                                                className="inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-60 transition-opacity bg-[#f2f2f2] rounded-[4px] px-2 py-0.5 h-[1.2em] leading-none"
                                             >
                                                 view interaction
                                             </Link>
