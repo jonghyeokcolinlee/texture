@@ -17,15 +17,15 @@ const renderMixedText = (text: string) => {
     });
 };
 
-const ChevronUp = ({ className }: { className?: string }) => (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path d="M12 4l-10 16h20z" />
+const TriangleUp = ({ className }: { className?: string }) => (
+    <svg width="10" height="8" viewBox="0 0 24 18" fill="currentColor" className={className}>
+        <path d="M12 0l12 18h-24z" />
     </svg>
 );
 
-const ChevronDown = ({ className }: { className?: string }) => (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className={className}>
-        <path d="M12 20l10-16h-20z" />
+const TriangleDown = ({ className }: { className?: string }) => (
+    <svg width="10" height="8" viewBox="0 0 24 18" fill="currentColor" className={className}>
+        <path d="M12 18l12-18h-24z" />
     </svg>
 );
 
@@ -169,7 +169,6 @@ export default function Home() {
                 </div>
 
                 <div className="w-full flex-1 relative overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
-                    {/* gradient overlay (position: absolute; bottom: 0) */}
                     <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
 
                     {/* scrollable list (overflow: auto) */}
@@ -227,35 +226,31 @@ export default function Home() {
             <div className="flex-none md:flex-1 h-[60vh] md:h-full bg-white relative flex flex-col md:flex-row overflow-hidden px-4 md:px-0">
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* FIXED HEADER: prompt + version picker */}
-                    <div className="w-full py-1 text-black/30 select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-start">
-                        <span className="indent-[1.8em]">prompt</span>
+                    <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
+                        <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="flex items-start ml-6 gap-2 h-full">
-                                <span className="opacity-100 tracking-[0.05em] inline-block pt-[0.05em]">
-                                    v_{String(activeVersionIndex + 1).padStart(2, '0')}
-                                </span>
-                                <div className="flex flex-col ml-1 pt-[0.25em]">
-                                    <button 
-                                        onClick={() => {
-                                            if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
-                                        }}
-                                        className={`opacity-60 hover:opacity-100 hover:-translate-y-[1px] transition-all ${activeVersionIndex === 0 ? 'pointer-events-none opacity-10' : ''}`}
-                                        aria-label="previous version"
-                                    >
-                                        <ChevronUp />
-                                    </button>
-                                    <button 
-                                        onClick={() => {
-                                            if (activeMat && activeVersionIndex < activeMat.versions.length - 1) {
-                                                setActiveVersionIndex(activeVersionIndex + 1);
-                                            }
-                                        }}
-                                        className={`opacity-60 hover:opacity-100 hover:translate-y-[1px] transition-all -mt-1 ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-10' : ''}`}
-                                        aria-label="next version"
-                                    >
-                                        <ChevronDown />
-                                    </button>
-                                </div>
+                            <div className="inline-flex flex-col items-center justify-center ml-1 leading-none py-1">
+                                <button 
+                                    onClick={() => {
+                                        if (activeVersionIndex < activeMat.versions.length - 1) {
+                                            setActiveVersionIndex(activeVersionIndex + 1);
+                                        }
+                                    }}
+                                    className={`hover:opacity-60 transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30' : 'opacity-100'}`}
+                                    aria-label="newer version"
+                                >
+                                    <TriangleUp />
+                                </button>
+                                <span className="text-black inline-block py-0.5 min-w-[1.2em] text-center">v{activeVersionIndex + 1}</span>
+                                <button 
+                                    onClick={() => {
+                                        if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
+                                    }}
+                                    className={`hover:opacity-60 transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30' : 'opacity-100'}`}
+                                    aria-label="older version"
+                                >
+                                    <TriangleDown />
+                                </button>
                             </div>
                         )}
                     </div>
