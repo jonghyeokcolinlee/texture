@@ -366,7 +366,7 @@ const GlassBrick3: React.FC = () => {
             >
                 <GlassBrickPlane />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="05 glass brick" />
         </div>
     );
 };

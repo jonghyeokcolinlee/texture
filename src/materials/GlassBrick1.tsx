@@ -281,7 +281,7 @@ const GlassBrick1: React.FC = () => {
             <div className="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2 text-black/30 text-xs tracking-wide">
                 Camera access required for glass brick reflection
             </div>
-            <InteractionUI />
+            <InteractionUI title="05 glass brick" />
         </div>
     );
 };

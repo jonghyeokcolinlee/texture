@@ -202,7 +202,7 @@ const SteelMaterial: React.FC = () => {
             >
                 <SteelPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
+            <InteractionUI title="01 brushed steel" isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
         </div>
     );
 };
