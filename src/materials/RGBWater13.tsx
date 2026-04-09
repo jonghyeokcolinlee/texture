@@ -265,7 +265,7 @@ const RGBWater13: React.FC = () => {
             >
                 <RGBWaterPlane />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="03 rgb drops" />
         </div>
     );
 };

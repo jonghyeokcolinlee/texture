@@ -254,7 +254,7 @@ const WaterMaterial: React.FC = () => {
             >
                 <WaterPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
+            <InteractionUI title="02 scattered puddle" isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
         </div>
     );
 };

@@ -255,7 +255,7 @@ const WaterMaterial6: React.FC = () => {
             >
                 <WaterPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="02 scattered puddle" />
         </div>
     );
 };

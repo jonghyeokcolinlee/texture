@@ -193,7 +193,7 @@ const ShatteredCubism1: React.FC = () => {
             <div className="absolute bottom-10 left-10 text-white/40 uppercase text-[10px] tracking-[0.2em] pointer-events-none">
                 fragmened perspective / interaction active
             </div>
-            <InteractionUI />
+            <InteractionUI title="07 shattered glass" />
         </div>
     );
 };

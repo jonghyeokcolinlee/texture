@@ -165,7 +165,7 @@ const WhiteVinyl2: React.FC = () => {
             <div className="absolute top-10 right-10 text-black/10 uppercase text-[9px] tracking-[0.3em] pointer-events-none">
                 haptic emulation / tactile plastic rustling
             </div>
-            <InteractionUI />
+            <InteractionUI title="09 white vinyl" />
         </div>
     );
 };

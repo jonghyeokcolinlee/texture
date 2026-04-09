@@ -196,7 +196,7 @@ const ShatteredCubism2: React.FC = () => {
             >
                 <ShatteredPlane />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="07 shattered glass" />
         </div>
     );
 };

@@ -172,7 +172,7 @@ const FrostedGlassmorphism1: React.FC = () => {
             >
                 <GlassScene targetInput={targetInput} />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="10 frosted glassmorphism" />
         </div>
     );
 };

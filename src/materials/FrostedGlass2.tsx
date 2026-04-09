@@ -274,7 +274,7 @@ const FrostedGlass2: React.FC = () => {
             >
                 <MistPlane envMap={envMap} videoEl={videoEl} />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="04 frosted glass" />
             {!envMap && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
                     <div className="text-black/40 mix-blend-difference text-sm tracking-widest font-mono mb-2 uppercase z-0">Hand Tracking & Camera</div>

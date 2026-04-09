@@ -261,6 +261,7 @@ const Steel3: React.FC = () => {
       >
         <CylinderShaderPlane envMap={envMap} />
       </Canvas>
+      <InteractionUI title="01 brushed steel" isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
       
       {!envMap && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

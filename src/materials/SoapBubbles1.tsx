@@ -181,7 +181,7 @@ const SoapBubbles1: React.FC = () => {
             <div className="absolute top-10 right-10 text-black/20 uppercase text-[10px] tracking-[0.2em] pointer-events-none">
                 click or drag to create / drifting soap bubbles
             </div>
-            <InteractionUI />
+            <InteractionUI title="08 soap bubbles" />
         </div>
     );
 };

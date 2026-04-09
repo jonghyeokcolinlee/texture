@@ -233,7 +233,7 @@ const CDIridescence4: React.FC = () => {
             >
                 <DiscMesh targetInput={targetInput} />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="06 cd iridescence" />
         </div>
     );
 };

@@ -167,7 +167,7 @@ const SoapBubbles2: React.FC = () => {
             >
                 <BubbleSystem />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="08 soap bubbles" />
         </div>
     );
 };

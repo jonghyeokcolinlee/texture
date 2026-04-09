@@ -158,7 +158,7 @@ const ShatteredGlass3: React.FC = () => {
             >
                 <ShatteredScene targetInput={targetInput} />
             </Canvas>
-            <InteractionUI />
+            <InteractionUI title="07 shattered glass" />
         </div>
     );
 };

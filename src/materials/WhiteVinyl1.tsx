@@ -170,7 +170,7 @@ const WhiteVinyl1: React.FC = () => {
             <div className="absolute bottom-10 left-10 text-black/30 uppercase text-[10px] tracking-[0.2em] pointer-events-none">
                 move to crinkle / white plastic vinyl
             </div>
-            <InteractionUI />
+            <InteractionUI title="09 white vinyl" />
         </div>
     );
 };
