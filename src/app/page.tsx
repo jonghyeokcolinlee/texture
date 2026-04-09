@@ -80,22 +80,24 @@ const VersionControls = ({ versions, activeIndex, onChange, className, vertical 
     );
 };
 
-export default function Home() {
-    const materials = [
-        {
+export default function H        {
             title: "01 brushed steel",
             versions: [
-                { id: "v1", url: "/steel/1", prompt: "\"줄눈이 있는 스테인리스 스틸로 줘. 금속이 너무 파래, 무채색 계열이었으면 좋겠고. 특정 빛 반사 물체만 아주 하얗게 비치게 끔.\"\n\nx축 1.0, y축 800.0 비율의 수평 고주파 노이즈로 텍스처를 조정하고, 루미넌스(luminance) 변환 및 국소적 스팟라이트 마스킹으로 극대비 반사 구현.", script: "float luminance = dot(envColor, vec3(0.299, 0.587, 0.114));\nenvColor = vec3(luminance); // grayscale conversion" },
-                { id: "v2", url: "/steel/2", prompt: "\"너무 세로 빛만 살지 않고, 둥근 실린더 형태의 컵에 비친 왜곡된 모습이 빛과 함께 표시되었으면 좋겠어.\"\n\n스팟 마스크 제약을 해제하여 전면 실린더 곡률에 따른 환경 맵 풀 렌더링 유지 및 블러(blur) 감쇠 효과 추가.", script: "vec3 R = reflect(-V, N);\nvideoUv.x = 1.0 - videoUv.x; // cylindrical distortion across entire face" },
+                { id: "v1", url: "/steel/1", prompt: "Grayscale stainless steel texture with high-frequency horizontal noise. Implementation focuses on luminance transformation and localized spotlight masking for high-contrast reflections.", script: "float luminance = dot(envColor, vec3(0.299, 0.587, 0.114));\nenvColor = vec3(luminance); // grayscale conversion" },
+                { id: "v2", url: "/steel/2", prompt: "Enhanced cylindrical distortion simulation for reflections on curved surfaces. Environment map rendering is optimized to maintain full coverage across the cylindrical mesh.", script: "vec3 R = reflect(-V, N);\nvideoUv.x = 1.0 - videoUv.x; // cylindrical distortion across entire face" },
             ],
         },
         {
             title: "02 scattered puddle",
             versions: [
-                { id: "v1", url: "/water/1", prompt: "\"가장 기본적인 water ripple surface 상호작용 형태를 구현해.\"\n\n2d 평면상 마우스 클릭 좌표와 시간 동기화 기반 둔감형 감쇠 삼각함수(sin)를 노멀에 맵핑.", script: "float wave = sin(wavePhase);\nfloat envelope = exp(-age * decay) * intensity;" },
-                { id: "v2", url: "/water/2", prompt: "\"하쉬한 조명과 매우 거칠고 대비가 센 반사율이 필요해.\"\n\n스무스스텝(smoothstep) 임계치를 높이고 fbm 텍스처를 곱해 높은 스펙큘러 글린트를 유도.", script: "vec2 normalOffset = vec2(dX, dY) * 2.5;\nfloat glint = smoothstep(0.55, 0.65, spec);" },
-                { id: "v3", url: "/water/3", prompt: "\"링이 튀는 외곽 형태를 없애고 주파수를 낮춰서 유기적으로 확산되도록.\"\n\n거리-시간 기반 감쇠 함수 적용 및 저주파수 노이즈 블렌딩 추가.", script: "float freq = 20.0;\nfloat edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);" },
-                { id: "v4", url: "/water", prompt: "\"모바일 환경에서 너무 크게 보이는 문제를 해결하고, 파동의 끝이 어색하지 않게 잔잔하게 사라지게끔 수정.\"\n\n단말기 aspect ratio 좌표 보정 및 smoothstep을 활용한 파동 소멸 구간(timeFade) 페이드아웃 적용.", script: "float mobileScale = max(1.0, u_resolution.y / u_resolution.x);\nfloat timeFade = smoothstep(5.0, 3.5, age);" },
+                { id: "v1", url: "/water/1", prompt: "Fundamental water ripple surface interaction utilizing sine-wave mapping based on spatial coordinates and time-synchronized attenuation.", script: "float wave = sin(wavePhase);\nfloat envelope = exp(-age * decay) * intensity;" },
+                { id: "v2", url: "/water/2", prompt: "High-specular reflection model with optimized thresholding and fractal Brownian motion (fBm) for intense, granular glint effects.", script: "vec2 normalOffset = vec2(dX, dY) * 2.5;\nfloat glint = smoothstep(0.55, 0.65, spec);" },
+                { id: "v3", url: "/water/3", prompt: "Organic wave diffusion achieved through low-frequency noise blending and distance-based frequency attenuation logic.", script: "float freq = 20.0;\nfloat edgeFade = smoothstep(age * speed, age * speed - 0.05, dist);" },
+                { id: "v4", url: "/water", prompt: "Mobile-optimized aspect ratio correction and smoothstep-driven temporal fade-outs for natural wave dissipation.", script: "float mobileScale = max(1.0, u_resolution.y / u_resolution.x);\nfloat timeFade = smoothstep(5.0, 3.5, age);" },
+                { id: "v5", url: "/water/5", prompt: "Minimalist white-canvas background implementation featuring localized shadow mapping and specular highlights at peak wave displacement.", script: "float shadow = smoothstep(1.0, 0.5, ndotl);\nvec3 waveColor = mix(vec3(1.0), vec3(0.7, 0.7, 0.73), shadow);" },
+                { id: "v6", url: "/water/6", prompt: "Pure achromatic shading with reduced shadow contrast for a monochromatic water surface effect.", script: "vec3 waveColor = mix(vec3(1.0), vec3(0.88, 0.88, 0.88), shadow);" },
+            ],
+        },oat timeFade = smoothstep(5.0, 3.5, age);" },
                 { id: "v5", url: "/water/5", prompt: "\"scattered puddle은 평소에 배경이 하얀색이다가, 물결 치는 부분이 조금 회색으로 바뀌는 걸로 수정되어야할 것 같아.\"\n\n완전한 형태의 화이트 캔버스(White Backgrond) 베이스로 쉐이더를 다시 짜고, 빛의 반사각(Normals)이 크게 틀어지는 파동(Wave) 부분에 한해 은은한 회색 그림자(Gray Shadow)와 흰색 스펙큘러로 깔끔하게 떨어지는 미니멀한 반사 효과를 부여.", script: "float shadow = smoothstep(1.0, 0.5, ndotl);\nvec3 waveColor = mix(vec3(1.0), vec3(0.7, 0.7, 0.73), shadow);" },
                 { id: "v6", url: "/water/6", prompt: "\"scattered puddle 퍼져나갈 때 파동의 색감이 조금 더 옅었으면 좋겠고, 그리고 무채색으로 해서 채도를 0으로.\"\n\n파동이 일 때 생기는 빛 반사 그림자의 강도(Intensity)와 대비(Contrast)를 대폭 줄이고, 블루/그레이 톤이 섞여 있던 기존 음영에서 채도를 완벽하게 0으로 제거하여 매우 옅고 깨끗한 퓨어 모노톤 아키텍처(Pure Achromatic) 음영으로 다듬음.", script: "vec3 waveColor = mix(vec3(1.0), vec3(0.88, 0.88, 0.88), shadow);" },
             ],
