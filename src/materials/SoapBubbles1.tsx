@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -115,7 +114,7 @@ const Bubble = ({ data }: { data: BubbleData }) => {
                 transparent={true}
                 depthWrite={false}
                 side={THREE.DoubleSide}
-            />
+           />
         </mesh>
     );
 };
@@ -166,7 +165,6 @@ const BubbleSystem = () => {
 
 const SoapBubbles1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'soap-bubbles-v1.png') as () => void;
 
     return (
         <div className="canvas-container bg-[#f0f4f8] cursor-crosshair relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -183,7 +181,7 @@ const SoapBubbles1: React.FC = () => {
             <div className="absolute top-10 right-10 text-black/20 uppercase text-[10px] tracking-[0.2em] pointer-events-none">
                 click or drag to create / drifting soap bubbles
             </div>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

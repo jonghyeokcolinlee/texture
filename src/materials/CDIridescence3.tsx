@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -158,7 +157,7 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
                         ctx.fillRect(0, 0, 128, 128);
                         return canvas;
                     })())}
-                />
+               />
             </mesh>
 
             <mesh ref={meshRef} scale={[cdScale, cdScale, cdScale]}>
@@ -168,7 +167,7 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
                     vertexShader={vertexShader}
                     fragmentShader={fragmentShader}
                     uniforms={uniforms}
-                />
+               />
             </mesh>
         </group>
     );
@@ -176,7 +175,6 @@ const DiscMesh = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: nu
 
 const CDIridescence3: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'cd-iridescence-v3.png') as () => void;
     const targetInput = useRef({ x: 0, y: 0 });
     const [gyroGranted, setGyroGranted] = useState(false);
 
@@ -213,7 +211,7 @@ const CDIridescence3: React.FC = () => {
             >
                 <DiscMesh targetInput={targetInput} />
             </Canvas>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

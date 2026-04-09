@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -168,14 +167,13 @@ const DiscMesh = () => {
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
 
 const CDIridescence2: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'cd-iridescence-v2.png') as () => void;
 
     return (
         <div className="canvas-container bg-[#080808] cursor-grab active:cursor-grabbing relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -187,7 +185,7 @@ const CDIridescence2: React.FC = () => {
             >
                 <DiscMesh />
             </Canvas>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

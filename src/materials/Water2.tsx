@@ -4,7 +4,6 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -230,14 +229,13 @@ const uniforms = useMemo(
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
 
 const WaterMaterial: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'water-ripple.png') as () => void;
     const [isPlaying, setIsPlaying] = useState(true);
 
     return (
@@ -249,7 +247,7 @@ const WaterMaterial: React.FC = () => {
             >
                 <WaterPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} onExport={triggerExport} />
+            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
         </div>
     );
 };

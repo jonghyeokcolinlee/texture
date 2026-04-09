@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -261,14 +260,13 @@ const GlassBrickPlane = () => {
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
 
 const GlassBrick1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'glass-brick-wall.png') as () => void;
 
     return (
         <div className="canvas-container bg-white">
@@ -283,7 +281,7 @@ const GlassBrick1: React.FC = () => {
             <div className="pointer-events-none absolute bottom-10 left-1/2 -translate-x-1/2 text-black/30 text-xs tracking-wide">
                 Camera access required for glass brick reflection
             </div>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 import type { ThreeEvent } from '@react-three/fiber';
 
 const vertexShader = `
@@ -190,14 +189,13 @@ const RGBWaterPlane = () => {
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
 
 const RGBWater2: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'rgb-water-drops-v2.png') as () => void;
 
     return (
         <div className="canvas-container bg-white cursor-crosshair">
@@ -208,7 +206,7 @@ const RGBWater2: React.FC = () => {
             >
                 <RGBWaterPlane />
             </Canvas>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

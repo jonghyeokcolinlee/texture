@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -173,14 +172,13 @@ const ShatteredPlane = () => {
                 fragmentShader={fragmentShader}
                 vertexShader={vertexShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
 
 const ShatteredCubism1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'shattered-cubism-v1.png') as () => void;
 
     return (
         <div className="canvas-container bg-black cursor-crosshair relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -195,7 +193,7 @@ const ShatteredCubism1: React.FC = () => {
             <div className="absolute bottom-10 left-10 text-white/40 uppercase text-[10px] tracking-[0.2em] pointer-events-none">
                 fragmened perspective / interaction active
             </div>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

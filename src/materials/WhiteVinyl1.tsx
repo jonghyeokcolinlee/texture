@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -150,14 +149,13 @@ const VinylPlane = () => {
                     u_mouse: { value: new THREE.Vector2() },
                     u_interact: { value: 0 }
                 }}
-            />
+           />
         </mesh>
     );
 };
 
 const WhiteVinyl1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'white-vinyl-v1.png') as () => void;
 
     return (
         <div className="canvas-container bg-[#eee] cursor-move relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -172,7 +170,7 @@ const WhiteVinyl1: React.FC = () => {
             <div className="absolute bottom-10 left-10 text-black/30 uppercase text-[10px] tracking-[0.2em] pointer-events-none">
                 move to crinkle / white plastic vinyl
             </div>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -147,14 +146,13 @@ const SteelPlane = ({ isPlaying }: { isPlaying: boolean }) => {
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
 
 const Steel1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const triggerExport = useExport(canvasRef, 'brushed-steel-v1.png') as () => void;
     const [isPlaying, setIsPlaying] = useState(true);
 
     return (
@@ -166,7 +164,7 @@ const Steel1: React.FC = () => {
             >
                 <SteelPlane isPlaying={isPlaying} />
             </Canvas>
-            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} onExport={triggerExport} />
+            <InteractionUI isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(!isPlaying)} />
         </div>
     );
 };

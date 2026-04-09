@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -143,7 +142,7 @@ const GlassScene = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: 
                 fragmentShader={fragmentShader}
                 vertexShader={vertexShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
@@ -151,7 +150,6 @@ const GlassScene = ({ targetInput }: { targetInput: React.MutableRefObject<{ x: 
 const FrostedGlassmorphism1: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const targetInput = useRef({ x: 0, y: 0 });
-    const triggerExport = useExport(canvasRef, 'frosted-glassmorphism-v1.png') as () => void;
 
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
@@ -174,7 +172,7 @@ const FrostedGlassmorphism1: React.FC = () => {
             >
                 <GlassScene targetInput={targetInput} />
             </Canvas>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

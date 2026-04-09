@@ -3,7 +3,6 @@ import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -129,7 +128,7 @@ const ShatteredScene = ({ targetInput }: { targetInput: React.MutableRefObject<{
                 fragmentShader={fragmentShader}
                 vertexShader={vertexShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
@@ -137,7 +136,6 @@ const ShatteredScene = ({ targetInput }: { targetInput: React.MutableRefObject<{
 const ShatteredGlass3: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const targetInput = useRef({ x: 0, y: 0 });
-    const triggerExport = useExport(canvasRef, 'shattered-glass-v3.png') as () => void;
 
     useEffect(() => {
         const handleMove = (e: MouseEvent) => {
@@ -160,7 +158,7 @@ const ShatteredGlass3: React.FC = () => {
             >
                 <ShatteredScene targetInput={targetInput} />
             </Canvas>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
         </div>
     );
 };

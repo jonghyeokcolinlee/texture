@@ -3,7 +3,6 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 
 const vertexShader = `
@@ -255,7 +254,7 @@ const MistPlane = ({ envMap, videoEl }: { envMap: THREE.Texture | null, videoEl:
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}
-            />
+           />
         </mesh>
     );
 };
@@ -264,7 +263,6 @@ const FrostedGlass2: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [envMap, setEnvMap] = useState<THREE.VideoTexture | null>(null);
     const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
-    const triggerExport = useExport(canvasRef, 'frosted-glass-hand-wipe.png') as () => void;
 
     return (
         <div className="canvas-container bg-white cursor-crosshair">
@@ -276,7 +274,7 @@ const FrostedGlass2: React.FC = () => {
             >
                 <MistPlane envMap={envMap} videoEl={videoEl} />
             </Canvas>
-            <InteractionUI onExport={triggerExport} />
+            <InteractionUI />
             {!envMap && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
                     <div className="text-black/40 mix-blend-difference text-sm tracking-widest font-mono mb-2 uppercase z-0">Hand Tracking & Camera</div>

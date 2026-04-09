@@ -3,7 +3,6 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InteractionUI } from '../components/InteractionUI';
 import * as THREE from 'three';
-import { useExport } from '../hooks/useExport';
 
 const vertexShader = `
 varying vec2 vUv;
@@ -223,7 +222,7 @@ const CylinderShaderPlane = ({ envMap }: { envMap: THREE.Texture | null }) => {
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
         uniforms={uniforms}
-      />
+     />
     </mesh>
   );
 };
@@ -231,7 +230,6 @@ const CylinderShaderPlane = ({ envMap }: { envMap: THREE.Texture | null }) => {
 const Steel3: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [envMap, setEnvMap] = useState<THREE.VideoTexture | null>(null);
-  const triggerExport = useExport(canvasRef, 'steel-webcam-fullscreen.png') as () => void;
     const [isPlaying, setIsPlaying] = useState(true);
 
   return (
