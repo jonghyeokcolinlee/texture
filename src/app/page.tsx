@@ -118,25 +118,77 @@ export default function Home() {
 
     const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
     const [previewMaterialTitle, setPreviewMaterialTitle] = useState<string | null>(null);
-    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(0);
-
-    const displayMaterialTitle = previewMaterialTitle || activeMaterialTitle;
-    const activeMat = materials.find(m => m.title === displayMaterialTitle) || materials[0];
-    const activeVersion = activeMat.versions[activeVersionIndex];
+    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(materials[0].versions.length - 1);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     const wheelRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+    // Save state to sessionStorage
     useEffect(() => {
-        if (wheelRef.current && itemRefs.current[0]) {
+        if (!isInitialized) return;
+        const state = {
+            title: activeMaterialTitle,
+            version: activeVersionIndex,
+        };
+        sessionStorage.setItem('texture_archive_state', JSON.stringify(state));
+    }, [activeMaterialTitle, activeVersionIndex, isInitialized]);
+
+    // State restoration and saving is handled by separate effects and the unified handleScroll later in the component.
+
+    // Restore state from sessionStorage
+    useEffect(() => {
+        const savedState = sessionStorage.getItem('texture_archive_state');
+        const savedScroll = sessionStorage.getItem('texture_archive_scroll');
+        
+        if (savedState) {
+            try {
+                const { title, version } = JSON.parse(savedState);
+                if (materials.some(m => m.title === title)) {
+                    setActiveMaterialTitle(title);
+                    const mat = materials.find(m => m.title === title);
+                    if (mat && version < mat.versions.length) {
+                        setActiveVersionIndex(version);
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to parse saved state", e);
+            }
+        }
+
+        if (savedScroll && wheelRef.current) {
+            const scrollTop = parseInt(savedScroll, 10);
+            if (!isNaN(scrollTop)) {
+                requestAnimationFrame(() => {
+                    if (wheelRef.current) {
+                        wheelRef.current.scrollTop = scrollTop;
+                    }
+                });
+            }
+        }
+        
+        setIsInitialized(true);
+    }, []);
+
+    const displayMaterialTitle = previewMaterialTitle || activeMaterialTitle;
+    const activeMat = materials.find(m => m.title === displayMaterialTitle) || materials[0];
+    const activeVersion = activeMat.versions[activeVersionIndex] || activeMat.versions[0];
+
+    useEffect(() => {
+        if (wheelRef.current && itemRefs.current[0] && !isInitialized) {
             const container = wheelRef.current;
             container.scrollTop = 0;
         }
-    }, []);
+    }, [activeMaterialTitle, isInitialized]);
 
-    const handleScroll = () => {
-        if (!wheelRef.current) return;
-        if (window.innerWidth >= 768) return;
+    const handleScroll = (e?: React.UIEvent<HTMLDivElement>) => {
+        // 1. Persistence
+        if (isInitialized && wheelRef.current) {
+            sessionStorage.setItem('texture_archive_scroll', wheelRef.current.scrollTop.toString());
+        }
+
+        // 2. Mobile Detection
+        if (!wheelRef.current || window.innerWidth >= 768) return;
         const container = wheelRef.current;
         const topOffset = container.scrollTop;
 
