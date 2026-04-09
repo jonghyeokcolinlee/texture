@@ -18,7 +18,7 @@ export const InteractionUI: React.FC<InteractionUIProps> = ({ title, isPlaying, 
             <div className="text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black flex flex-col">
                 <Link 
                     href="/" 
-                    className="pointer-events-auto hover:opacity-30 transition-opacity"
+                    className="indent-[1.8em] pointer-events-auto hover:opacity-30 transition-opacity"
                 >
                     home
                 </Link>
