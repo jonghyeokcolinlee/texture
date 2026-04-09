@@ -226,10 +226,10 @@ export default function Home() {
             <div className="flex-none md:flex-1 h-[60vh] md:h-full bg-white relative flex flex-col md:flex-row overflow-hidden px-4 md:px-0">
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* FIXED HEADER: prompt + version picker */}
-                    <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-baseline">
+                    <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
                         <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="inline-flex items-center ml-2 border-[1.5px] border-black rounded-[4px] px-2 py-0.5 gap-1.5 translate-y-[0.1em]">
+                            <div className="inline-flex items-center ml-2 border-[3px] border-black rounded-[7px] px-1.5 py-0 gap-1 translate-y-[0.02em]">
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
@@ -239,7 +239,7 @@ export default function Home() {
                                 >
                                     <TriangleDown />
                                 </button>
-                                <span className="text-black text-[0.85em] lg:text-[0.8em] tracking-tight min-w-[1.2em] text-center select-none">v{activeVersionIndex + 1}</span>
+                                <span className="text-black text-[0.85em] lg:text-[0.82em] tracking-tight min-w-[1.2em] text-center select-none leading-none">v{activeVersionIndex + 1}</span>
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex < activeMat.versions.length - 1) {
