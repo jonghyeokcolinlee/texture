@@ -18,13 +18,13 @@ const renderMixedText = (text: string) => {
 };
 
 const TriangleUp = ({ className }: { className?: string }) => (
-    <svg width="12" height="9" viewBox="0 0 24 20" fill="currentColor" className={className}>
+    <svg width="14" height="11" viewBox="0 0 24 20" fill="currentColor" className={className}>
         <path d="M12 0l12 20h-24z" />
     </svg>
 );
 
 const TriangleDown = ({ className }: { className?: string }) => (
-    <svg width="12" height="9" viewBox="0 0 24 20" fill="currentColor" className={className}>
+    <svg width="14" height="11" viewBox="0 0 24 20" fill="currentColor" className={className}>
         <path d="M12 20l12-20h-24z" />
     </svg>
 );
@@ -229,17 +229,17 @@ export default function Home() {
                     <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
                         <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="inline-flex items-center ml-2 gap-0.5">
+                            <div className="inline-flex items-center ml-2 gap-0.5 h-[1.1em]">
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
                                     }}
-                                    className={`flex items-center justify-center bg-[#f2f2f2] rounded-[4px] w-8 h-8 lg:w-10 lg:h-10 transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30 px-2' : 'opacity-100 hover:opacity-60 px-2'}`}
+                                    className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === 0 ? 'pointer-events-none bg-[#e5e5e5] text-black/20' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
                                     aria-label="older version"
                                 >
                                     <TriangleDown />
                                 </button>
-                                <div className="flex items-center justify-center bg-[#f2f2f2] rounded-[4px] h-8 lg:h-10 px-2.5">
+                                <div className="flex items-center justify-center bg-[#f2f2f2] rounded-[4px] h-full px-2">
                                     <span className="text-black text-[0.85em] lg:text-[0.82em] tracking-tight text-center select-none leading-none">v{activeVersionIndex + 1}</span>
                                 </div>
                                 <button 
@@ -248,7 +248,7 @@ export default function Home() {
                                             setActiveVersionIndex(activeVersionIndex + 1);
                                         }
                                     }}
-                                    className={`flex items-center justify-center bg-[#f2f2f2] rounded-[4px] w-8 h-8 lg:w-10 lg:h-10 transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30 px-2' : 'opacity-100 hover:opacity-60 px-2'}`}
+                                    className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none bg-[#e5e5e5] text-black/20' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
                                     aria-label="newer version"
                                 >
                                     <TriangleUp />
@@ -264,7 +264,7 @@ export default function Home() {
                                     <div className="flex flex-col justify-start">
                                         <div className="flex flex-col gap-8 py-1">
                                             {activeVersion.prompt.split("\n\n").map((para, i) => (
-                                                <div key={i} className={`indent-[1.8em] ${i === 0 ? "opacity-100" : "opacity-30"} whitespace-pre-wrap break-keep`}>
+                                                <div key={i} className={`${i === 0 ? "indent-0 opacity-100" : "indent-[1.8em] opacity-30"} whitespace-pre-wrap break-keep`}>
                                                     {renderMixedText(para)}
                                                 </div>
                                             ))}
