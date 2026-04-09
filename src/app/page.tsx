@@ -234,7 +234,7 @@ export default function Home() {
                                     onClick={() => {
                                         if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
                                     }}
-                                    className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === 0 ? 'pointer-events-none bg-[#e5e5e5] text-black/20' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
+                                    className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === 0 ? 'pointer-events-none bg-[#f9f9f9] text-black/10' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
                                     aria-label="older version"
                                 >
                                     <TriangleDown />
@@ -248,7 +248,7 @@ export default function Home() {
                                             setActiveVersionIndex(activeVersionIndex + 1);
                                         }
                                     }}
-                                    className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none bg-[#e5e5e5] text-black/20' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
+                                    className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none bg-[#f9f9f9] text-black/10' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
                                     aria-label="newer version"
                                 >
                                     <TriangleUp />
@@ -264,7 +264,7 @@ export default function Home() {
                                     <div className="flex flex-col justify-start">
                                         <div className="flex flex-col gap-8 py-1">
                                             {activeVersion.prompt.split("\n\n").map((para, i) => (
-                                                <div key={i} className={`${i === 0 ? "indent-0 opacity-100" : "indent-[1.8em] opacity-30"} whitespace-pre-wrap break-keep`}>
+                                                <div key={i} className={`indent-0 ${i === 0 ? "opacity-100" : "opacity-30"} whitespace-pre-wrap break-keep`}>
                                                     {renderMixedText(para)}
                                                 </div>
                                             ))}
