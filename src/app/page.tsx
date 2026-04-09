@@ -18,14 +18,14 @@ const renderMixedText = (text: string) => {
 };
 
 const TriangleUp = ({ className }: { className?: string }) => (
-    <svg width="10" height="8" viewBox="0 0 24 18" fill="currentColor" className={className}>
-        <path d="M12 0l12 18h-24z" />
+    <svg width="18" height="15" viewBox="0 0 24 20" fill="currentColor" className={className}>
+        <path d="M12 0l12 20h-24z" />
     </svg>
 );
 
 const TriangleDown = ({ className }: { className?: string }) => (
-    <svg width="10" height="8" viewBox="0 0 24 18" fill="currentColor" className={className}>
-        <path d="M12 18l12-18h-24z" />
+    <svg width="18" height="15" viewBox="0 0 24 20" fill="currentColor" className={className}>
+        <path d="M12 20l12-20h-24z" />
     </svg>
 );
 
@@ -226,30 +226,30 @@ export default function Home() {
             <div className="flex-none md:flex-1 h-[60vh] md:h-full bg-white relative flex flex-col md:flex-row overflow-hidden px-4 md:px-0">
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* FIXED HEADER: prompt + version picker */}
-                    <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
+                    <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-baseline">
                         <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="inline-flex flex-col items-center justify-center ml-1 leading-none py-1">
+                            <div className="inline-flex items-baseline ml-2 gap-1.5">
+                                <button 
+                                    onClick={() => {
+                                        if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
+                                    }}
+                                    className={`transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30' : 'opacity-100 hover:opacity-60'}`}
+                                    aria-label="older version"
+                                >
+                                    <TriangleDown className="translate-y-[0.1em]" />
+                                </button>
+                                <span className="text-black">v{activeVersionIndex + 1}</span>
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex < activeMat.versions.length - 1) {
                                             setActiveVersionIndex(activeVersionIndex + 1);
                                         }
                                     }}
-                                    className={`hover:opacity-60 transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30' : 'opacity-100'}`}
+                                    className={`transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30Space' : 'opacity-100 hover:opacity-60'}`}
                                     aria-label="newer version"
                                 >
-                                    <TriangleUp />
-                                </button>
-                                <span className="text-black inline-block py-0.5 min-w-[1.2em] text-center">v{activeVersionIndex + 1}</span>
-                                <button 
-                                    onClick={() => {
-                                        if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
-                                    }}
-                                    className={`hover:opacity-60 transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30' : 'opacity-100'}`}
-                                    aria-label="older version"
-                                >
-                                    <TriangleDown />
+                                    <TriangleUp className="translate-y-[-0.05em]" />
                                 </button>
                             </div>
                         )}
