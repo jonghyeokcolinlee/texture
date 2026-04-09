@@ -6,7 +6,6 @@ type HoverData = {
     id: string;
     url: string;
     prompt: string;
-    script: string;
 };
 
 const renderMixedText = (text: string) => {
@@ -18,67 +17,17 @@ const renderMixedText = (text: string) => {
     });
 };
 
-const VersionControls = ({ versions, activeIndex, onChange, className, vertical = false }: any) => {
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [tempP, setTempP] = useState(0);
+const ChevronUp = ({ className }: { className?: string }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter" className={className}>
+        <polyline points="18 15 12 9 6 15" />
+    </svg>
+);
 
-    const percent = isDragging ? tempP * 100 : (versions.length > 1 ? (activeIndex / (versions.length - 1)) * 100 : 50);
-
-    const updateFromPosition = (clientX: number, clientY: number) => {
-        if (!trackRef.current) return;
-        const rect = trackRef.current.getBoundingClientRect();
-        let p = 0;
-        if (vertical) {
-            // vertical: top is 0%, bottom is 100%
-            p = (clientY - rect.top) / rect.height;
-        } else {
-            p = (clientX - rect.left) / rect.width;
-        }
-        p = Math.max(0, Math.min(1, p));
-        setTempP(p);
-        const idx = Math.round(p * Math.max(0, versions.length - 1));
-        onChange(idx);
-    };
-
-    if (versions.length <= 1) return null;
-
-    return (
-        <div 
-            className={`relative flex items-center justify-center select-none touch-none ${vertical ? 'w-12 flex-col' : 'h-12 w-full'} ${className}`}
-            onPointerDown={(e) => {
-                setIsDragging(true);
-                updateFromPosition(e.clientX, e.clientY);
-                e.currentTarget.setPointerCapture(e.pointerId);
-            }}
-            onPointerMove={(e) => {
-                if(isDragging) updateFromPosition(e.clientX, e.clientY);
-            }}
-            onPointerUp={(e) => {
-                setIsDragging(false);
-                e.currentTarget.releasePointerCapture(e.pointerId);
-            }}
-            style={{ cursor: vertical ? 'ns-resize' : 'ew-resize' }}
-        >
-            <div ref={trackRef} className={`${vertical ? 'h-full w-[10px]' : 'w-full h-[10px]'} bg-black/10 rounded-full relative`} />
-            <div 
-                className={`absolute flex items-center justify-center pointer-events-none`}
-                style={{ 
-                    ...(vertical ? { top: `${percent}%`, left: '50%', transform: 'translate(-50%, -50%)' } : { left: `${percent}%`, top: '50%', transform: 'translate(-50%, -50%)' }),
-                    transition: isDragging ? 'none' : (vertical ? 'top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)')
-                }}
-            >
-                <div className={`absolute ${vertical ? 'right-6' : 'bottom-5'} flex items-center justify-center`}>
-                    <div className="relative whitespace-nowrap text-[14px] font-medium tracking-widest uppercase text-black z-10">
-                        {versions[isDragging ? Math.round(tempP * (versions.length - 1)) : activeIndex]?.id}
-                    </div>
-                </div>
-                {/* 반지름 8px 원 (w-4 h-4) */}
-                <div className="w-4 h-4 bg-black rounded-full relative z-20" />
-            </div>
-        </div>
-    );
-};
+const ChevronDown = ({ className }: { className?: string }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter" className={className}>
+        <polyline points="6 9 12 15 18 9" />
+    </svg>
+);
 
 export default function Home() {
     const materials = [
@@ -280,9 +229,38 @@ export default function Home() {
             {/* 2. Right Pane: Information Details */}
             <div className="flex-none md:flex-1 h-[60vh] md:h-full bg-white relative flex flex-col md:flex-row overflow-hidden px-4 md:px-0">
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* FIXED HEADER: prompt */}
-                    <div className="w-full py-1 text-black/30 select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
-                        prompt
+                    {/* FIXED HEADER: prompt + version picker */}
+                    <div className="w-full py-1 text-black/30 select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-start">
+                        <span className="indent-[1.8em]">prompt</span>
+                        {activeMat && activeMat.versions.length > 1 && (
+                            <div className="flex items-start ml-6 gap-2 h-full">
+                                <span className="opacity-100 tracking-[0.05em] inline-block pt-[0.05em]">
+                                    v_{String(activeVersionIndex + 1).padStart(2, '0')}
+                                </span>
+                                <div className="flex flex-col ml-1 pt-[0.25em]">
+                                    <button 
+                                        onClick={() => {
+                                            if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
+                                        }}
+                                        className={`opacity-60 hover:opacity-100 hover:-translate-y-[1px] transition-all ${activeVersionIndex === 0 ? 'pointer-events-none opacity-10' : ''}`}
+                                        aria-label="previous version"
+                                    >
+                                        <ChevronUp />
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            if (activeMat && activeVersionIndex < activeMat.versions.length - 1) {
+                                                setActiveVersionIndex(activeVersionIndex + 1);
+                                            }
+                                        }}
+                                        className={`opacity-60 hover:opacity-100 hover:translate-y-[1px] transition-all -mt-1 ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-10' : ''}`}
+                                        aria-label="next version"
+                                    >
+                                        <ChevronDown />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 w-full relative overflow-hidden">
@@ -318,35 +296,7 @@ export default function Home() {
                     </div>
                 </div>
 
-                {/* Desktop Slider Space */}
-                {activeMat && activeMat.versions.length > 1 && (
-                    <div className="hidden md:flex flex-col justify-start items-center w-32 bg-white z-10 shrink-0 pt-2 lg:pt-8">
-                         <div className="relative w-full h-[30%] flex flex-col items-center">
-                            <VersionControls 
-                                versions={activeMat.versions} 
-                                activeIndex={activeVersionIndex} 
-                                onChange={setActiveVersionIndex} 
-                                className="w-full h-[40%]"
-                                vertical={true}
-                            />
-                         </div>
-                    </div>
-                )}
 
-                {/* Mobile Slider / Overlay */}
-                {activeMat && activeMat.versions.length > 1 && (
-                    <div className="md:hidden">
-                        <div className="absolute bottom-0 left-[10%] right-[10%] z-20">
-                            <VersionControls 
-                                versions={activeMat.versions} 
-                                activeIndex={activeVersionIndex} 
-                                onChange={setActiveVersionIndex} 
-                                className="w-full" 
-                                vertical={false}
-                            />
-                        </div>
-                    </div>
-                )}
             </div>
         </main>
     );
