@@ -1,26 +1,31 @@
-export const materials = [
+import { Material } from "../app/page";
+
+export const materials: Material[] = [
     {
         title: "01 brushed steel",
         versions: [
-            { id: "v1", url: "/steel/1", prompt: "\"줄눈이 있는 스테인리스 재질 적용. 색상은 무채색 계열로 제한. 과도한 청색 제거. 특정 반사 영역만 강한 백색 하이라이트로 표현.\"\n\nx축 1.0, y축 800.0 비율의 수평 고주파 노이즈로 텍스처를 조정하고, 루미넌스(luminance) 변환 및 국소적 스팟라이트 마스킹으로 극대비 반사 구현." },
-            { id: "v2", url: "/steel/2", prompt: "\"세로 방향 반사 완화. 실린더 형태 왜곡 반사 적용. 곡면 기반 환경 반사 강조.\"\n\n스팟 마스크 제약을 해제하여 전면 실린더 곡률에 따른 환경 맵 풀 렌더링 유지 및 블러(blur) 감쇠 효과 추가." },
+            { id: "v1", url: "/steel/1", prompt: "\"줄눈이 있는 스테인리스 스틸로 줘. 금속이 너무 파래, 무채색 계열이었으면 좋겠고. 특정 빛 반사 물체만 아주 하얗게 비치게 끔.\"\n\nx축 1.0, y축 800.0 비율의 수평 고주파 노이즈로 텍스처를 조정하고, 루미넌스(luminance) 변환 및 국소적 스팟라이트 마스킹으로 극대비 반사 구현." },
+            { id: "v2", url: "/steel/2", prompt: "\"너무 세로 빛만 살지 않고, 둥근 실린더 형태의 컵에 비친 왜곡된 모습이 빛과 함께 표시되었으면 좋겠어.\"\n\n스팟 마스크 제약을 해제하여 전면 실린더 곡률에 따른 환경 맵 풀 렌더링 유지 및 블러(blur) 감쇠 효과 추가." },
+            { id: "v3", url: "/curved-metal/1", prompt: "\"브러시드 스테인리스 스틸(brushed stainless steel)의 기본 방향성 하이라이트를 구현해봐.\"\n\nuv 좌표계에 고주파 노이즈를 입혀 단일 스펙큘러 로브를 통한 선형 반사율을 구현." },
+            { id: "v4", url: "/curved-metal/2", prompt: "\"조금 더 파도 같은 굴곡과 거칠고 높은 대비 형태의 질감으로 개선해.\"\n\n프랙탈 브라운 운동(fbm) 노이즈와 이중 스펙큘러를 합성하여 고대비 메탈릭 단면 도출." },
+            { id: "v5", url: "/curved-metal/3", prompt: "\"카메라를 활용해서, 가장자리가 둥근 스테인리스 컵에 주변 환경 색이 비치는 걸 표현하고 싶어.\"\n\n평면 스크린 xy좌표를 원기둥(cylinder) 노멀 지오메트리로 역산하고 webrtc 비디오 텍스처를 웹캠 반사 벡터로 매핑." },
         ],
     },
     {
         title: "02 scattered puddle",
         versions: [
-            { id: "v1", url: "/water/1", prompt: "\"기본적인 water ripple 인터랙션 구현.\"\n\n2d 평면상 마우스 클릭 좌표와 시간 동기화 기반 둔감형 감쇠 삼각함수(sin)를 노멀에 맵핑." },
-            { id: "v2", url: "/water/2", prompt: "\"강한 조명 조건 적용. 높은 대비의 거친 반사율 설정.\"\n\n스무스스텝(smoothstep) 임계치를 높이고 fbm 텍스처를 곱해 높은 스펙큘러 글린트를 유도." },
-            { id: "v3", url: "/water/3", prompt: "\"외곽 링 형태 제거. 저주파 기반 확산 구조로 변경.\"\n\n거리-시간 기반 감쇠 함수 적용 및 저주파수 노이즈 블렌딩 추가." },
-            { id: "v4", url: "/water", prompt: "\"모바일 스케일 문제 보정. 파동 후반부 자연스럽게 처리.\"\n\n단말기 aspect ratio 좌표 보정 및 smoothstep을 활용한 파동 소멸 구간(timeFade) 페이드아웃 적용." },
-            { id: "v5", url: "/water/5", prompt: "\"기본 배경을 화이트로 유지. 파동 영역에 한해 옅은 회색 음영 적용.\"\n\n완전한 형태의 화이트 캔버스(White Backgrond) 베이스로 쉐이더를 다시 짜고, 빛의 반사각(Normals)이 크게 틀어지는 파동(Wave) 부분에 한해 은은한 회색 그림자(Gray Shadow)와 흰색 스펙큘러로 깔끔하게 떨어지는 미니멀한 반사 효과를 부여." },
-            { id: "v6", url: "/water/6", prompt: "\"파동 색감을 전체적으로 약화. 완전 무채색 처리.\"\n\n파동이 일 때 생기는 빛 반사 그림자의 강도(Intensity)와 대비(Contrast)를 대폭 줄이고, 블루/그레이 톤이 섞여 있던 기존 음영에서 채도를 완벽하게 0으로 제거하여 매우 옅고 깨끗한 퓨어 모노톤 아키텍처(Pure Achromatic) 음영으로 다듬음." },
+            { id: "v1", url: "/water/1", prompt: "\"가장 기본적인 water ripple surface 상호작용 형태를 구현해.\"\n\n2d 평면상 마우스 클릭 좌표와 시간 동기화 기반 둔감형 감쇠 삼각함수(sin)를 노멀에 맵핑." },
+            { id: "v2", url: "/water/2", prompt: "\"하쉬한 조명과 매우 거칠고 대비가 센 반사율이 필요해.\"\n\n스무스스텝(smoothstep) 임계치를 높이고 fbm 텍스처를 곱해 높은 스펙큘러 글린트를 유도." },
+            { id: "v3", url: "/water/3", prompt: "\"링이 튀는 외곽 형태를 없애고 주파수를 낮춰서 유기적으로 확산되도록.\"\n\n거리-시간 기반 감쇠 함수 적용 및 저주파수 노이즈 블렌딩 추가." },
+            { id: "v4", url: "/water", prompt: "\"모바일 환경에서 너무 크게 보이는 문제를 해결하고, 파동의 끝이 어색하지 않게 잔잔하게 사라지게끔 수정.\"\n\n단말기 aspect ratio 좌표 보정 및 smoothstep을 활용한 파동 소멸 구간(timeFade) 페이드아웃 적용." },
+            { id: "v5", url: "/water/5", prompt: "\"scattered puddle은 평소에 배경이 하얀색이다가, 물결 치는 부분이 조금 회색으로 바뀌는 걸로 수정되어야할 것 같아.\"\n\n완전한 형태의 화이트 캔버스(White Backgrond) 베이스로 쉐이더를 다시 짜고, 빛의 반사각(Normals)이 크게 틀어지는 파동(Wave) 부분에 한해 은은한 회색 그림자(Gray Shadow)와 흰색 스펙큘러로 깔끔하게 떨어지는 미니멀한 반사 효과를 부여." },
+            { id: "v6", url: "/water/6", prompt: "\"scattered puddle 퍼져나갈 때 파동의 색감이 조금 더 옅었으면 좋겠고, 그리고 무채색으로 해서 채도를 0으로.\"\n\n파동이 일 때 생기는 빛 반사 그림자의 강도(Intensity)와 대비(Contrast)를 대폭 줄이고, 블루/그레이 톤이 섞여 있던 기존 음영에서 채도를 완벽하게 0으로 제거하여 매우 옅고 깨끗한 퓨어 모노톤 아키텍처(Pure Achromatic) 음영으로 다듬음." },
         ],
     },
     {
         title: "03 rgb drops",
         versions: [
-            { id: "v1", url: "/rgb/1", prompt: "\"화이트 배경 위 물방울 렌즈 효과 적용. RGB 확대 굴절 표현. 드래그 기반 인터랙션 구현.\"\n\n임시 캔버스(Canvas API)를 활용하여 마우스 궤적에 따라 물방울(반경과 그라데이션)을 텍스처로 그리고, 단편 쉐이더(Fragment Shader)에서 이 높이 맵(Height map)의 편미분을 통해 물방울의 노멀과 피사계 심도를 계산하여 하단에 깔린 LCD 서브픽셀 패턴(RGB Strip)을 굴절 및 확대(Magnification)시킴." },
+            { id: "v1", url: "/rgb/1", prompt: "\"흰색 배경 위 물방울 렌즈 효과 적용. RGB 확대 굴절 표현. 드래그 기반 인터랙션 구현.\"\n\n임시 캔버스(Canvas API)를 활용하여 마우스 궤적에 따라 물방울(반경과 그라데이션)을 텍스처로 그리고, 단편 쉐이더(Fragment Shader)에서 이 높이 맵(Height map)의 편미분을 통해 물방울의 노멀과 피사계 심도를 계산하여 하단에 깔린 LCD 서브픽셀 패턴(RGB Strip)을 굴절 및 확대(Magnification)시킴." },
             { id: "v2", url: "/rgb/2", prompt: "\"노이즈 제거. 모래 질감 제거. 매끄러운 투명 물방울 형태로 수정.\"\n\n캔버스 텍스처에서 발생하던 노이즈(모래알 현상)를 없애기 위해 수학적으로 완벽한 형태의 3D 반구(Hemisphere) 방정식을 사용해 표면 장력을 모사하고 투명하고 매끄러운 굴절을 구현. RGB 서브픽셀 또한 Sine 파형으로 대체해 안티에일리어싱(Anti-aliasing) 처리 완료." },
             { id: "v3", url: "/rgb/3", prompt: "\"gooey 결합 효과 적용. 물방울 개수 제한 제거. 증발 유지.\"\n\n임시 캔버스(FBO)를 다시 도입하여 무제한 갯수의 물방울 생성을 지원하고, 캔버스의 Additive Blending(lighter)과 쉐이더의 smoothstep을 결합해 가까이 있는 물방울끼리 스르륵 합쳐지는 메타볼(Gooey) 표면 장력 효과를 구현." },
             { id: "v4", url: "/rgb/4", prompt: "\"RGB 표현을 가장자리 중심으로 제한. 작은 물방울은 전체 적용. 압력 기반 크기 변화 추가.\"\n\n물방울의 곡률(Slope, 편미분 벡터의 길이)을 계산하여 곡률이 가파른 가장자리나 작은 물방울에서만 RGB가 굴절되게 보이도록 visibility를 조절. 사용자가 마우스를 누르고 있는 시간(Pressure / Hold Time)을 추적해 requestAnimationFrame 내에서 브러시 크기를 키워 거대한 물방울 웅덩이가 만들어지도록 인터랙션 고도화." },
@@ -49,9 +54,20 @@ export const materials = [
         ],
     },
     {
+        title: "05 glass brick",
+        versions: [
+            { id: "v1", url: "/glass-brick/1", prompt: "\"웹캠 화면 위에 투명한 사각 유리 블록들이 쌓여있는 효과. 마우스를 올리면 블록이 볼록렌즈처럼 왜곡되고, 꾹 누르면 오목하게 눌리는 느낌을 줘.\"\n\n웹캠 스트림 비디오 텍스처를 15겹의 모자이크 타일로 분할(Segmentation)한 뒤, 타일별로 무작위 오프셋(Refraction), 색수차(CA), 다중 탭 방식의 흐림 효과(Blur)를 주어 유리 블록을 모사한 쉐이더. 호버/클릭 시 물리적으로 타일이 확대(Zoom)/축소되며 빛의 굴절이 즉각적으로 변하는 상호작용 구현." },
+            { id: "v2", url: "/glass-brick/2", prompt: "\"유리 블록의 굴절을 더 강하게 하고, 타일 사이의 경계선을 더 명확하게 표현해줘.\"\n\n타일 경계면에 미세한 노멀 오프셋을 추가하여 빛이 더 복잡하게 굴절되도록 하고, 가장자리 어두운 음영(Groove) 색상을 강조하여 그리드 패턴의 가독성을 향상." },
+            { id: "v3", url: "/glass-brick/3", prompt: "\"전체적인 색감을 차갑고 투명하게 조정하고, 웹캠 화면이 유리 블록의 질감에 더 어우러지게끔 블렌딩해줘.\"\n\n블루 톤의 틴트(Tint)를 추가하고 루미넌스 기반의 마스킹을 통해 밝은 영역의 투명도를 높여 청량하고 투명한 유리 질감 완성." },
+        ],
+    },
+    {
         title: "06 cd iridescence",
         versions: [
-            { id: "v4", url: "/cd/4", prompt: "\"중앙 및 외곽 그림자 적용. 반응형 크기 조정. 모바일 자이로 인터랙션 추가.\"\n\nCD의 중앙 홀(Hole)과 외곽 테두리에 각각 독립적인 이중 그림자(Dual Shadow) 시스템을 적용하여 디테일을 살렸습니다. `viewport.width`에 대응하는 반응형 스케일 로직을 통해 어떤 기기에서도 최적의 크기로 노출되며, 모바일 환경에서는 DeviceOrientation API 권한 획득 오버레이를 통해 실제 기기의 물리적 기울임과 1:1 동기화되는 실감 나는 물성 상호작용을 구현했습니다." },
+            { id: "v1", url: "/cd/1", prompt: "\"Create an interactive web-based visual that simulates CD-like iridescence using light diffraction and interference. Use surface normal + view/light direction to compute angle and map to wavelength RGB.\"\n\n광학적 회절 간섭(Diffraction Interference) 이론 기반의 이방성 쉐이더(Anisotropic Shader)로 CD 뒷면의 무지갯빛 반사광을 시뮬레이션." },
+            { id: "v2", url: "/cd/2", prompt: "\"The CD must have visible thickness (not a flat plane). Model it as a thin cylinder (disc with depth). Maintain correct aspect ratio regardless of screen size.\"\n\nThree.js의 `ExtrudeGeometry`를 활용해 실제 CD와 동일하게 구멍이 뚫린 입체 원판(Solid Disc)을 물리적으로 압출하여 모델링." },
+            { id: "v3", url: "/cd/3", prompt: "\"CD 크기를 조금 줄여주고, 좌우로도 움직였을 때 기울어지고 색 바뀌는 인터랙션 추가 + 배경흰색으로 변경, 그대신 CD 그림자 추가.\"\n\nCD의 전체적인 스케일을 콤팩트하게 조정하고, 마우스/자이로 X축 입력에 따른 Y축 회전 관성을 추가하여 좌우 기울기에서도 다이내믹한 무지갯빛 변화를 유도." },
+            { id: "v4", url: "/cd/4", prompt: "\"속에 있는 원에도 그림자 주고, 가장자리 원도 그림자 적용, 그리고 화면 가로 크기에 따라 반응형으로 크기 변하도록.\"\n\nCD의 중앙 홀(Hole)과 외곽 테두리에 각각 독립적인 이중 그림자(Dual Shadow) 시스템을 적용하고 반응형 스케일 로직을 구현." },
         ],
     },
     {
@@ -82,4 +98,4 @@ export const materials = [
             { id: "v1", url: "/frosted-glassmorphism/1", prompt: "\"반투명 유리 질감 적용. glassmorphism 스타일 인터랙션 구현.\"\n\nfloat blurRadius = smoothstep(0.1, 0.4, dist) * 3.5;\ncolor = blur(u_videoTexture, uv, 1.0 + blurRadius);" },
         ],
     },
-];
+]; 
