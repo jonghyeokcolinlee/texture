@@ -18,13 +18,13 @@ const renderMixedText = (text: string) => {
 };
 
 const TriangleUp = ({ className }: { className?: string }) => (
-    <svg width="12" height="10" viewBox="0 0 24 20" fill="currentColor" className={className}>
+    <svg width="9" height="7" viewBox="0 0 24 20" fill="currentColor" className={className}>
         <path d="M12 0l12 20h-24z" />
     </svg>
 );
 
 const TriangleDown = ({ className }: { className?: string }) => (
-    <svg width="12" height="10" viewBox="0 0 24 20" fill="currentColor" className={className}>
+    <svg width="9" height="7" viewBox="0 0 24 20" fill="currentColor" className={className}>
         <path d="M12 20l12-20h-24z" />
     </svg>
 );
@@ -229,7 +229,7 @@ export default function Home() {
                     <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
                         <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="inline-flex items-center ml-2 border-[3px] border-black rounded-[7px] px-1.5 py-0 gap-1 translate-y-[0.02em]">
+                            <div className="inline-flex items-center ml-2 bg-[#f2f2f2] rounded-[4px] px-1.5 py-[0.1em] gap-0.5 translate-y-[0.02em]">
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
@@ -239,7 +239,7 @@ export default function Home() {
                                 >
                                     <TriangleDown />
                                 </button>
-                                <span className="text-black text-[0.85em] lg:text-[0.82em] tracking-tight min-w-[1.2em] text-center select-none leading-none">v{activeVersionIndex + 1}</span>
+                                <span className="text-black text-[0.75em] lg:text-[0.72em] tracking-tight min-w-[1.2em] text-center select-none leading-none">v{activeVersionIndex + 1}</span>
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex < activeMat.versions.length - 1) {
