@@ -229,24 +229,26 @@ export default function Home() {
                     <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
                         <span className="indent-[1.8em]">prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
-                            <div className="inline-flex items-center ml-3 bg-[#f2f2f2] rounded-[5px] px-2 py-1 gap-1 translate-y-[0.02em]">
+                            <div className="inline-flex items-center ml-2 gap-0.5">
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
                                     }}
-                                    className={`flex items-center justify-center transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30' : 'opacity-100 hover:opacity-60'}`}
+                                    className={`flex items-center justify-center bg-[#f2f2f2] rounded-[4px] w-8 h-8 lg:w-10 lg:h-10 transition-opacity ${activeVersionIndex === 0 ? 'pointer-events-none opacity-30 px-2' : 'opacity-100 hover:opacity-60 px-2'}`}
                                     aria-label="older version"
                                 >
                                     <TriangleDown />
                                 </button>
-                                <span className="text-black text-[0.85em] lg:text-[0.82em] tracking-tight min-w-[1.2em] text-center select-none leading-none mx-0.5">v{activeVersionIndex + 1}</span>
+                                <div className="flex items-center justify-center bg-[#f2f2f2] rounded-[4px] h-8 lg:h-10 px-2.5">
+                                    <span className="text-black text-[0.85em] lg:text-[0.82em] tracking-tight text-center select-none leading-none">v{activeVersionIndex + 1}</span>
+                                </div>
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex < activeMat.versions.length - 1) {
                                             setActiveVersionIndex(activeVersionIndex + 1);
                                         }
                                     }}
-                                    className={`flex items-center justify-center transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30' : 'opacity-100 hover:opacity-60'}`}
+                                    className={`flex items-center justify-center bg-[#f2f2f2] rounded-[4px] w-8 h-8 lg:w-10 lg:h-10 transition-opacity ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none opacity-30 px-2' : 'opacity-100 hover:opacity-60 px-2'}`}
                                     aria-label="newer version"
                                 >
                                     <TriangleUp />
