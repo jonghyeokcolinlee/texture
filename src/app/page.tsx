@@ -18,14 +18,14 @@ const renderMixedText = (text: string) => {
 };
 
 const ChevronUp = ({ className }: { className?: string }) => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter" className={className}>
-        <polyline points="18 15 12 9 6 15" />
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M12 4l-10 16h20z" />
     </svg>
 );
 
 const ChevronDown = ({ className }: { className?: string }) => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square" strokeLinejoin="miter" className={className}>
-        <polyline points="6 9 12 15 18 9" />
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className={className}>
+        <path d="M12 20l10-16h-20z" />
     </svg>
 );
 
@@ -130,13 +130,13 @@ export default function Home() {
     useEffect(() => {
         if (wheelRef.current && itemRefs.current[0]) {
             const container = wheelRef.current;
-            container.scrollTop = 0; // Initialize to very top
+            container.scrollTop = 0;
         }
     }, []);
 
     const handleScroll = () => {
         if (!wheelRef.current) return;
-        if (window.innerWidth >= 768) return; // Disable scroll selection on PC
+        if (window.innerWidth >= 768) return;
         const container = wheelRef.current;
         const topOffset = container.scrollTop;
 
@@ -146,7 +146,6 @@ export default function Home() {
         materials.forEach((mat, i) => {
             const item = itemRefs.current[i];
             if (!item) return;
-            // Now calculate diff from the top instead of the center
             const itemTop = item.offsetTop;
             const diff = Math.abs(itemTop - topOffset);
             if (diff < minDiff) {
@@ -164,10 +163,8 @@ export default function Home() {
 
     return (
         <main className="h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40">
-            {/* 1. Left Pane: Navigation Wheel (Mobile / Desktop) */}
             <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
-                {/* Fixed Title: textures */}
-                <div className="w-full py-1 text-black/30 select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
+                <div className="w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
                     textures
                 </div>
 
