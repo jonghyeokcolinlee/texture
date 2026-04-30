@@ -38,92 +38,23 @@ export default function Home() {
     const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
     const [previewMaterialTitle, setPreviewMaterialTitle] = useState<string | null>(null);
     const [activeVersionIndex, setActiveVersionIndex] = useState<number>(materials[0].versions.length - 1);
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [isRestoring, setIsRestoring] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
     const wheelRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-    // Save state to sessionStorage & history
     useEffect(() => {
-        if (!isInitialized) return;
-        const state = {
-            title: activeMaterialTitle,
-            version: activeVersionIndex,
-        };
-        sessionStorage.setItem('texture_archive_state', JSON.stringify(state));
-        window.history.replaceState(state, "");
-    }, [activeMaterialTitle, activeVersionIndex, isInitialized]);
-
-    // Restore state from sessionStorage or history.state
-    useEffect(() => {
-        const savedStateString = sessionStorage.getItem('texture_archive_state');
-        const hState = window.history.state;
-        const savedScroll = sessionStorage.getItem('texture_archive_scroll');
-        
-        let savedState = hState && hState.title ? hState : null;
-        if (!savedState && savedStateString) {
-            try { savedState = JSON.parse(savedStateString); } catch (e) {}
-        }
-
-        if (savedState) {
-            setIsRestoring(true);
-            try {
-                const { title, version } = savedState;
-                if (materials.some(m => m.title === title)) {
-                    setActiveMaterialTitle(title);
-                    const mat = materials.find(m => m.title === title);
-                    if (mat && version < mat.versions.length) {
-                        setActiveVersionIndex(version);
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to parse saved state", e);
-            }
-        }
-
-        // Handle scroll restoration and initialization cleanup
-        if (savedScroll && wheelRef.current) {
-            const scrollTop = parseInt(savedScroll, 10);
-            if (!isNaN(scrollTop)) {
-                requestAnimationFrame(() => {
-                    if (wheelRef.current) {
-                        wheelRef.current.scrollTop = scrollTop;
-                        setTimeout(() => {
-                            setIsRestoring(false);
-                            setIsInitialized(true);
-                        }, 100);
-                    } else {
-                        setIsRestoring(false);
-                        setIsInitialized(true);
-                    }
-                });
-            } else {
-                setIsRestoring(false);
-                setIsInitialized(true);
-            }
-        } else {
-            setIsRestoring(false);
-            setIsInitialized(true);
+        setIsMounted(true);
+        if (wheelRef.current) {
+            wheelRef.current.scrollTop = 0;
         }
     }, []);
-
     const displayMaterialTitle = previewMaterialTitle || activeMaterialTitle;
     const activeMat = materials.find(m => m.title === displayMaterialTitle) || materials[0];
     const activeVersion = activeMat.versions[activeVersionIndex] || activeMat.versions[0];
 
-    // (Removed redundant scroll reset to prevent conflict with restoration)
-
     const handleScroll = (e?: React.UIEvent<HTMLDivElement>) => {
-        // 0. Suppress logic during restoration to prevent state resets
-        if (isRestoring) return;
-
-        // 1. Persistence
-        if (isInitialized && wheelRef.current) {
-            sessionStorage.setItem('texture_archive_scroll', wheelRef.current.scrollTop.toString());
-        }
-
-        // 2. Mobile Detection
+        // Mobile Detection
         if (!wheelRef.current || window.innerWidth >= 768) return;
         const container = wheelRef.current;
         const topOffset = container.scrollTop;
@@ -151,7 +82,7 @@ export default function Home() {
     };
 
     return (
-        <main className="h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40">
+        <main className={`h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40 transition-opacity duration-700 ease-in-out ${isMounted ? 'opacity-100' : 'opacity-0'}`}>
             <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
                 <div className="flex items-center w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium">
                     <span className="w-[1.8em] shrink-0"></span>

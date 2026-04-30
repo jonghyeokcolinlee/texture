@@ -6,9 +6,6 @@ export const materials: Material[] = [
         versions: [
             { id: "v1", url: "/steel/1", prompt: "\"줄눈이 있는 스테인리스 스틸로 줘. 금속이 너무 파래, 무채색 계열이었으면 좋겠고. 특정 빛 반사 물체만 아주 하얗게 비치게 끔.\"\n\nx축 1.0, y축 800.0 비율의 수평 고주파 노이즈로 텍스처를 조정하고, 루미넌스(luminance) 변환 및 국소적 스팟라이트 마스킹으로 극대비 반사 구현." },
             { id: "v2", url: "/steel/2", prompt: "\"너무 세로 빛만 살지 않고, 둥근 실린더 형태의 컵에 비친 왜곡된 모습이 빛과 함께 표시되었으면 좋겠어.\"\n\n스팟 마스크 제약을 해제하여 전면 실린더 곡률에 따른 환경 맵 풀 렌더링 유지 및 블러(blur) 감쇠 효과 추가." },
-            { id: "v3", url: "/curved-metal/1", prompt: "\"브러시드 스테인리스 스틸(brushed stainless steel)의 기본 방향성 하이라이트를 구현해봐.\"\n\nuv 좌표계에 고주파 노이즈를 입혀 단일 스펙큘러 로브를 통한 선형 반사율을 구현." },
-            { id: "v4", url: "/curved-metal/2", prompt: "\"조금 더 파도 같은 굴곡과 거칠고 높은 대비 형태의 질감으로 개선해.\"\n\n프랙탈 브라운 운동(fbm) 노이즈와 이중 스펙큘러를 합성하여 고대비 메탈릭 단면 도출." },
-            { id: "v5", url: "/curved-metal/3", prompt: "\"카메라를 활용해서, 가장자리가 둥근 스테인리스 컵에 주변 환경 색이 비치는 걸 표현하고 싶어.\"\n\n평면 스크린 xy좌표를 원기둥(cylinder) 노멀 지오메트리로 역산하고 webrtc 비디오 텍스처를 웹캠 반사 벡터로 매핑." },
         ],
     },
     {
@@ -54,15 +51,23 @@ export const materials: Material[] = [
         ],
     },
     {
-        title: "05 glass brick",
+        title: "05 curved reflective metal",
         versions: [
-            { id: "v1", url: "/glass-brick/1", prompt: "\"웹캠 화면 위에 투명한 사각 유리 블록들이 쌓여있는 효과. 마우스를 올리면 블록이 볼록렌즈처럼 왜곡되고, 꾹 누르면 오목하게 눌리는 느낌을 줘.\"\n\n웹캠 스트림 비디오 텍스처를 15겹의 모자이크 타일로 분할(Segmentation)한 뒤, 타일별로 무작위 오프셋(Refraction), 색수차(CA), 다중 탭 방식의 흐림 효과(Blur)를 주어 유리 블록을 모사한 쉐이더. 호버/클릭 시 물리적으로 타일이 확대(Zoom)/축소되며 빛의 굴절이 즉각적으로 변하는 상호작용 구현." },
-            { id: "v2", url: "/glass-brick/2", prompt: "\"유리 블록의 굴절을 더 강하게 하고, 타일 사이의 경계선을 더 명확하게 표현해줘.\"\n\n타일 경계면에 미세한 노멀 오프셋을 추가하여 빛이 더 복잡하게 굴절되도록 하고, 가장자리 어두운 음영(Groove) 색상을 강조하여 그리드 패턴의 가독성을 향상." },
-            { id: "v3", url: "/glass-brick/3", prompt: "\"전체적인 색감을 차갑고 투명하게 조정하고, 웹캠 화면이 유리 블록의 질감에 더 어우러지게끔 블렌딩해줘.\"\n\n블루 톤의 틴트(Tint)를 추가하고 루미넌스 기반의 마스킹을 통해 밝은 영역의 투명도를 높여 청량하고 투명한 유리 질감 완성." },
+            { id: "v1", url: "/curved-metal/1", prompt: "\"브러시드 스테인리스 스틸(brushed stainless steel)의 기본 방향성 하이라이트를 구현해봐.\"\n\nuv 좌표계에 고주파 노이즈를 입혀 단일 스펙큘러 로브를 통한 선형 반사율을 구현." },
+            { id: "v2", url: "/curved-metal/2", prompt: "\"조금 더 파도 같은 굴곡과 거칠고 높은 대비 형태의 질감으로 개선해.\"\n\n프랙탈 브라운 운동(fbm) 노이즈와 이중 스펙큘러를 합성하여 고대비 메탈릭 단면 도출." },
+            { id: "v3", url: "/curved-metal/3", prompt: "\"카메라를 활용해서, 가장자리가 둥근 스테인리스 컵에 주변 환경 색이 비치는 걸 표현하고 싶어.\"\n\n평면 스크린 xy좌표를 원기둥(cylinder) 노멀 지오메트리로 역산하고 webrtc 비디오 텍스처를 웹캠 반사 벡터로 매핑." },
         ],
     },
     {
-        title: "06 cd iridescence",
+        title: "06 glass brick",
+        versions: [
+            { id: "v1", url: "/glass-brick/1", prompt: "\"웹캠 화면 위에 투명한 사각 유리 블록들이 쌓여있는 효과. 마우스를 올리면 블록이 볼록렌즈처럼 왜곡되고, 꾹 누르면 오목하게 눌리는 느낌을 줘.\"\n\n웹캠 스트림 비디오 텍스처를 15겹의 모자이크 타일로 분할(Segmentation)한 뒤, 타일별로 무작위 오프셋(Refraction), 색수차(CA), 다중 탭 방식의 흐림 효과(Blur)를 주어 유리 블록을 모사한 쉐이더. 호버/클릭 시 물리적으로 타일이 확대(Zoom)/축소되며 빛의 굴절이 즉각적으로 변하는 상호작용 구현." },
+            { id: "v2", url: "/glass-brick/2", prompt: "\"유리 블록의 굴절을 더 강하게 하고, 타일 사이 경계선을 명확하게 표현해줘.\"\n\n타일 경계면에 미세한 노멀 오프셋을 추가하여 빛이 복잡하게 굴절되도록 하고, 가장자리 어두운 음영을 강조하여 그리드 패턴의 가독성을 향상." },
+            { id: "v3", url: "/glass-brick/3", prompt: "\"색감을 차갑고 투명하게 조정하고, 웹캠 화면이 유리 질감에 어우러지게 블렌딩.\"\n\n블루 톤 틴트를 추가하고 루미넌스 기반 마스킹을 통해 밝은 영역의 투명도를 높여 청량하고 투명한 유리 질감 완성." },
+        ],
+    },
+    {
+        title: "07 cd iridescence",
         versions: [
             { id: "v1", url: "/cd/1", prompt: "\"Create an interactive web-based visual that simulates CD-like iridescence using light diffraction and interference. Use surface normal + view/light direction to compute angle and map to wavelength RGB.\"\n\n광학적 회절 간섭(Diffraction Interference) 이론 기반의 이방성 쉐이더(Anisotropic Shader)로 CD 뒷면의 무지갯빛 반사광을 시뮬레이션." },
             { id: "v2", url: "/cd/2", prompt: "\"The CD must have visible thickness (not a flat plane). Model it as a thin cylinder (disc with depth). Maintain correct aspect ratio regardless of screen size.\"\n\nThree.js의 `ExtrudeGeometry`를 활용해 실제 CD와 동일하게 구멍이 뚫린 입체 원판(Solid Disc)을 물리적으로 압출하여 모델링." },
@@ -71,7 +76,7 @@ export const materials: Material[] = [
         ],
     },
     {
-        title: "07 shattered glass",
+        title: "08 shattered glass",
         versions: [
             { id: "v1", url: "/shattered/1", prompt: "\"깨진 유리 레이어 구성. 다중 시점 반사 인터랙션 적용.\"\n\nfloat shardID = hash(cid);\nvec2 cubistUv = (vUv - 0.5) * shardZoom + shift * (shardID * 2.0 - 1.0);" },
             { id: "v2", url: "/shattered/2", prompt: "\"중앙 집중형 거울 파편 구성. 각도별 반사 차이 강조.\"\n\nfloat mask = smoothstep(0.5, 0.2, length(centeredP));\nif (shardID > mask * 1.5) discard;" },
@@ -79,21 +84,21 @@ export const materials: Material[] = [
         ],
     },
     {
-        title: "08 soap bubbles",
+        title: "09 soap bubbles",
         versions: [
             { id: "v1", url: "/bubbles/1", prompt: "\"마우스 기반 생성형 비눗방울 인터랙션 구현.\"\n\nconst iris = iridescence(dot(vNormal, vViewDir) * thickness);" },
             { id: "v2", url: "/bubbles/2", prompt: "\"레퍼런스 기반 드림형 비눗방울 질감 적용.\"\n\nvec3 highlights = vec3(1.0) * (spec1 * 1.2 + spec2 * 0.4);\nfloat wobble = sin(position.x * 4.0 + u_time * 2.0);" },
         ],
     },
     {
-        title: "09 white vinyl",
+        title: "10 white vinyl",
         versions: [
             { id: "v1", url: "/vinyl/1", prompt: "\"흰색 비닐 질감 구현. 바스락거림 표현.\"\n\nfolds = pow(1.0 - folds, 3.0);\ninteractScale.current += (speed * 5.0 - interactScale.current) * 0.1;" },
             { id: "v2", url: "/vinyl/2", prompt: "\"인터랙션 기반 변형 추가. 실제 비닐 거동 반영.\"\n\nfloat grab = smoothstep(0.4, 0.0, distToMouse) * u_interact;\nvec2 displacedUv = uv + (uv - u_mouse) * grab * 0.15;" },
         ],
     },
     {
-        title: "10 frosted glassmorphism",
+        title: "11 frosted glassmorphism",
         versions: [
             { id: "v1", url: "/frosted-glassmorphism/1", prompt: "\"반투명 유리 질감 적용. glassmorphism 스타일 인터랙션 구현.\"\n\nfloat blurRadius = smoothstep(0.1, 0.4, dist) * 3.5;\ncolor = blur(u_videoTexture, uv, 1.0 + blurRadius);" },
         ],
