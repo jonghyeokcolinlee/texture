@@ -16,13 +16,16 @@ export const InteractionUI: React.FC<InteractionUIProps> = ({ title, isPlaying, 
     return (
         <div className="absolute top-0 left-0 w-full p-4 md:p-6 lg:p-10 z-50 pointer-events-none select-none">
             <div className="text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black flex flex-col">
-                <div className="w-full py-1 indent-[1.8em]">
-                    <Link 
-                        href="/" 
-                        className="pointer-events-auto hover:opacity-30 transition-opacity"
-                    >
-                        home
-                    </Link>
+                <div className="flex items-start w-full py-1">
+                    <span className="w-[1.8em] shrink-0 text-left"></span>
+                    <span className="flex-1 text-left lowercase">
+                        <Link 
+                            href="/" 
+                            className="pointer-events-auto hover:opacity-30 transition-opacity"
+                        >
+                            home
+                        </Link>
+                    </span>
                 </div>
                 <div className="flex items-start w-full py-1">
                     <span className="w-[1.8em] shrink-0 text-left">

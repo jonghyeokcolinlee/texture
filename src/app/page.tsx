@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { materials } from "@/data/materials";
 
 export type Material = {
@@ -10,6 +11,27 @@ export type Material = {
         prompt: string;
     }[];
 };
+
+const renderMixedText = (text: string) => {
+    return text.split(/([가-힣ㄱ-ㅎㅏ-ㅣ]+)/g).map((part, index) => {
+        if (/[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(part)) {
+            return <span key={index} className="font-semibold">{part}</span>;
+        }
+        return part;
+    });
+};
+
+const TriangleUp = ({ className }: { className?: string }) => (
+    <svg width="14" height="11" viewBox="0 0 24 20" fill="currentColor" className={className}>
+        <path d="M12 0l12 20h-24z" />
+    </svg>
+);
+
+const TriangleDown = ({ className }: { className?: string }) => (
+    <svg width="14" height="11" viewBox="0 0 24 20" fill="currentColor" className={className}>
+        <path d="M12 20l12-20h-24z" />
+    </svg>
+);
 
 export default function Home() {
 
@@ -131,8 +153,9 @@ export default function Home() {
     return (
         <main className="h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40">
             <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
-                <div className="w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] indent-[1.8em] font-medium">
-                    textures
+                <div className="flex items-center w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium">
+                    <span className="w-[1.8em] shrink-0"></span>
+                    <span>textures</span>
                 </div>
 
                 <div className="w-full flex-1 relative overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
@@ -193,8 +216,9 @@ export default function Home() {
             <div className="flex-none md:flex-1 h-[60vh] md:h-full bg-white relative flex flex-col md:flex-row overflow-hidden px-4 md:px-0">
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* FIXED HEADER: prompt + version picker */}
-                    <div className="w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium flex items-center">
-                        <span className="indent-[1.8em]">prompt </span>
+                    <div className="flex items-center w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium">
+                        <span className="w-[1.8em] shrink-0"></span>
+                        <span>prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
                             <div className="inline-flex items-center ml-2 gap-0.5 h-[1.1em]">
                                 <button 
