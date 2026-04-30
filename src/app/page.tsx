@@ -37,27 +37,85 @@ export default function Home() {
 
     const [activeMaterialTitle, setActiveMaterialTitle] = useState<string>(materials[0].title);
     const [previewMaterialTitle, setPreviewMaterialTitle] = useState<string | null>(null);
-    const [activeVersionIndex, setActiveVersionIndex] = useState<number>(materials[0].versions.length - 1);
+    const [versionMap, setVersionMap] = useState<Record<string, number>>({});
     const [isMounted, setIsMounted] = useState(false);
+    const [isRestoring, setIsRestoring] = useState(false);
 
     const wheelRef = useRef<HTMLDivElement>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     useEffect(() => {
         setIsMounted(true);
-        if (wheelRef.current) {
-            wheelRef.current.scrollTop = 0;
+        const savedStateString = sessionStorage.getItem('texture_archive_state');
+        if (savedStateString) {
+            try {
+                const savedState = JSON.parse(savedStateString);
+                if (savedState.title) setActiveMaterialTitle(savedState.title);
+                if (savedState.versionMap) setVersionMap(savedState.versionMap);
+                
+                if (savedState.scroll !== undefined && wheelRef.current) {
+                    setIsRestoring(true);
+                    requestAnimationFrame(() => {
+                        if (wheelRef.current) {
+                            wheelRef.current.scrollTop = savedState.scroll;
+                        }
+                        setTimeout(() => setIsRestoring(false), 100);
+                    });
+                }
+            } catch (e) {}
+        } else {
+            if (wheelRef.current) {
+                wheelRef.current.scrollTop = 0;
+            }
         }
     }, []);
+
     const displayMaterialTitle = previewMaterialTitle || activeMaterialTitle;
     const activeMat = materials.find(m => m.title === displayMaterialTitle) || materials[0];
+    const activeVersionIndex = versionMap[activeMat.title] ?? (activeMat.versions.length - 1);
     const activeVersion = activeMat.versions[activeVersionIndex] || activeMat.versions[0];
 
+    const updateVersion = (newIndex: number) => {
+        setVersionMap(prev => {
+            const nextMap = { ...prev, [activeMat.title]: newIndex };
+            if (isMounted) {
+                const state = {
+                    title: activeMaterialTitle,
+                    versionMap: nextMap,
+                    scroll: wheelRef.current ? wheelRef.current.scrollTop : 0
+                };
+                sessionStorage.setItem('texture_archive_state', JSON.stringify(state));
+            }
+            return nextMap;
+        });
+    };
+    
+    const updateTitle = (newTitle: string) => {
+        setActiveMaterialTitle(newTitle);
+        if (isMounted) {
+            const state = {
+                title: newTitle,
+                versionMap: versionMap,
+                scroll: wheelRef.current ? wheelRef.current.scrollTop : 0
+            };
+            sessionStorage.setItem('texture_archive_state', JSON.stringify(state));
+        }
+    }
+
     const handleScroll = (e?: React.UIEvent<HTMLDivElement>) => {
+        if (isRestoring || !wheelRef.current) return;
+        const topOffset = wheelRef.current.scrollTop;
+
+        if (isMounted) {
+            try {
+                const existing = JSON.parse(sessionStorage.getItem('texture_archive_state') || "{}");
+                existing.scroll = topOffset;
+                sessionStorage.setItem('texture_archive_state', JSON.stringify(existing));
+            } catch(e) {}
+        }
+        
         // Mobile Detection
-        if (!wheelRef.current || window.innerWidth >= 768) return;
-        const container = wheelRef.current;
-        const topOffset = container.scrollTop;
+        if (window.innerWidth >= 768) return;
 
         let closestIdx = 0;
         let minDiff = Infinity;
@@ -75,21 +133,21 @@ export default function Home() {
 
         const newActive = materials[closestIdx].title;
         if (newActive !== activeMaterialTitle) {
-            setActiveMaterialTitle(newActive);
-            // Only reset to latest if we are not in the middle of restoring or manual selection
-            setActiveVersionIndex(materials[closestIdx].versions.length - 1);
+            updateTitle(newActive);
+        }
+    };h - 1);
         }
     };
 
     return (
         <main className={`h-screen w-screen bg-white flex flex-col md:flex-row overflow-hidden lowercase md:p-6 lg:p-10 gap-0 md:gap-24 lg:gap-40 transition-opacity duration-700 ease-in-out ${isMounted ? 'opacity-100' : 'opacity-0'}`}>
             <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
-                <div className="flex items-center w-full py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium">
+                <div className="flex items-center w-full mt-4 md:mt-2 py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.1] font-medium">
                     <span className="w-[1.8em] shrink-0"></span>
                     <span>textures</span>
                 </div>
 
-                <div className="w-full flex-1 relative overflow-hidden text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
+                <div className="w-full flex-1 relative overflow-hidden text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
                     <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-30" />
 
                     {/* scrollable list (overflow: auto) */}
@@ -123,8 +181,7 @@ export default function Home() {
                                         onClick={() => {
                                             if (window.innerWidth >= 768) {
                                                 if (mat.title !== activeMaterialTitle) {
-                                                    setActiveMaterialTitle(mat.title);
-                                                    setActiveVersionIndex(mat.versions.length - 1);
+                                                    updateTitle(mat.title);
                                                 }
                                             }
                                         }}
@@ -147,14 +204,14 @@ export default function Home() {
             <div className="flex-none md:flex-1 h-[60vh] md:h-full bg-white relative flex flex-col md:flex-row overflow-hidden px-4 md:px-0">
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* FIXED HEADER: prompt + version picker */}
-                    <div className="flex items-center w-full py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.1] font-medium">
+                    <div className="flex items-center w-full mt-4 md:mt-2 py-1 text-black select-none flex-none bg-white z-40 text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.1] font-medium">
                         <span className="w-[1.8em] shrink-0"></span>
                         <span>prompt </span>
                         {activeMat && activeMat.versions.length > 1 && (
                             <div className="inline-flex items-center ml-2 gap-0.5 h-[1.1em]">
                                 <button 
                                     onClick={() => {
-                                        if (activeVersionIndex > 0) setActiveVersionIndex(activeVersionIndex - 1);
+                                        if (activeVersionIndex > 0) updateVersion(activeVersionIndex - 1);
                                     }}
                                     className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === 0 ? 'pointer-events-none bg-[#f9f9f9] text-black/10' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
                                     aria-label="older version"
@@ -167,7 +224,7 @@ export default function Home() {
                                 <button 
                                     onClick={() => {
                                         if (activeVersionIndex < activeMat.versions.length - 1) {
-                                            setActiveVersionIndex(activeVersionIndex + 1);
+                                            updateVersion(activeVersionIndex + 1);
                                         }
                                     }}
                                     className={`flex items-center justify-center rounded-[4px] w-8 lg:w-9 h-full transition-colors ${activeVersionIndex === activeMat.versions.length - 1 ? 'pointer-events-none bg-[#f9f9f9] text-black/10' : 'bg-[#f2f2f2] text-black hover:opacity-60'}`}
@@ -181,7 +238,7 @@ export default function Home() {
 
                     <div className="flex-1 w-full relative overflow-hidden">
                         <div className="h-full w-full overflow-y-auto no-scrollbar pb-0 flex flex-col">
-                            <div className="max-w-[800px] text-[20px] lg:text-[28px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-32 md:pb-40">
+                            <div className="max-w-[800px] text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.2] text-black font-medium w-full pb-32 md:pb-40">
                                 {activeMat && activeVersion ? (
                                     <div className="flex flex-col justify-start">
                                         <div className="flex flex-col gap-8 py-1">
@@ -194,7 +251,7 @@ export default function Home() {
                                         <div className="mt-12 indent-[1.8em]">
                                             <Link 
                                                 href={activeVersion.url} 
-                                                className="inline-flex items-center text-[20px] lg:text-[28px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-60 transition-opacity bg-[#f2f2f2] rounded-[4px] px-1.5 py-0.5 h-[1.2em] leading-none"
+                                                className="inline-flex items-center text-[20px] lg:text-[24px] tracking-[-0.03em] font-medium opacity-100 hover:opacity-60 transition-opacity bg-[#f2f2f2] rounded-[4px] px-1.5 py-0.5 h-[1.2em] leading-none"
                                             >
                                                 view interaction
                                             </Link>
