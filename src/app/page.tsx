@@ -135,8 +135,6 @@ export default function Home() {
         if (newActive !== activeMaterialTitle) {
             updateTitle(newActive);
         }
-    };h - 1);
-        }
     };
 
     return (
