@@ -116,8 +116,9 @@ export function raycastToPlane(
 
 // ===== 에너지 업데이트 =====
 export function updateRayColor(ray: Ray, reflectivity: number): void {
-  const currentBrightness = ray.color.getHSL({}).l;
-  const newBrightness = currentBrightness * reflectivity;
+  const hsl = { h: 0, s: 0, l: 0 };
+  ray.color.getHSL(hsl);
+  const newBrightness = hsl.l * reflectivity;
   ray.color.setHSL(0, 0, newBrightness);
 }
 
@@ -312,8 +313,9 @@ export function recordScreenHit(
   if (screenX < 0 || screenX >= width || screenY < 0 || screenY >= height)
     return;
 
-  const brightness = color.getHSL({}).l;
-  const value = Math.floor(brightness * 255);
+  const hsl = { h: 0, s: 0, l: 0 };
+  color.getHSL(hsl);
+  const value = Math.floor(hsl.l * 255);
 
   // ===== Gaussian blur를 위해 근처 픽셀도 함께 기록 =====
   const radius = 2;
