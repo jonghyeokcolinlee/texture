@@ -144,7 +144,10 @@ export default function Home() {
             <div className="flex-none md:w-[22%] h-[180px] md:h-full px-4 md:px-0 bg-white relative flex flex-col overflow-hidden">
                 <div className="flex items-center w-full mt-4 md:mt-2 py-1 text-black select-none flex-none bg-white z-30 text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.1] font-medium">
                     <span className="w-[1.8em] shrink-0"></span>
-                    <span>textures</span>
+                    <span className="flex-1">textures</span>
+                    <Link href="/simulator" className="text-[14px] hover:opacity-30 transition-opacity">
+                        simulator
+                    </Link>
                 </div>
 
                 <div className="w-full flex-1 relative overflow-hidden text-[20px] lg:text-[24px] tracking-[-0.03em] leading-[1.1] font-medium text-black">
